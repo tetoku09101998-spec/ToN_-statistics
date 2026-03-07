@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ToN 統計ビュアー Pro Max</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: #eee; text-align: center; margin: 0; padding: 20px; }
+        .controls { background: #333; padding: 20px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 20px; text-align: left; }
+        .control-group { margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .control-group:last-child { border-bottom: none; }
+        select, input { padding: 8px; font-size: 14px; margin-right: 10px; background: #444; color: #fff; border: 1px solid #555; border-radius: 4px; }
+        label { cursor: pointer; font-size: 14px; color: #ffeb3b; }
+        
+        /* サマリーとレーダーチャートを横並びにするレイアウト */
+        .dashboard-top { display: flex; justify-content: center; align-items: flex-start; flex-wrap: wrap; gap: 20px; width: 95%; max-width: 1200px; margin: 0 auto 20px auto; }
+        
+        #summaryBox { flex: 1; min-width: 300px; padding: 20px; background: #222; border-radius: 8px; border-left: 5px solid #4CAF50; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        #summaryBox p.main-stats { margin: 0 0 10px 0; font-size: 22px; font-weight: bold; color: #4CAF50; }
+        #summaryBox p.sub-stats { margin: 5px 0; font-size: 15px; color: #ccc; }
+        
+        #radarBox { width: 300px; height: 300px; background: #222; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+
+        /* ネメシス（詳細プロファイリング）ボックス */
+        #nemesisBox { display: none; background: #311b92; border-left: 5px solid #b388ff; padding: 15px 20px; border-radius: 8px; margin: 10px auto 20px auto; width: 95%; max-width: 1200px; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.5); animation: fadeIn 0.3s ease-in-out; }
+        #nemesisBox h3 { margin: 0 0 10px 0; color: #d1c4e9; font-size: 20px; }
+        .nemesis-detail { display: inline-block; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 4px; margin-right: 10px; margin-bottom: 5px; font-size: 14px; color: #fff; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .chart-container { width: 95%; max-width: 1200px; margin: 20px auto; position: relative; }
+        
+        #historyBox { margin: 20px auto; width: 95%; max-width: 1200px; max-height: 400px; overflow-y: auto; display: none; border: 1px solid #444; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #333; position: sticky; top: 0; z-index: 10; }
+        th, td { padding: 12px; border-bottom: 1px solid #444; font-size: 13px; }
+        tr:hover { background: #2a2a2a; }
+        .win-text { color: #4CAF50; font-weight: bold; }
+        .lost-text { color: #F44336; font-weight: bold; }
+
+        #appearanceBox { margin: 40px auto; padding: 20px; background: #222; border-radius: 8px; width: 95%; max-width: 1200px; display: none; border-top: 2px solid #555; }
+        #appearanceRates { display: flex; justify-content: space-between; text-align: left; }
+        .rate-col { flex: 1; padding: 0 15px; border-right: 1px solid #333; }
+        .rate-col:last-child { border-right: none; }
+        .rate-col strong { display: block; margin-bottom: 10px; color: #fff; font-size: 16px; border-bottom: 1px solid #444; }
+        .rate-item { display: block; margin-bottom: 5px; background: #333; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h2>ToN 統計ビュアー Pro Max</h2>
+    
+    <div class="controls">
+        <div class="control-group">
+            <strong>📁 データ読込:</strong> <input type="file" id="csvFileInput" accept=".csv">
+            <label><input type="checkbox" id="excludeClassicCheckbox"> 割合から「クラシック」を除外</label>
+        </div>
+        
+        <div class="control-group">
+            <strong>🔍 フィルタ:</strong>
+            <select id="mapFilter"><option value="all">全マップ</option></select>
+            <select id="killerFilter"><option value="all">全テラー</option></select>
+        </div>
+
+        <div class="control-group">
+            <strong>📈 表示切替:</strong>
+            <select id="viewSelector" disabled>
+                <option value="overall">全体勝率 (円グラフ)</option>
+                <option value="dailyTrend">日別勝率推移 (折れ線)</option>
+                <option value="roundType">ラウンド種類別 勝敗 (棒グラフ)</option>
+                <option value="map">マップ別 勝敗 (棒グラフ)</option>
+                <option value="killer">テラー別 勝敗 (棒グラフ) ※クリックで分析</option>
+                <option value="roundTypeRate">ラウンド出現率 (円グラフ)</option>
+                <option value="mapRate">マップ出現率 (円グラフ)</option>
+                <option value="killerRate">テラー出現率 (円グラフ)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="dashboard-top" id="dashboardTop" style="display:none;">
+        <div id="summaryBox">
+            <p class="main-stats">総試合: <span id="totalGames">0</span> | 勝利: <span id="totalWins">0</span> | 敗北: <span id="totalLost">0</span></p>
+            <p class="sub-stats">🏆 全体勝率: <strong style="color:#4CAF50; font-size:18px;"><span id="winRate">0</span>%</strong></p>
+            <hr style="border-color:#444; margin:10px 0;">
+            <p class="sub-stats">🎮 記録開始日時: <span id="firstPlayDate">-</span></p>
+            <p class="sub-stats">🔄 最終プレイ日時: <span id="lastPlayDate">-</span></p>
+        </div>
+        <div id="radarBox">
+            <canvas id="radarChartCanvas"></canvas>
+        </div>
+    </div>
+
+    <div id="nemesisBox">
+        <h3>👿 ネメシスプロファイル: <span id="nemName" style="color:#ffeb3b;">-</span></h3>
+        <div>
+            <span class="nemesis-detail">⚔️ 遭遇回数: <strong id="nemTotal">0</strong></span>
+            <span class="nemesis-detail" style="color:#4CAF50;">🟢 勝利: <strong id="nemWin">0</strong></span>
+            <span class="nemesis-detail" style="color:#F44336;">🔴 敗北: <strong id="nemLost">0</strong></span>
+            <span class="nemesis-detail">📊 勝率: <strong id="nemRate">0</strong>%</span>
+        </div>
+        <div style="margin-top:8px;">
+            <span class="nemesis-detail">🕒 最終遭遇: <span id="nemLastDate">-</span></span>
+            <span class="nemesis-detail">🗺️ 最頻出マップ: <span id="nemMap">-</span></span>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="resultChart"></canvas>
+    </div>
+    
+    <div id="historyBox">
+        <table>
+            <thead>
+                <tr><th>日時</th><th>マップ</th><th>種類</th><th>テラー</th><th>結果</th></tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+        </table>
+    </div>
+
+    <div id="appearanceBox">
+        <h3>📊 カテゴリ別出現率 (現在のフィルタ条件)</h3>
+        <div id="appearanceRates"></div>
+    </div>
+
+    <script>
+        let myChart = null;
+        let myRadarChart = null;
+        let parsedData = [];
+
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                parseCSV(event.target.result);
+                initFilters();
+                updateAll();
+                document.getElementById('dashboardTop').style.display = 'flex';
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('viewSelector').addEventListener('change', () => {
+            document.getElementById('nemesisBox').style.display = 'none'; // ビュー切り替えでネメシスを隠す
+            updateChart();
+        });
+        document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
+        document.getElementById('mapFilter').addEventListener('change', updateAll);
+        document.getElementById('killerFilter').addEventListener('change', updateAll);
+
+        function parseCSV(csvText) {
+            parsedData = [];
+            const lines = csvText.trim().split('\n');
+            for (let i = 1; i < lines.length; i++) {
+                const cols = lines[i].split(',');
+                if (cols.length >= 5) {
+                    parsedData.push({
+                        timestamp: cols[0].trim(),
+                        map: cols[1].trim(),
+                        roundType: cols[2].trim(),
+                        killers: cols[3].trim(),
+                        result: cols[4].trim()
+                    });
+                }
+            }
+        }
+
+        function initFilters() {
+            const maps = new Set();
+            const killers = new Set();
+            parsedData.forEach(d => {
+                maps.add(d.map);
+                if(d.killers && d.killers !== 'None') {
+                    d.killers.split('/').forEach(k => killers.add(k.trim()));
+                }
+            });
+
+            const mf = document.getElementById('mapFilter');
+            mf.innerHTML = '<option value="all">全マップ</option>';
+            Array.from(maps).sort().forEach(m => mf.innerHTML += `<option value="${m}">${m}</option>`);
+
+            const kf = document.getElementById('killerFilter');
+            kf.innerHTML = '<option value="all">全テラー</option>';
+            Array.from(killers).sort().forEach(k => kf.innerHTML += `<option value="${k}">${k}</option>`);
+
+            document.getElementById('viewSelector').disabled = false;
+        }
+
+        function getFilteredData() {
+            const mapF = document.getElementById('mapFilter').value;
+            const killerF = document.getElementById('killerFilter').value;
+            const excludeClassic = document.getElementById('excludeClassicCheckbox').checked;
+
+            return parsedData.filter(d => {
+                const matchesMap = (mapF === 'all' || d.map === mapF);
+                const matchesKiller = (killerF === 'all' || (d.killers && d.killers.includes(killerF)));
+                const isNotClassic = !(excludeClassic && (d.roundType === 'クラシック' || d.roundType === 'Classic'));
+                return matchesMap && matchesKiller && isNotClassic;
+            });
+        }
+
+        function updateAll() {
+            const data = getFilteredData();
+            document.getElementById('historyBox').style.display = 'block';
+            document.getElementById('appearanceBox').style.display = 'block';
+            updateSummaryAndTable(data);
+            updateRadar(data);
+            updateChart();
+        }
+
+        function updateSummaryAndTable(data) {
+            let win = 0, lost = 0;
+            const roundCounts = {}, mapCounts = {}, killerCounts = {};
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = ''; 
+
+            if(data.length > 0) {
+                document.getElementById('firstPlayDate').textContent = data[0].timestamp;
+                document.getElementById('lastPlayDate').textContent = data[data.length-1].timestamp;
+            }
+
+            data.slice().reverse().forEach(d => {
+                if (d.result === 'Win') win++;
+                else lost++;
+
+                roundCounts[d.roundType] = (roundCounts[d.roundType] || 0) + 1;
+                mapCounts[d.map] = (mapCounts[d.map] || 0) + 1;
+                if (d.killers && d.killers !== 'None') {
+                    d.killers.split('/').forEach(k => { killerCounts[k.trim()] = (killerCounts[k.trim()] || 0) + 1; });
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${d.result === 'Win' ? 'win-text' : 'lost-text'}">${d.result}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            const total = win + lost;
+            document.getElementById('totalGames').textContent = total;
+            document.getElementById('totalWins').textContent = win;
+            document.getElementById('totalLost').textContent = lost;
+            document.getElementById('winRate').textContent = total > 0 ? ((win / total) * 100).toFixed(1) : 0;
+
+            const renderRate = (counts, totalVal, color) => {
+                let html = `<div class="rate-col"><strong style="color:${color}">[カテゴリ]</strong>`;
+                Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([n,c]) => {
+                    html += `<span class="rate-item">${n}: ${((c/totalVal)*100).toFixed(1)}% (${c}回)</span>`;
+                });
+                return html + '</div>';
+            };
+            document.getElementById('appearanceRates').innerHTML = 
+                renderRate(roundCounts, Object.values(roundCounts).reduce((a,b)=>a+b,0), '#4CAF50').replace('[カテゴリ]', '[ラウンド]') +
+                renderRate(mapCounts, Object.values(mapCounts).reduce((a,b)=>a+b,0), '#2196F3').replace('[カテゴリ]', '[マップ]') +
+                renderRate(killerCounts, Object.values(killerCounts).reduce((a,b)=>a+b,0), '#F44336').replace('[カテゴリ]', '[テラー]');
+        }
+
+        // --- 機能追加1：レーダーチャート処理 ---
+        function updateRadar(data) {
+            const ctx = document.getElementById('radarChartCanvas').getContext('2d');
+            if (myRadarChart) myRadarChart.destroy();
+
+            let overallW = 0, overallT = 0;
+            let classicW = 0, classicT = 0;
+            let specialW = 0, specialT = 0;
+            let singleW = 0, singleT = 0;
+            let multiW = 0, multiT = 0;
+
+            data.forEach(d => {
+                const isWin = d.result === 'Win';
+                overallT++; if(isWin) overallW++;
+                
+                if(d.roundType === 'クラシック' || d.roundType === 'Classic') {
+                    classicT++; if(isWin) classicW++;
+                } else {
+                    specialT++; if(isWin) specialW++;
+                }
+
+                if(d.killers && d.killers.includes('/')) {
+                    multiT++; if(isWin) multiW++;
+                } else if(d.killers && d.killers !== 'None') {
+                    singleT++; if(isWin) singleW++;
+                }
+            });
+
+            const calcRate = (w, t) => t > 0 ? Math.round((w/t)*100) : 0;
+            const radarData = [
+                calcRate(overallW, overallT),
+                calcRate(classicW, classicT),
+                calcRate(specialW, specialT),
+                calcRate(singleW, singleT),
+                calcRate(multiW, multiT)
+            ];
+
+            myRadarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['全体勝率', 'クラシック', '特殊ラウンド', '単体テラー', '複数テラー'],
+                    datasets: [{
+                        label: 'プレイスタイル適性',
+                        data: radarData,
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        borderColor: '#4CAF50',
+                        pointBackgroundColor: '#4CAF50',
+                        pointHoverBorderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.2)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                            pointLabels: { color: '#ccc', font: { size: 12 } },
+                            ticks: { display: false, min: 0, max: 100, stepSize: 20 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- 機能追加2：ネメシスプロファイル表示処理 ---
+        function showNemesisProfile(killerName) {
+            const data = getFilteredData();
+            let w = 0, l = 0, total = 0;
+            let lastDate = '-';
+            const mapStats = {};
+
+            data.forEach(d => {
+                if (d.killers && d.killers.includes(killerName)) {
+                    total++;
+                    if (d.result === 'Win') w++; else l++;
+                    lastDate = d.timestamp; // データは古い順なので最後が最新
+                    mapStats[d.map] = (mapStats[d.map] || 0) + 1;
+                }
+            });
+
+            if(total === 0) return;
+
+            let topMap = '-';
+            let topMapCount = 0;
+            Object.entries(mapStats).forEach(([m, count]) => {
+                if(count > topMapCount) { topMapCount = count; topMap = m; }
+            });
+
+            document.getElementById('nemName').textContent = killerName;
+            document.getElementById('nemTotal').textContent = total;
+            document.getElementById('nemWin').textContent = w;
+            document.getElementById('nemLost').textContent = l;
+            document.getElementById('nemRate').textContent = ((w/total)*100).toFixed(1);
+            document.getElementById('nemLastDate').textContent = lastDate;
+            document.getElementById('nemMap').textContent = `${topMap} (${topMapCount}回)`;
+            
+            document.getElementById('nemesisBox').style.display = 'block';
+        }
+
+        function updateChart() {
+            const data = getFilteredData();
+            const viewMode = document.getElementById('viewSelector').value;
+            const ctx = document.getElementById('resultChart').getContext('2d');
+            if (myChart) myChart.destroy();
+            document.querySelector('.chart-container').style.height = (viewMode.includes('Rate') || viewMode === 'overall') ? '450px' : 'auto';
+
+            if (viewMode === 'overall') {
+                const w = data.filter(d => d.result === 'Win').length;
+                const l = data.length - w;
+                myChart = new Chart(ctx, { type: 'pie', data: { labels: ['Win', 'Lost'], datasets: [{ data: [w, l], backgroundColor: ['#4CAF50', '#F44336'] }] } });
+            } 
+            else if (viewMode === 'dailyTrend') {
+                const dayStats = {};
+                data.forEach(d => {
+                    const date = d.timestamp.split(' ')[0];
+                    if (!dayStats[date]) dayStats[date] = { win: 0, total: 0 };
+                    dayStats[date].total++;
+                    if (d.result === 'Win') dayStats[date].win++;
+                });
+                const labels = Object.keys(dayStats).sort();
+                const rates = labels.map(l => ((dayStats[l].win / dayStats[l].total) * 100).toFixed(1));
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: labels, datasets: [{ label: '勝率 (%)', data: rates, borderColor: '#4CAF50', tension: 0.3, fill: true, backgroundColor: 'rgba(76, 175, 80, 0.1)' }] },
+                    options: { scales: { y: { beginAtZero: true, max: 100 } } }
+                });
+            }
+            else if (['roundType', 'map', 'killer'].includes(viewMode)) {
+                const stats = {};
+                data.forEach(d => {
+                    const items = viewMode === 'killer' ? d.killers.split('/') : [d[viewMode]];
+                    items.forEach(item => {
+                        const val = item.trim(); if(!val || val === 'None') return;
+                        if (!stats[val]) stats[val] = { win: 0, lost: 0 };
+                        d.result === 'Win' ? stats[val].win++ : stats[val].lost++;
+                    });
+                });
+                const labels = Object.keys(stats);
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: labels, datasets: [
+                        { label: 'Win', data: labels.map(l => stats[l].win), backgroundColor: '#4CAF50' },
+                        { label: 'Lost', data: labels.map(l => stats[l].lost), backgroundColor: '#F44336' }
+                    ]},
+                    options: { 
+                        scales: { x: { stacked: true }, y: { stacked: true } },
+                        // 機能追加：棒グラフクリックイベント
+                        onClick: (event, elements) => {
+                            if (elements.length > 0 && viewMode === 'killer') {
+                                const idx = elements[0].index;
+                                const killerName = myChart.data.labels[idx];
+                                showNemesisProfile(killerName);
+                            }
+                        }
+                    }
+                });
+            }
+            else {
+                const key = viewMode.replace('Rate', '');
+                const counts = {};
+                data.forEach(d => {
+                    const items = key === 'killer' ? d.killers.split('/') : [d[key]];
+                    items.forEach(i => { const v = i.trim(); if(v && v !== 'None') counts[v] = (counts[v] || 0) + 1; });
+                });
+                const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+                myChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: { labels: sorted.map(x=>x[0]), datasets: [{ data: sorted.map(x=>x[1]), backgroundColor: sorted.map((_,i)=>`hsl(${(i*360)/sorted.length},70%,50%)`) }] },
+                    options: { plugins: { legend: { position: 'right' } }, maintainAspectRatio: false }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
