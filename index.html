@@ -377,7 +377,7 @@
                 const rates = labels.map(l => ((dayStats[l].win / dayStats[l].total) * 100).toFixed(1));
                 myChart = new Chart(ctx, {
                     type: 'line',
-                    data: { labels: labels, datasets: [{ label: '勝率 (%)', data: rates, borderColor: '#4CAF50', tension: 0.3, fill: true, backgroundColor: 'rgba(76, 175, 80, 0.1)' }] },
+                    data: { labels: labels, datasets: [{ label: '勝率 (%)', data: rates, borderColor: '#4CAF50', tension: 0, fill: true, backgroundColor: 'rgba(76, 175, 80, 0.1)' }] },
                     options: { scales: { y: { beginAtZero: true, max: 100 } } }
                 });
             }
@@ -428,4 +428,5 @@
         }
     </script>
 </body>
+
 </html>
