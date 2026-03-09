@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>ToN 統計ビュアー Ultimate</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         body { font-family: sans-serif; background: #1a1a1a; color: #eee; text-align: center; margin: 0; padding: 20px; }
         .controls { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; max-width: 1200px; margin: 0 auto 20px auto; }
@@ -44,7 +43,7 @@
         /* チャートコンテナ */
         .chart-container { width: 100%; position: relative; margin: 0 auto; }
 
-        /* テーブル */
+        /* テーブルとページネーション */
         table { width: 100%; border-collapse: collapse; text-align: center; }
         thead { background: #333; }
         th, td { padding: 10px; border-bottom: 1px solid #444; font-size: 13px; }
@@ -70,6 +69,7 @@
         </div>
         <div class="control-group">
             <strong>🔍 フィルタ:</strong>
+            <select id="roundFilter"><option value="all">全ラウンド</option></select>
             <select id="mapFilter"><option value="all">全マップ</option></select>
             <select id="killerFilter"><option value="all">全テラー</option></select>
         </div>
@@ -105,10 +105,10 @@
                 <option value="overall">全体勝率 (円グラフ)</option>
                 <option value="roundType">ラウンド種類別 勝敗 (棒グラフ)</option>
                 <option value="map">マップ別 勝敗 (棒グラフ)</option>
-                <option value="killer">テラー別 勝敗 (上位20件・クリックで分析)</option>
+                <option value="killer">テラー別 勝敗 (全件・クリックで分析)</option>
                 <option value="roundTypeRate">ラウンド出現率 (円グラフ)</option>
                 <option value="mapRate">マップ出現率 (円グラフ)</option>
-                <option value="killerRate">テラー出現率 (上位20件・円グラフ)</option>
+                <option value="killerRate">テラー出現率 (全件・円グラフ)</option>
             </select>
         </div>
 
@@ -144,9 +144,6 @@
     </div>
 
     <script>
-        // 追加プラグインの登録
-        Chart.register(ChartDataLabels);
-
         let myChart = null;
         let myRadarChart = null;
         let parsedData = [];
@@ -182,7 +179,9 @@
             document.getElementById('nemesisBox').style.display = 'none';
             updateChart();
         });
+        
         document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
+        document.getElementById('roundFilter').addEventListener('change', updateAll);
         document.getElementById('mapFilter').addEventListener('change', updateAll);
         document.getElementById('killerFilter').addEventListener('change', updateAll);
 
@@ -204,14 +203,20 @@
         }
 
         function initFilters() {
+            const rounds = new Set();
             const maps = new Set();
             const killers = new Set();
             parsedData.forEach(d => {
+                rounds.add(d.roundType);
                 maps.add(d.map);
                 if(d.killers && d.killers !== 'None') {
                     d.killers.split('/').forEach(k => killers.add(k.trim()));
                 }
             });
+
+            const rf = document.getElementById('roundFilter');
+            rf.innerHTML = '<option value="all">全ラウンド</option>';
+            Array.from(rounds).sort().forEach(r => rf.innerHTML += `<option value="${r}">${r}</option>`);
 
             const mf = document.getElementById('mapFilter');
             mf.innerHTML = '<option value="all">全マップ</option>';
@@ -225,21 +230,24 @@
         }
 
         function getFilteredData() {
+            const roundF = document.getElementById('roundFilter').value;
             const mapF = document.getElementById('mapFilter').value;
             const killerF = document.getElementById('killerFilter').value;
             const excludeClassic = document.getElementById('excludeClassicCheckbox').checked;
 
             return parsedData.filter(d => {
+                const matchesRound = (roundF === 'all' || d.roundType === roundF);
                 const matchesMap = (mapF === 'all' || d.map === mapF);
                 const matchesKiller = (killerF === 'all' || (d.killers && d.killers.includes(killerF)));
                 const isNotClassic = !(excludeClassic && (d.roundType === 'クラシック' || d.roundType === 'Classic'));
-                return matchesMap && matchesKiller && isNotClassic;
+                
+                return matchesRound && matchesMap && matchesKiller && isNotClassic;
             });
         }
 
         function updateAll() {
             filteredData = getFilteredData();
-            currentPage = 1; 
+            currentPage = 1;
             updateDashboard(filteredData);
             updateRadar(filteredData);
             renderTablePage();
@@ -333,8 +341,18 @@
             data.forEach(d => {
                 const isWin = d.result === 'Win';
                 overallT++; if(isWin) overallW++;
-                if(d.roundType === 'クラシック' || d.roundType === 'Classic') { classicT++; if(isWin) classicW++; } else { specialT++; if(isWin) specialW++; }
-                if(d.killers && d.killers.includes('/')) { multiT++; if(isWin) multiW++; } else if(d.killers && d.killers !== 'None') { singleT++; if(isWin) singleW++; }
+                
+                if(d.roundType === 'クラシック' || d.roundType === 'Classic') {
+                    classicT++; if(isWin) classicW++;
+                } else {
+                    specialT++; if(isWin) specialW++;
+                }
+
+                if(d.killers && d.killers.includes('/')) {
+                    multiT++; if(isWin) multiW++;
+                } else if(d.killers && d.killers !== 'None') {
+                    singleT++; if(isWin) singleW++;
+                }
             });
 
             const calcRate = (w, t) => t > 0 ? Math.round((w/t)*100) : 0;
@@ -351,12 +369,7 @@
                         borderWidth: 2
                     }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    scales: { r: { angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, grid: { color: 'rgba(255, 255, 255, 0.2)' }, pointLabels: { color: '#ccc', font: { size: 11 } }, ticks: { display: false, min: 0, max: 100 } } }, 
-                    plugins: { legend: { display: false }, datalabels: { display: false } } 
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { r: { angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, grid: { color: 'rgba(255, 255, 255, 0.2)' }, pointLabels: { color: '#ccc', font: { size: 11 } }, ticks: { display: false, min: 0, max: 100 } } }, plugins: { legend: { display: false } } }
             });
         }
 
@@ -388,35 +401,6 @@
             document.getElementById('nemesisBox').style.display = 'block';
         }
 
-        // 円グラフ用の共通オプションを生成する関数（datalabelsの細かい設定）
-        function getPieOptions() {
-            return {
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right' },
-                    datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold', size: 11 },
-                        formatter: (value, ctx) => {
-                            // 合計を計算
-                            let sum = 0;
-                            let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.forEach(data => { sum += data; });
-                            let percentage = (value * 100 / sum).toFixed(1);
-                            
-                            // 4%未満の細かいスライスは文字が潰れるので非表示
-                            if (percentage < 4) return null;
-                            
-                            // 要素名とパーセントを表示
-                            let label = ctx.chart.data.labels[ctx.dataIndex];
-                            return label + '\n' + percentage + '%';
-                        },
-                        textAlign: 'center'
-                    }
-                }
-            };
-        }
-
         function updateChart() {
             const data = filteredData;
             const viewMode = document.getElementById('viewSelector').value;
@@ -428,11 +412,7 @@
             if (viewMode === 'overall') {
                 const w = data.filter(d => d.result === 'Win').length;
                 const l = data.length - w;
-                myChart = new Chart(ctx, { 
-                    type: 'pie', 
-                    data: { labels: ['Win', 'Lost'], datasets: [{ data: [w, l], backgroundColor: ['#4CAF50', '#F44336'] }] }, 
-                    options: getPieOptions()
-                });
+                myChart = new Chart(ctx, { type: 'pie', data: { labels: ['Win', 'Lost'], datasets: [{ data: [w, l], backgroundColor: ['#4CAF50', '#F44336'] }] }, options:{maintainAspectRatio:false} });
             } 
             else if (viewMode === 'dailyTrend') {
                 const dayStats = {};
@@ -448,7 +428,7 @@
                 myChart = new Chart(ctx, {
                     type: 'line',
                     data: { labels: labels, datasets: [{ label: '勝率 (%)', data: rates, borderColor: '#4CAF50', tension: 0, fill: true, backgroundColor: 'rgba(76, 175, 80, 0.1)' }] },
-                    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { datalabels: { display: false } } }
+                    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
                 });
             }
             else if (['roundType', 'map', 'killer'].includes(viewMode)) {
@@ -463,7 +443,8 @@
                 });
                 
                 let entries = Object.entries(stats).sort((a,b) => (b[1].win + b[1].lost) - (a[1].win + a[1].lost));
-                if (viewMode === 'killer') entries = entries.slice(0, 20);
+                // 上位20件の制限を削除し、全件表示する
+                // if (viewMode === 'killer') entries = entries.slice(0, 20);
 
                 const labels = entries.map(e => e[0]);
                 myChart = new Chart(ctx, {
@@ -474,7 +455,6 @@
                     ]},
                     options: { 
                         scales: { x: { stacked: true }, y: { stacked: true } },
-                        plugins: { datalabels: { display: false } },
                         onClick: (event, elements) => {
                             if (elements.length > 0 && viewMode === 'killer') {
                                 const idx = elements[0].index;
@@ -492,12 +472,13 @@
                     items.forEach(i => { const v = i.trim(); if(v && v !== 'None') counts[v] = (counts[v] || 0) + 1; });
                 });
                 let sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-                if (key === 'killer') sorted = sorted.slice(0, 20); 
+                // 上位20件の制限を削除し、全件表示する
+                // if (key === 'killer') sorted = sorted.slice(0, 20);
                 
                 myChart = new Chart(ctx, {
                     type: 'pie',
                     data: { labels: sorted.map(x=>x[0]), datasets: [{ data: sorted.map(x=>x[1]), backgroundColor: sorted.map((_,i)=>`hsl(${(i*360)/sorted.length},70%,50%)`) }] },
-                    options: getPieOptions()
+                    options: { plugins: { legend: { position: 'right' } }, maintainAspectRatio: false }
                 });
             }
         }
