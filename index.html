@@ -29,7 +29,6 @@
         .win-text { color: var(--accent-color); font-weight: bold; }
         .lost-text { color: #F44336; font-weight: bold; }
         #appearanceRates { display: flex; justify-content: space-between; margin-top: 25px; gap: 15px; }
-        .rate-col { flex: 1; padding: 15px; background: #2a2a2a; border-radius: 8px; text-align: left; }
     </style>
 </head>
 <body>
@@ -135,8 +134,7 @@
             document.getElementById('totalGames').textContent = w+l; document.getElementById('totalWins').textContent = w; document.getElementById('totalLost').textContent = l;
             document.getElementById('winRate').textContent = (w+l)>0?((w/(w+l))*100).toFixed(1):0;
             const render = (c, t, col, lbl) => { 
-                let h = `<div class="rate-col" style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${col}; display:block; margin-bottom:10px;">${lbl}</strong>`; 
-                // ダッシュボードのリスト表示も上位10件に制限
+                let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${col}; display:block; margin-bottom:10px;">${lbl}</strong>`; 
                 Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> h+=`<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px;">${n}: ${((v/t)*100).toFixed(1)}% (${v})</span>`); 
                 return h + '</div>'; 
             };
@@ -167,25 +165,32 @@
                 myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
             } else if(['roundType','map','killer'].includes(mode)){
                 const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?d.killers.split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); }); 
-                // 上位20件のみ表示（棒グラフも見栄え重視）
                 const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
                 myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
             } else {
-                // 出現率（円グラフ）の統合ロジック
+                // 出現率（円グラフ）の累積50%ロジック
                 const k=mode.replace('Rate',''), s={}; 
                 filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
                 
                 let sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]);
-                let labels, counts;
+                let total = sorted.reduce((acc, curr) => acc + curr[1], 0);
+                let labels = [], counts = [], cumulative = 0, others = 0;
                 
-                if (sorted.length > 25) {
-                    const top = sorted.slice(0, 24);
-                    const others = sorted.slice(24).reduce((acc, curr) => acc + curr[1], 0);
-                    labels = [...top.map(x => x[0]), "Others"];
-                    counts = [...top.map(x => x[1]), others];
-                } else {
-                    labels = sorted.map(x => x[0]);
-                    counts = sorted.map(x => x[1]);
+                for (let i = 0; i < sorted.length; i++) {
+                    // 累積50%に達するまで、またはあまりにも多すぎる場合は制限（最大50件）
+                    if (cumulative / total < 0.5 || labels.length < 10) {
+                        labels.push(sorted[i][0]);
+                        counts.push(sorted[i][1]);
+                        cumulative += sorted[i][1];
+                    } else {
+                        others += sorted[i][1];
+                    }
+                    if (labels.length >= 50) break; // 物理的限界
+                }
+                
+                if (others > 0) {
+                    labels.push("Others");
+                    counts.push(others + (sorted.slice(labels.length-1).reduce((a,b)=>a+(typeof b==='object'?b[1]:0),0)));
                 }
 
                 myChart = new Chart(ctx, { type:'pie', data:{labels:labels, datasets:[{data:counts, backgroundColor:labels.map((_,i)=>`hsl(${(i*360)/labels.length},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right',labels:{color:'#ccc', boxWidth: 15, font: {size: 10}}}} } });
