@@ -5,325 +5,148 @@
     <title>ToN Statistics Viewer Global</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --bg-color: #1a1a1a;
-            --panel-bg: #222;
-            --control-bg: #333;
-            --accent-color: #4CAF50;
-            --sub-accent: #64B5F6;
-            --text-color: #eee;
-            --border-color: #444;
-        }
-
+        :root { --bg-color: #1a1a1a; --panel-bg: #222; --control-bg: #333; --accent-color: #4CAF50; --sub-accent: #64B5F6; --text-color: #eee; --border-color: #444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; margin: 0; padding: 20px; }
-        
         .header-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 25px; }
-        .header-container h2 { margin: 0; font-size: 24px; letter-spacing: 1px; }
         .header-links { display: flex; gap: 10px; align-items: center; }
-        
         .btn-link { text-decoration: none; font-size: 13px; border-radius: 20px; padding: 6px 16px; transition: 0.2s; font-weight: bold; border: 1px solid transparent; }
         .btn-readme { color: var(--sub-accent); border-color: var(--sub-accent); }
-        .btn-readme:hover { background: rgba(100, 181, 246, 0.1); }
         .btn-github { color: var(--accent-color); border-color: var(--accent-color); }
-        .btn-github:hover { background: rgba(76, 175, 80, 0.1); }
         .lang-select { background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; }
-
-        .controls { 
-            background: var(--panel-bg); padding: 20px; border-radius: 12px; 
-            margin: 0 auto 25px auto; max-width: 1100px; text-align: left;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid var(--border-color);
-            display: flex; flex-wrap: wrap; gap: 20px; align-items: center;
-        }
-        .control-group { display: flex; align-items: center; gap: 12px; }
-        
+        .controls { background: var(--panel-bg); padding: 20px; border-radius: 12px; margin: 0 auto 25px auto; max-width: 1100px; text-align: left; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; border: 1px solid var(--border-color); }
         .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
         .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
-        .btn-upload { 
-            background: var(--control-bg); border: 1px solid #555; color: #fff; padding: 8px 16px; 
-            border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s;
-        }
-        #fileNameDisplay { font-size: 13px; color: #888; margin-left: 8px; }
-
+        .btn-upload { background: var(--control-bg); border: 1px solid #555; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
         select { background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 14px; cursor: pointer; }
-        .checkbox-label { cursor: pointer; font-size: 14px; color: #ffeb3b; display: flex; align-items: center; gap: 6px; }
-
         .tabs { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); max-width: 1100px; margin: 0 auto 20px auto; }
-        .tab-btn { background: transparent; border: none; color: #777; padding: 12px 25px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .tab-btn { background: transparent; border: none; color: #777; padding: 12px 25px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: var(--panel-bg); color: var(--accent-color); border-bottom: 3px solid var(--accent-color); }
-        .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; }
         .tab-content.active { display: block; }
-        
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
-        #summaryBox { padding: 25px; background: #2a2a2a; border-radius: 10px; border-left: 5px solid var(--accent-color); }
-        .main-stats { font-size: 22px; font-weight: bold; color: var(--accent-color); margin: 0 0 10px 0; }
-        
-        .chart-container { width: 100%; position: relative; margin: 20px auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
         .win-text { color: var(--accent-color); font-weight: bold; }
         .lost-text { color: #F44336; font-weight: bold; }
-
         #appearanceRates { display: flex; justify-content: space-between; margin-top: 25px; gap: 15px; }
         .rate-col { flex: 1; padding: 15px; background: #2a2a2a; border-radius: 8px; text-align: left; }
-        .rate-item { display: block; margin-bottom: 5px; background: #333; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
-
-        @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } #appearanceRates { flex-direction: column; } }
     </style>
 </head>
 <body>
-
     <div class="header-container">
         <h2 data-i18n="title">ToN 統計ビュアー Ultimate</h2>
         <div class="header-links">
             <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank" class="btn-link btn-readme" data-i18n="btn_readme">📖 取扱説明書</a>
             <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank" class="btn-link btn-github" data-i18n="btn_github">📥 Download (GitHub)</a>
-            <select id="langSelect" class="lang-select">
-                <option value="ja">日本語</option>
-                <option value="en">English</option>
-            </select>
+            <select id="langSelect" class="lang-select"><option value="ja">日本語</option><option value="en">English</option></select>
         </div>
     </div>
-    
     <div class="controls">
-        <div class="control-group">
-            <strong data-i18n="label_load">📁 データ読込:</strong>
-            <div class="file-input-wrapper">
-                <button class="btn-upload" data-i18n="btn_browse">ファイルを選択</button>
-                <input type="file" id="csvFileInput" accept=".csv">
-            </div>
+        <div class="control-group"><strong data-i18n="label_load">📁 データ読込:</strong>
+            <div class="file-input-wrapper"><button class="btn-upload" data-i18n="btn_browse">ファイルを選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
             <span id="fileNameDisplay" data-i18n="no_file">未選択</span>
         </div>
-        <div class="control-group">
-            <label class="checkbox-label">
-                <input type="checkbox" id="excludeClassicCheckbox"> 
-                <span data-i18n="check_exclude">「クラシック」を除外</span>
-            </label>
-        </div>
-        <div class="control-group">
-            <strong data-i18n="label_filter">🔍 フィルタ:</strong>
+        <div class="control-group"><label style="cursor:pointer; color:#ffeb3b;"><input type="checkbox" id="excludeClassicCheckbox"> <span data-i18n="check_exclude">「クラシック」を除外</span></label></div>
+        <div class="control-group"><strong data-i18n="label_filter">🔍 フィルタ:</strong>
             <select id="roundFilter"><option value="all" data-i18n="opt_all_round">全ラウンド</option></select>
             <select id="mapFilter"><option value="all" data-i18n="opt_all_map">全マップ</option></select>
             <select id="killerFilter"><option value="all" data-i18n="opt_all_killer">全テラー</option></select>
         </div>
     </div>
-
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tab-dashboard')" data-i18n="tab_dash">📊 ダッシュボード</button>
         <button class="tab-btn" onclick="switchTab('tab-analytics')" data-i18n="tab_chart">📈 チャート分析</button>
         <button class="tab-btn" onclick="switchTab('tab-history')" data-i18n="tab_history">📝 対戦履歴</button>
     </div>
-
     <div id="tab-dashboard" class="tab-content active">
-        <div class="dashboard-grid">
-            <div id="summaryBox">
-                <p class="main-stats"><span data-i18n="stat_total">総試合</span>: <span id="totalGames">0</span> | <span data-i18n="stat_win">勝利</span>: <span id="totalWins">0</span> | <span data-i18n="stat_lost">敗北</span>: <span id="totalLost">0</span></p>
+        <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; text-align:left;">
+            <div id="summaryBox" style="padding:25px; background:#2a2a2a; border-radius:10px; border-left:5px solid var(--accent-color);">
+                <p style="font-size:22px; font-weight:bold; color:var(--accent-color); margin:0 0 10px 0;"><span data-i18n="stat_total">総試合</span>: <span id="totalGames">0</span> | <span data-i18n="stat_win">勝利</span>: <span id="totalWins">0</span> | <span data-i18n="stat_lost">敗北</span>: <span id="totalLost">0</span></p>
                 <p><span data-i18n="stat_rate">🏆 全体勝率</span>: <strong style="color:var(--accent-color); font-size:24px;"><span id="winRate">0</span>%</strong></p>
-                <hr style="border-color:var(--border-color); margin:15px 0;">
-                <p><span data-i18n="date_first">🎮 記録開始</span>: <span id="firstPlayDate">-</span></p>
-                <p><span data-i18n="date_last">🔄 最終プレイ</span>: <span id="lastPlayDate">-</span></p>
+                <hr style="border-color:var(--border-color); margin:15px 0;"><p><span data-i18n="date_first">🎮 記録開始</span>: <span id="firstPlayDate">-</span></p><p><span data-i18n="date_last">🔄 最終プレイ</span>: <span id="lastPlayDate">-</span></p>
             </div>
-            <div id="radarBox"><canvas id="radarChartCanvas" style="max-height:250px;"></canvas></div>
+            <div style="background:#2a2a2a; border-radius:10px; padding:15px;"><canvas id="radarChartCanvas" style="max-height:250px;"></canvas></div>
         </div>
         <div id="appearanceRates"></div>
     </div>
-
     <div id="tab-analytics" class="tab-content">
-        <div style="text-align:left; margin-bottom:15px;">
-            <strong data-i18n="label_view">表示切替:</strong>
+        <div style="text-align:left; margin-bottom:15px;"><strong data-i18n="label_view">表示切替:</strong>
             <select id="viewSelector" disabled>
-                <option value="dailyTrend" data-i18n="v_trend">日別勝率推移</option>
-                <option value="overall" data-i18n="v_overall">全体勝率</option>
-                <option value="roundType" data-i18n="v_round">ラウンド別勝敗</option>
-                <option value="map" data-i18n="v_map">マップ別勝敗</option>
-                <option value="killer" data-i18n="v_killer">テラー別勝敗</option>
-                <option value="roundTypeRate" data-i18n="v_round_r">ラウンド出現率</option>
-                <option value="mapRate" data-i18n="v_map_r">マップ出現率</option>
-                <option value="killerRate" data-i18n="v_killer_r">テラー出現率</option>
+                <option value="dailyTrend" data-i18n="v_trend">日別勝率推移</option><option value="overall" data-i18n="v_overall">全体勝率</option>
+                <option value="roundType" data-i18n="v_round">ラウンド別勝敗</option><option value="map" data-i18n="v_map">マップ別勝敗</option>
+                <option value="killer" data-i18n="v_killer">テラー別勝敗</option><option value="roundTypeRate" data-i18n="v_round_r">ラウンド出現率</option>
+                <option value="mapRate" data-i18n="v_map_r">マップ出現率</option><option value="killerRate" data-i18n="v_killer_r">テラー出現率</option>
             </select>
         </div>
-        <div id="nemesisBox" style="display:none; background:#1a237e; border-left: 5px solid #5c6bc0; padding:15px; border-radius:8px; margin-bottom:15px; text-align:left;">
-            <h3 style="margin:0 0 10px 0;">👿 <span data-i18n="nem_title">ネメシスプロファイル</span>: <span id="nemName" style="color:#ffeb3b;">-</span></h3>
-            <div id="nemDetails"></div>
+        <div id="nemesisBox" style="display:none; background:#1a237e; border-left:5px solid #5c6bc0; padding:15px; border-radius:8px; margin-bottom:15px; text-align:left;">
+            <h3 style="margin:0 0 10px 0;">👿 <span data-i18n="nem_title">ネメシスプロファイル</span>: <span id="nemName" style="color:#ffeb3b;">-</span></h3><div id="nemDetails"></div>
         </div>
-        <div class="chart-container"><canvas id="resultChart"></canvas></div>
+        <div style="width:100%; height:450px;"><canvas id="resultChart"></canvas></div>
     </div>
-
     <div id="tab-history" class="tab-content">
-        <table>
-            <thead>
-                <tr><th data-i18n="th_date">日時</th><th data-i18n="th_map">マップ</th><th data-i18n="th_type">種類</th><th data-i18n="th_killer">テラー</th><th data-i18n="th_res">結果</th></tr>
-            </thead>
-            <tbody id="historyTableBody"></tbody>
-        </table>
-        <div class="pagination" style="margin-top:20px;">
-            <button id="prevBtn" onclick="changePage(-1)" disabled>◀</button>
-            <span id="pageInfo">Page 1 / 1</span>
-            <button id="nextBtn" onclick="changePage(1)" disabled>▶</button>
-        </div>
+        <table><thead><tr><th data-i18n="th_date">日時</th><th data-i18n="th_map">マップ</th><th data-i18n="th_type">種類</th><th data-i18n="th_killer">テラー</th><th data-i18n="th_res">結果</th></tr></thead><tbody id="historyTableBody"></tbody></table>
+        <div style="margin-top:20px;"><button id="prevBtn" onclick="changePage(-1)" disabled>◀</button> <span id="pageInfo">Page 1 / 1</span> <button id="nextBtn" onclick="changePage(1)" disabled>▶</button></div>
     </div>
-
     <script>
         const i18n = {
-            ja: {
-                title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択",
-                label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:",
-                opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー",
-                tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴",
-                stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率",
-                date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:",
-                v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗",
-                v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率",
-                nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果",
-                radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性"
-            },
-            en: {
-                title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file",
-                label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:",
-                opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors",
-                tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History",
-                stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate",
-                date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:",
-                v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror",
-                v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.",
-                nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result",
-                radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude"
-            }
+            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
+            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
         };
-
-        let currentLang = 'ja';
-        let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1;
-        const rowsPerPage = 50;
-
-        // 【最重要】判定ロジックの強化（トリム & 小文字統一）
+        let currentLang = 'ja'; let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1; const rowsPerPage = 50;
         const isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
-
-        document.getElementById('langSelect').addEventListener('change', e => { currentLang = e.target.value; updateUI(); if(parsedData.length) updateAll(); });
-        document.getElementById('csvFileInput').addEventListener('change', e => {
-            const file = e.target.files[0];
-            if(!file) return;
-            document.getElementById('fileNameDisplay').textContent = file.name;
-            const reader = new FileReader();
-            reader.onload = ev => { parseCSV(ev.target.result); initFilters(); updateAll(); };
-            reader.readAsText(file);
-        });
-
-        function updateUI() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.textContent = i18n[currentLang][key] || key;
-            });
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
-            if (tabId === 'tab-analytics' && filteredData.length) updateChart();
-        }
-
-        function parseCSV(text) {
-            parsedData = text.trim().split('\n').slice(1).map(line => {
-                const c = line.split(',');
-                return { 
-                    timestamp: (c[0]||"").trim(), 
-                    map: (c[1]||"").trim(), 
-                    roundType: (c[2]||"").trim(), 
-                    killers: (c[3]||"").trim(), 
-                    result: (c[4]||"").trim() 
-                };
-            });
-        }
-
+        document.getElementById('langSelect').addEventListener('change', e => { currentLang = e.target.value; updateUI(); if(parsedData.length) { initFilters(); updateAll(); } });
+        document.getElementById('csvFileInput').addEventListener('change', e => { const file = e.target.files[0]; if(!file) return; document.getElementById('fileNameDisplay').textContent = file.name; const r = new FileReader(); r.onload = ev => { parseCSV(ev.target.result); initFilters(); updateAll(); }; r.readAsText(file); });
+        function updateUI() { document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); el.textContent = i18n[currentLang][key] || key; }); }
+        function switchTab(t) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active'); if (t === 'tab-analytics' && filteredData.length) updateChart(); }
+        function parseCSV(t) { parsedData = t.trim().split('\n').slice(1).map(l => { const c = l.split(','); return { timestamp:(c[0]||"").trim(), map:(c[1]||"").trim(), roundType:(c[2]||"").trim(), killers:(c[3]||"").trim(), result:(c[4]||"").trim() }; }); }
         function initFilters() {
-            const r = new Set(), m = new Set(), k = new Set();
-            parsedData.forEach(d => { r.add(d.roundType); m.add(d.map); if(d.killers!=='None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
-            const fill = (id, set, labelKey) => {
-                const el = document.getElementById(id);
-                el.innerHTML = `<option value="all">${i18n[currentLang][labelKey]}</option>`;
-                Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
-            };
-            fill('roundFilter', r, 'opt_all_round'); fill('mapFilter', m, 'opt_all_map'); fill('killerFilter', k, 'opt_all_killer');
-            document.getElementById('viewSelector').disabled = false;
+            const r = new Set(), m = new Set(), k = new Set(); parsedData.forEach(d => { r.add(d.roundType); m.add(d.map); if(d.killers!=='None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
+            const cR = document.getElementById('roundFilter').value, cM = document.getElementById('mapFilter').value, cK = document.getElementById('killerFilter').value;
+            const fill = (id, set, key, saved) => { const el = document.getElementById(id); el.innerHTML = `<option value="all">${i18n[currentLang][key]}</option>`; Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}" ${v===saved?'selected':''}>${v}</option>`); };
+            fill('roundFilter', r, 'opt_all_round', cR); fill('mapFilter', m, 'opt_all_map', cM); fill('killerFilter', k, 'opt_all_killer', cK); document.getElementById('viewSelector').disabled = false;
         }
-
         function updateAll() {
             const rf = document.getElementById('roundFilter').value, mf = document.getElementById('mapFilter').value, kf = document.getElementById('killerFilter').value, exc = document.getElementById('excludeClassicCheckbox').checked;
             filteredData = parsedData.filter(d => (rf==='all'||d.roundType===rf) && (mf==='all'||d.map===mf) && (kf==='all'||d.killers.includes(kf)) && !(exc && (d.roundType.includes('クラシック')||d.roundType.includes('Classic'))));
             updateDashboard(); updateRadar(); renderTable(); if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
-
         function updateDashboard() {
-            let w=0, l=0, rC={}, mC={}, kC={};
-            if(filteredData.length) { document.getElementById('firstPlayDate').textContent = filteredData[0].timestamp; document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp; }
-            filteredData.forEach(d => {
-                isWin(d.result)?w++:l++; rC[d.roundType]=(rC[d.roundType]||0)+1; mC[d.map]=(mC[d.map]||0)+1;
-                if(d.killers!=='None') d.killers.split('/').forEach(k => kC[k.trim()]=(kC[k.trim()]||0)+1);
-            });
+            let w=0, l=0, rC={}, mC={}, kC={}; if(filteredData.length) { document.getElementById('firstPlayDate').textContent = filteredData[0].timestamp; document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp; }
+            filteredData.forEach(d => { isWin(d.result)?w++:l++; rC[d.roundType]=(rC[d.roundType]||0)+1; mC[d.map]=(mC[d.map]||0)+1; if(d.killers!=='None') d.killers.split('/').forEach(k => kC[k.trim()]=(kC[k.trim()]||0)+1); });
             document.getElementById('totalGames').textContent = w+l; document.getElementById('totalWins').textContent = w; document.getElementById('totalLost').textContent = l;
             document.getElementById('winRate').textContent = (w+l)>0?((w/(w+l))*100).toFixed(1):0;
-            const render = (c, t, col, lbl) => {
-                let h = `<div class="rate-col"><strong style="color:${col}">${lbl}</strong>`;
-                Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> h+=`<span class="rate-item">${n}: ${((v/t)*100).toFixed(1)}% (${v})</span>`);
-                return h + '</div>';
-            };
+            const render = (c, t, col, lbl) => { let h = `<div class="rate-col"><strong style="color:${col}">${lbl}</strong>`; Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> h+=`<span class="rate-item">${n}: ${((v/t)*100).toFixed(1)}% (${v})</span>`); return h + '</div>'; };
             document.getElementById('appearanceRates').innerHTML = render(rC, filteredData.length, '#4CAF50', 'Round Type') + render(mC, filteredData.length, '#2196F3', 'Map') + render(kC, Object.values(kC).reduce((a,b)=>a+b,0), '#F44336', 'Terror');
         }
-
         function renderTable() {
-            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1;
-            tb.innerHTML = '';
-            rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => {
-                const win = isWin(d.result);
-                tb.innerHTML += `<tr><td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${win?'win-text':'lost-text'}">${d.result}</td></tr>`;
-            });
-            document.getElementById('pageInfo').textContent = `Page ${currentPage} / ${tp}`;
-            document.getElementById('prevBtn').disabled = currentPage===1; document.getElementById('nextBtn').disabled = currentPage===tp;
+            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1; tb.innerHTML = '';
+            rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => { const win = isWin(d.result); tb.innerHTML += `<tr><td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${win?'win-text':'lost-text'}">${d.result}</td></tr>`; });
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} / ${tp}`; document.getElementById('prevBtn').disabled = currentPage===1; document.getElementById('nextBtn').disabled = currentPage===tp;
         }
         function changePage(d) { currentPage+=d; renderTable(); }
-
         function updateRadar() {
-            const ctx = document.getElementById('radarChartCanvas').getContext('2d');
-            if(myRadarChart) myRadarChart.destroy();
+            const ctx = document.getElementById('radarChartCanvas').getContext('2d'); if(myRadarChart) myRadarChart.destroy();
             let s={aW:0,aT:0,cW:0,cT:0,sW:0,sT:0,siW:0,siT:0,muW:0,muT:0};
-            filteredData.forEach(d => {
-                const w=isWin(d.result); s.aT++; if(w) s.aW++;
-                if(d.roundType.includes('クラシック')||d.roundType.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;}
-                if(d.killers.includes('/')){s.muT++; if(w)s.muW++;} else if(d.killers!=='None'){s.siT++; if(w)s.siW++;}
-            });
+            filteredData.forEach(d => { const w=isWin(d.result); s.aT++; if(w) s.aW++; if(d.roundType.includes('クラシック')||d.roundType.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;} if(d.killers.includes('/')){s.muT++; if(w)s.muW++;} else if(d.killers!=='None'){s.siT++; if(w)s.siW++;} });
             const r = (w,t) => t>0?Math.round((w/t)*100):0;
-            myRadarChart = new Chart(ctx, {
-                type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{label:i18n[currentLang].radar_title, data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] },
-                options:{ scales:{r:{ticks:{display:false,max:100},grid:{color:'rgba(255,255,255,0.1)'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} }
-            });
+            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{label:i18n[currentLang].radar_title, data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{ticks:{display:false,max:100},grid:{color:'rgba(255,255,255,0.1)'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
-
         function updateChart() {
-            const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d');
-            if(myChart) myChart.destroy();
+            const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d'); if(myChart) myChart.destroy();
             if(mode==='dailyTrend'){
-                const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; });
-                const l=Object.keys(s).sort();
-                myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{scales:{y:{beginAtZero:true,max:100}}} });
+                const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; }); const l=Object.keys(s).sort();
+                myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
             } else if(['roundType','map','killer'].includes(mode)){
-                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?d.killers.split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); });
-                const l=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l));
-                myChart = new Chart(ctx, { type:'bar', data:{labels:l, datasets:[{label:'Win',data:l.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:l.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
+                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?d.killers.split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); }); const l=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l));
+                myChart = new Chart(ctx, { type:'bar', data:{labels:l, datasets:[{label:'Win',data:l.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:l.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
             } else {
-                const k=mode.replace('Rate',''), s={}; filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
-                const l=Object.entries(s).sort((a,b)=>b[1]-a[1]);
-                myChart = new Chart(ctx, { type:'pie', data:{labels:l.map(x=>x[0]), datasets:[{data:l.map(x=>x[1]), backgroundColor:l.map((_,i)=>`hsl(${(i*360)/l.length},70%,50%)`)}]}, options:{plugins:{legend:{position:'right'}}} });
+                const k=mode.replace('Rate',''), s={}; filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); const l=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+                myChart = new Chart(ctx, { type:'pie', data:{labels:l.map(x=>x[0]), datasets:[{data:l.map(x=>x[1]), backgroundColor:l.map((_,i)=>`hsl(${(i*360)/l.length},70%,50%)`)}]}, options:{maintainAspectRatio:false, plugins:{legend:{position:'right'}}} });
             }
         }
-
         function showNemesis(n) {
-            let w=0,l=0,t=0,m={};
-            filteredData.forEach(d=>{ if(d.killers.includes(n)){ t++; isWin(d.result)?w++:l++; m[d.map]=(m[d.map]||0)+1; } });
-            const topM = Object.entries(m).sort((a,b)=>b[1]-a[1])[0];
-            document.getElementById('nemName').textContent = n;
-            document.getElementById('nemDetails').innerHTML = `<span class="nemesis-detail">Encounters: ${t}</span><span class="nemesis-detail" style="color:var(--accent-color);">Win: ${w}</span><span class="nemesis-detail" style="color:#F44336;">Lost: ${l}</span><span class="nemesis-detail">Rate: ${((w/t)*100).toFixed(1)}%</span><br><span class="nemesis-detail">Top Map: ${topM[0]} (${topM[1]})</span>`;
-            document.getElementById('nemesisBox').style.display = 'block';
+            let w=0,l=0,t=0,m={}; filteredData.forEach(d=>{ if(d.killers.includes(n)){ t++; isWin(d.result)?w++:l++; m[d.map]=(m[d.map]||0)+1; } }); const topM = Object.entries(m).sort((a,b)=>b[1]-a[1])[0];
+            document.getElementById('nemName').textContent = n; document.getElementById('nemDetails').innerHTML = `<span style="background:rgba(0,0,0,0.3); padding:5px 10px; border-radius:4px; margin-right:10px;">Encounters: ${t}</span><span style="color:var(--accent-color);">Win: ${w}</span> | <span style="color:#F44336;">Lost: ${l}</span><br>Top Map: ${topM[0]} (${topM[1]})`; document.getElementById('nemesisBox').style.display = 'block';
         }
-
         updateUI();
     </script>
 </body>
