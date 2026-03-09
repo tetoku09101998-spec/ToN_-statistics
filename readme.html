@@ -3,140 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToN Stats Tracker v1.1 - 取扱説明書</title>
+    <title>ToN Stats Tracker - Manual</title>
     <style>
-        :root {
-            --bg-color: #1a1a1a;
-            --container-bg: #222;
-            --text-color: #eee;
-            --accent-color: #4CAF50;
-            --warning-color: #f44336;
-            --info-color: #2196F3;
-            --link-color: #64B5F6;
-            --border-color: #333;
-        }
-        body {
-            font-family: 'Segoe UI', Meiryo, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            margin: 0;
-            padding: 40px 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--container-bg);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        h1 {
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
-            text-align: center;
-        }
-        h2 {
-            border-left: 5px solid var(--accent-color);
-            padding-left: 15px;
-            margin-top: 30px;
-            color: #fff;
-        }
-        a {
-            color: var(--link-color);
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        code {
-            background: #333;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Consolas', monospace;
-            color: #ffeb3b;
-        }
-        .step {
-            background: #2a2a2a;
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        .step strong {
-            color: var(--accent-color);
-            display: block;
-            margin-bottom: 5px;
-        }
-        .warning-box {
-            background: rgba(244, 67, 54, 0.1);
-            border: 1px solid var(--warning-color);
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 40px;
-        }
-        .warning-box h3 {
-            margin-top: 0;
-            color: var(--warning-color);
-        }
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 0.9em;
-            color: #888;
-        }
+        :root { --bg-color: #1a1a1a; --container-bg: #222; --text-color: #eee; --accent-color: #4CAF50; --link-color: #64B5F6; }
+        body { font-family: 'Segoe UI', Meiryo, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 40px 20px; text-align: left; }
+        .container { max-width: 800px; margin: 0 auto; background: var(--container-bg); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .lang-switch { text-align: right; margin-bottom: 20px; }
+        select { background: #333; color: #fff; border: 1px solid #555; padding: 5px 15px; border-radius: 20px; cursor: pointer; }
+        h1 { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; text-align: center; }
+        h2 { border-left: 5px solid var(--accent-color); padding-left: 15px; margin-top: 30px; color: #fff; }
+        a { color: var(--link-color); text-decoration: none; }
+        .step { background: #2a2a2a; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .warning-box { background: rgba(244, 67, 54, 0.1); border: 1px solid #f44336; padding: 20px; border-radius: 8px; margin-top: 40px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>ToN Stats Tracker v1.1</h1>
-        <p>VRChatのホラーゲーム「Terrors of Nowhere (ToN)」の戦績を自動で記録し、詳細に分析するためのツールセットです。</p>
+        <div class="lang-switch">
+            <select id="readmeLangSelect"><option value="ja">日本語</option><option value="en">English</option></select>
+        </div>
+        <h1 data-i18n="title">ToN Stats Tracker v1.1</h1>
+        <p data-i18n="desc">VRChatのホラーゲーム「Terrors of Nowhere (ToN)」の戦績を自動で記録し、詳細に分析するためのツールセットです。</p>
 
-        <h2>📋 必須コンポーネント</h2>
+        <h2 data-i18n="h_req">📋 必須コンポーネント</h2>
         <div class="step">
-            <strong>1. ToN Save Manager (VRChat側)</strong>
-            ゲーム内の情報を外部へ送信するために必須です。未導入の場合は以下から導入してください。<br>
+            <strong data-i18n="req_1_title">1. ToN Save Manager (VRChat側)</strong><br>
+            <span data-i18n="req_1_desc">ゲーム内の情報を外部へ送信するために必須です。未導入の場合は以下から導入してください。</span><br>
             🔗 <a href="https://github.com/nomlasvrc/ToNSaveManager" target="_blank">ToN Save Manager (GitHub)</a>
         </div>
-        <div class="step">
-            <strong>2. Stats Tracker (本ツール)</strong>
-            送信されたデータを受け取り、CSVに保存するためのプログラムです。
-        </div>
 
-        <h2>⚙️ 事前準備</h2>
+        <h2 data-i18n="h_proc">🚀 使用手順</h2>
         <div class="step">
-            <strong>VRChatのOSCを有効にする</strong>
-            VRChatメニュー ➔ Settings ➔ OSCタブ ➔ <strong>Enabled</strong> を選択。
-        </div>
-
-        <h2>🚀 使用手順</h2>
-        <div class="step">
-            <strong>1. データの記録開始（プレイ前）</strong>
-            同梱の <code>start_tracker.bat</code> をダブルクリックして起動します。コンソールに「OSCパケットを待機しています...」と表示されたら準備完了です。
+            <strong data-i18n="step_1_title">1. データの記録開始（プレイ前）</strong><br>
+            <span data-i18n="step_1_desc">同梱の start_tracker.bat をダブルクリックして起動します。コンソールに「OSCパケットを待機しています...」と表示されたら準備完了です。</span>
         </div>
         <div class="step">
-            <strong>2. 分析ビューアーへのアクセス</strong>
-            記録されたデータを確認するには、以下のWebサイトにアクセスしてください。<br>
+            <strong data-i18n="step_2_title">2. 分析ビューアーへのアクセス</strong><br>
+            <span data-i18n="step_2_desc">記録されたデータを確認するには、以下のWebサイトにアクセスしてください。</span><br>
             🔗 <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/" target="_blank">ToN Statistics Viewer (Web版)</a>
-        </div>
-        <div class="step">
-            <strong>3. データの読み込み</strong>
-            Webサイト上の「ファイルを選択」から、本ツールのフォルダ内に生成された <code>ton_stats.csv</code> を読み込むと、最新の統計が表示されます。
         </div>
 
         <div class="warning-box">
-            <h3>⚖️ 免責事項・サポートについて</h3>
+            <h3 data-i18n="h_warn">⚖️ 免責事項・サポートについて</h3>
             <ul>
-                <li><strong>サポート対象外</strong>: 本ツールは個人開発の補助ツールです。導入方法や不具合に関する個別サポートは一切行いません。</li>
-                <li><strong>自己責任</strong>: 本ツールの使用によって生じたあらゆる損害について、作者は一切の責任を負いません。</li>
-                <li><strong>仕様変更</strong>: ゲーム本体やSave Managerのアップデートにより、動作しなくなる可能性があります。</li>
+                <li data-i18n="warn_1">サポート対象外: 本ツールは個人開発の補助ツールです。個別サポートは行いません。</li>
+                <li data-i18n="warn_2">自己責任: 本ツールの使用によって生じたあらゆる損害について、作者は一切の責任を負いません。</li>
             </ul>
         </div>
-
-        <div class="footer">
-            &copy; 2026 ToN Stats Tracker Project. Distributed as-is.
-        </div>
     </div>
+    <script>
+        const texts = {
+            ja: { title: "ToN Stats Tracker v1.1", desc: "VRChatのホラーゲーム「Terrors of Nowhere」の戦績記録ツール。", h_req: "📋 必須コンポーネント", req_1_title: "1. ToN Save Manager (VRChat側)", req_1_desc: "情報を外部へ送信するために必須です。", h_proc: "🚀 使用手順", step_1_title: "1. 記録開始", step_1_desc: "start_tracker.bat を起動してください。", step_2_title: "2. 分析ビューアー", step_2_desc: "以下のWebサイトでCSVを読み込んでください。", h_warn: "⚖️ 免責事項", warn_1: "サポート対象外です。", warn_2: "使用は自己責任でお願いします。" },
+            en: { title: "ToN Stats Tracker v1.1", desc: "A toolset for logging and analyzing stats in 'Terrors of Nowhere' for VRChat.", h_req: "📋 Requirements", req_1_title: "1. ToN Save Manager (VRChat Side)", req_1_desc: "Required to send in-game data to the tracker.", h_proc: "🚀 How to Use", step_1_title: "1. Start Logging", step_1_desc: "Run start_tracker.bat before playing.", step_2_title: "2. Access Analytics", step_2_desc: "Visit the website below and load your CSV.", h_warn: "⚖️ Disclaimer", warn_1: "No official support provided.", warn_2: "Use at your own risk." }
+        };
+        document.getElementById('readmeLangSelect').addEventListener('change', e => {
+            const lang = e.target.value;
+            document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = texts[lang][el.getAttribute('data-i18n')]; });
+        });
+    </script>
 </body>
 </html>
