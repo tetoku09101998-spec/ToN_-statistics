@@ -28,7 +28,6 @@
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
         .win-text { color: var(--accent-color); font-weight: bold; }
         .lost-text { color: #F44336; font-weight: bold; }
-        #appearanceRates { display: flex; justify-content: space-between; margin-top: 25px; gap: 15px; }
     </style>
 </head>
 <body>
@@ -168,7 +167,7 @@
                 const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
                 myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
             } else {
-                // 出現率（円グラフ）の累積50%ロジック
+                // 出現率（円グラフ）の累積50%ロジック修正
                 const k=mode.replace('Rate',''), s={}; 
                 filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
                 
@@ -176,21 +175,20 @@
                 let total = sorted.reduce((acc, curr) => acc + curr[1], 0);
                 let labels = [], counts = [], cumulative = 0, others = 0;
                 
-                for (let i = 0; i < sorted.length; i++) {
-                    // 累積50%に達するまで、またはあまりにも多すぎる場合は制限（最大50件）
-                    if (cumulative / total < 0.5 || labels.length < 10) {
-                        labels.push(sorted[i][0]);
-                        counts.push(sorted[i][1]);
-                        cumulative += sorted[i][1];
+                sorted.forEach(([name, count]) => {
+                    // 全データ走査。条件を満たさない分は確実にothersへ
+                    if ((cumulative / total < 0.5 || labels.length < 10) && labels.length < 50) {
+                        labels.push(name);
+                        counts.push(count);
+                        cumulative += count;
                     } else {
-                        others += sorted[i][1];
+                        others += count;
                     }
-                    if (labels.length >= 50) break; // 物理的限界
-                }
+                });
                 
                 if (others > 0) {
                     labels.push("Others");
-                    counts.push(others + (sorted.slice(labels.length-1).reduce((a,b)=>a+(typeof b==='object'?b[1]:0),0)));
+                    counts.push(others);
                 }
 
                 myChart = new Chart(ctx, { type:'pie', data:{labels:labels, datasets:[{data:counts, backgroundColor:labels.map((_,i)=>`hsl(${(i*360)/labels.length},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right',labels:{color:'#ccc', boxWidth: 15, font: {size: 10}}}} } });
