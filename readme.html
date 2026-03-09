@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToN Stats Tracker v1.1 - 取扱説明書</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --container-bg: #222;
+            --text-color: #eee;
+            --accent-color: #4CAF50;
+            --warning-color: #f44336;
+            --info-color: #2196F3;
+            --link-color: #64B5F6;
+            --border-color: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        h2 {
+            border-left: 5px solid var(--accent-color);
+            padding-left: 15px;
+            margin-top: 30px;
+            color: #fff;
+        }
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #ffeb3b;
+        }
+        .step {
+            background: #2a2a2a;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .step strong {
+            color: var(--accent-color);
+            display: block;
+            margin-bottom: 5px;
+        }
+        .warning-box {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--warning-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+        .warning-box h3 {
+            margin-top: 0;
+            color: var(--warning-color);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ToN Stats Tracker v1.1</h1>
+        <p>VRChatのホラーゲーム「Terrors of Nowhere (ToN)」の戦績を自動で記録し、詳細に分析するためのツールセットです。</p>
+
+        <h2>📋 必須コンポーネント</h2>
+        <div class="step">
+            <strong>1. ToN Save Manager (VRChat側)</strong>
+            ゲーム内の情報を外部へ送信するために必須です。未導入の場合は以下から導入してください。<br>
+            🔗 <a href="https://github.com/nomlasvrc/ToNSaveManager" target="_blank">ToN Save Manager (GitHub)</a>
+        </div>
+        <div class="step">
+            <strong>2. Stats Tracker (本ツール)</strong>
+            送信されたデータを受け取り、CSVに保存するためのプログラムです。
+        </div>
+
+        <h2>⚙️ 事前準備</h2>
+        <div class="step">
+            <strong>VRChatのOSCを有効にする</strong>
+            VRChatメニュー ➔ Settings ➔ OSCタブ ➔ <strong>Enabled</strong> を選択。
+        </div>
+
+        <h2>🚀 使用手順</h2>
+        <div class="step">
+            <strong>1. データの記録開始（プレイ前）</strong>
+            同梱の <code>start_tracker.bat</code> をダブルクリックして起動します。コンソールに「OSCパケットを待機しています...」と表示されたら準備完了です。
+        </div>
+        <div class="step">
+            <strong>2. 分析ビューアーへのアクセス</strong>
+            記録されたデータを確認するには、以下のWebサイトにアクセスしてください。<br>
+            🔗 <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/" target="_blank">ToN Statistics Viewer (Web版)</a>
+        </div>
+        <div class="step">
+            <strong>3. データの読み込み</strong>
+            Webサイト上の「ファイルを選択」から、本ツールのフォルダ内に生成された <code>ton_stats.csv</code> を読み込むと、最新の統計が表示されます。
+        </div>
+
+        <div class="warning-box">
+            <h3>⚖️ 免責事項・サポートについて</h3>
+            <ul>
+                <li><strong>サポート対象外</strong>: 本ツールは個人開発の補助ツールです。導入方法や不具合に関する個別サポートは一切行いません。</li>
+                <li><strong>自己責任</strong>: 本ツールの使用によって生じたあらゆる損害について、作者は一切の責任を負いません。</li>
+                <li><strong>仕様変更</strong>: ゲーム本体やSave Managerのアップデートにより、動作しなくなる可能性があります。</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            &copy; 2026 ToN Stats Tracker Project. Distributed as-is.
+        </div>
+    </div>
+</body>
+</html>
