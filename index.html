@@ -6,7 +6,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: sans-serif; background: #1a1a1a; color: #eee; text-align: center; margin: 0; padding: 20px; }
-        .controls { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; max-width: 1200px; margin: 0 auto 20px auto; }
+        
+        /* タイトルとリンクエリア */
+        .header-container { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .header-container h2 { margin: 0; color: #fff; }
+        .header-links { display: flex; gap: 10px; }
+        .header-links a { text-decoration: none; font-size: 13px; border-radius: 20px; padding: 4px 15px; transition: 0.3s; font-weight: bold; }
+        .btn-readme { color: #64B5F6; border: 1px solid #64B5F6; }
+        .btn-readme:hover { background: rgba(100, 181, 246, 0.1); }
+        .btn-github { color: #4CAF50; border: 1px solid #4CAF50; }
+        .btn-github:hover { background: rgba(76, 175, 80, 0.1); }
+
+        .controls { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; max-width: 1200px; margin-left: auto; margin-right: auto; }
         .control-group { margin-bottom: 10px; }
         select, input, button { padding: 8px; font-size: 14px; margin-right: 10px; background: #444; color: #fff; border: 1px solid #555; border-radius: 4px; }
         button { cursor: pointer; transition: 0.2s; }
@@ -14,7 +25,7 @@
         label { cursor: pointer; font-size: 14px; color: #ffeb3b; }
         
         /* タブUI */
-        .tabs { display: flex; justify-content: center; margin-bottom: 20px; border-bottom: 2px solid #333; max-width: 1200px; margin: 0 auto 20px auto; }
+        .tabs { display: flex; justify-content: center; border-bottom: 2px solid #333; max-width: 1200px; margin: 0 auto 20px auto; }
         .tab-btn { background: transparent; border: none; color: #888; padding: 10px 20px; font-size: 16px; font-weight: bold; margin-right: 5px; border-radius: 8px 8px 0 0; }
         .tab-btn.active { background: #333; color: #4CAF50; border-bottom: 3px solid #4CAF50; }
         .tab-content { display: none; background: #222; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); width: 95%; max-width: 1200px; margin: 0 auto; }
@@ -33,17 +44,17 @@
         .nemesis-detail { display: inline-block; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 4px; margin-right: 10px; margin-bottom: 5px; font-size: 13px; color: #fff; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 出現率 */
+        /* 出現率リスト */
         #appearanceRates { display: flex; justify-content: space-between; text-align: left; margin-top: 20px; }
         .rate-col { flex: 1; padding: 0 15px; border-right: 1px solid #444; }
         .rate-col:last-child { border-right: none; }
         .rate-col strong { display: block; margin-bottom: 10px; color: #fff; border-bottom: 1px solid #555; padding-bottom: 5px; }
         .rate-item { display: block; margin-bottom: 4px; background: #333; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
 
-        /* チャートコンテナ */
+        /* チャート */
         .chart-container { width: 100%; position: relative; margin: 0 auto; }
 
-        /* テーブルとページネーション */
+        /* テーブル */
         table { width: 100%; border-collapse: collapse; text-align: center; }
         thead { background: #333; }
         th, td { padding: 10px; border-bottom: 1px solid #444; font-size: 13px; }
@@ -60,7 +71,14 @@
     </style>
 </head>
 <body>
-    <h2>ToN 統計ビュアー Ultimate</h2>
+
+    <div class="header-container">
+        <h2>ToN 統計ビュアー Ultimate</h2>
+        <div class="header-links">
+            <a href="README.html" target="_blank" class="btn-readme">📖 取扱説明書</a>
+            <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank" class="btn-github">📥 ツールをダウンロード (GitHub)</a>
+        </div>
+    </div>
     
     <div class="controls">
         <div class="control-group">
@@ -148,7 +166,6 @@
         let myRadarChart = null;
         let parsedData = [];
         let filteredData = [];
-        
         let currentPage = 1;
         const rowsPerPage = 50;
 
@@ -157,10 +174,7 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
-            
-            if (tabId === 'tab-analytics' && filteredData.length > 0) {
-                updateChart();
-            }
+            if (tabId === 'tab-analytics' && filteredData.length > 0) updateChart();
         }
 
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
@@ -179,7 +193,6 @@
             document.getElementById('nemesisBox').style.display = 'none';
             updateChart();
         });
-        
         document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
         document.getElementById('roundFilter').addEventListener('change', updateAll);
         document.getElementById('mapFilter').addEventListener('change', updateAll);
@@ -207,25 +220,18 @@
             const maps = new Set();
             const killers = new Set();
             parsedData.forEach(d => {
-                rounds.add(d.roundType);
-                maps.add(d.map);
-                if(d.killers && d.killers !== 'None') {
-                    d.killers.split('/').forEach(k => killers.add(k.trim()));
-                }
+                rounds.add(d.roundType); maps.add(d.map);
+                if(d.killers && d.killers !== 'None') d.killers.split('/').forEach(k => killers.add(k.trim()));
             });
 
-            const rf = document.getElementById('roundFilter');
-            rf.innerHTML = '<option value="all">全ラウンド</option>';
-            Array.from(rounds).sort().forEach(r => rf.innerHTML += `<option value="${r}">${r}</option>`);
-
-            const mf = document.getElementById('mapFilter');
-            mf.innerHTML = '<option value="all">全マップ</option>';
-            Array.from(maps).sort().forEach(m => mf.innerHTML += `<option value="${m}">${m}</option>`);
-
-            const kf = document.getElementById('killerFilter');
-            kf.innerHTML = '<option value="all">全テラー</option>';
-            Array.from(killers).sort().forEach(k => kf.innerHTML += `<option value="${k}">${k}</option>`);
-
+            const fillSelect = (id, items, label) => {
+                const el = document.getElementById(id);
+                el.innerHTML = `<option value="all">全${label}</option>`;
+                Array.from(items).sort().forEach(item => el.innerHTML += `<option value="${item}">${item}</option>`);
+            };
+            fillSelect('roundFilter', rounds, 'ラウンド');
+            fillSelect('mapFilter', maps, 'マップ');
+            fillSelect('killerFilter', killers, 'テラー');
             document.getElementById('viewSelector').disabled = false;
         }
 
@@ -240,7 +246,6 @@
                 const matchesMap = (mapF === 'all' || d.map === mapF);
                 const matchesKiller = (killerF === 'all' || (d.killers && d.killers.includes(killerF)));
                 const isNotClassic = !(excludeClassic && (d.roundType === 'クラシック' || d.roundType === 'Classic'));
-                
                 return matchesRound && matchesMap && matchesKiller && isNotClassic;
             });
         }
@@ -251,30 +256,23 @@
             updateDashboard(filteredData);
             updateRadar(filteredData);
             renderTablePage();
-            if (document.getElementById('tab-analytics').classList.contains('active')) {
-                updateChart();
-            }
+            if (document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
         function updateDashboard(data) {
             let win = 0, lost = 0;
-            const roundCounts = {}, mapCounts = {}, killerCounts = {};
+            const rCounts = {}, mCounts = {}, kCounts = {};
 
             if(data.length > 0) {
                 document.getElementById('firstPlayDate').textContent = data[0].timestamp;
                 document.getElementById('lastPlayDate').textContent = data[data.length-1].timestamp;
-            } else {
-                document.getElementById('firstPlayDate').textContent = '-';
-                document.getElementById('lastPlayDate').textContent = '-';
             }
 
             data.forEach(d => {
-                if (d.result === 'Win') win++; else lost++;
-                roundCounts[d.roundType] = (roundCounts[d.roundType] || 0) + 1;
-                mapCounts[d.map] = (mapCounts[d.map] || 0) + 1;
-                if (d.killers && d.killers !== 'None') {
-                    d.killers.split('/').forEach(k => { killerCounts[k.trim()] = (killerCounts[k.trim()] || 0) + 1; });
-                }
+                d.result === 'Win' ? win++ : lost++;
+                rCounts[d.roundType] = (rCounts[d.roundType] || 0) + 1;
+                mCounts[d.map] = (mCounts[d.map] || 0) + 1;
+                if (d.killers && d.killers !== 'None') d.killers.split('/').forEach(k => kCounts[k.trim()] = (kCounts[k.trim()] || 0) + 1);
             });
 
             const total = win + lost;
@@ -283,204 +281,103 @@
             document.getElementById('totalLost').textContent = lost;
             document.getElementById('winRate').textContent = total > 0 ? ((win / total) * 100).toFixed(1) : 0;
 
-            const renderRate = (counts, totalVal, color, maxItems=10) => {
-                let html = `<div class="rate-col"><strong style="color:${color}">[カテゴリ] (上位${maxItems}件)</strong>`;
-                const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0, maxItems);
-                sorted.forEach(([n,c]) => {
-                    html += `<span class="rate-item">${n}: ${((c/totalVal)*100).toFixed(1)}% (${c}回)</span>`;
+            const renderRate = (counts, tVal, color, label) => {
+                let html = `<div class="rate-col"><strong style="color:${color}">${label} (上位順)</strong>`;
+                Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0, 15).forEach(([n,c]) => {
+                    html += `<span class="rate-item">${n}: ${((c/tVal)*100).toFixed(1)}% (${c}回)</span>`;
                 });
                 return html + '</div>';
             };
-            
             document.getElementById('appearanceRates').innerHTML = 
-                renderRate(roundCounts, Object.values(roundCounts).reduce((a,b)=>a+b,0), '#4CAF50', 10).replace('[カテゴリ]', '[ラウンド]') +
-                renderRate(mapCounts, Object.values(mapCounts).reduce((a,b)=>a+b,0), '#2196F3', 10).replace('[カテゴリ]', '[マップ]') +
-                renderRate(killerCounts, Object.values(killerCounts).reduce((a,b)=>a+b,0), '#F44336', 15).replace('[カテゴリ]', '[テラー]');
+                renderRate(rCounts, data.length, '#4CAF50', '[ラウンド]') +
+                renderRate(mCounts, data.length, '#2196F3', '[マップ]') +
+                renderRate(kCounts, Object.values(kCounts).reduce((a,b)=>a+b,0), '#F44336', '[テラー]');
         }
 
         function renderTablePage() {
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = ''; 
-            
-            const reversedData = filteredData.slice().reverse();
-            const totalPages = Math.ceil(reversedData.length / rowsPerPage) || 1;
-            
-            if (currentPage < 1) currentPage = 1;
-            if (currentPage > totalPages) currentPage = totalPages;
+            const rev = filteredData.slice().reverse();
+            const tPages = Math.ceil(rev.length / rowsPerPage) || 1;
+            if (currentPage > tPages) currentPage = tPages;
 
-            const startIdx = (currentPage - 1) * rowsPerPage;
-            const endIdx = startIdx + rowsPerPage;
-            const pageData = reversedData.slice(startIdx, endIdx);
-
-            pageData.forEach(d => {
+            rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${d.result === 'Win' ? 'win-text' : 'lost-text'}">${d.result}</td>`;
                 tbody.appendChild(tr);
             });
-
-            document.getElementById('pageInfo').textContent = `ページ ${currentPage} / ${totalPages} (全${reversedData.length}件)`;
+            document.getElementById('pageInfo').textContent = `ページ ${currentPage} / ${tPages}`;
             document.getElementById('prevBtn').disabled = currentPage === 1;
-            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            document.getElementById('nextBtn').disabled = currentPage === tPages;
         }
 
-        function changePage(diff) {
-            currentPage += diff;
-            renderTablePage();
-        }
+        function changePage(diff) { currentPage += diff; renderTablePage(); }
 
         function updateRadar(data) {
             const ctx = document.getElementById('radarChartCanvas').getContext('2d');
             if (myRadarChart) myRadarChart.destroy();
-
-            let overallW = 0, overallT = 0;
-            let classicW = 0, classicT = 0;
-            let specialW = 0, specialT = 0;
-            let singleW = 0, singleT = 0;
-            let multiW = 0, multiT = 0;
-
+            let st = { allW:0, allT:0, clW:0, clT:0, spW:0, spT:0, siW:0, siT:0, muW:0, muT:0 };
             data.forEach(d => {
-                const isWin = d.result === 'Win';
-                overallT++; if(isWin) overallW++;
-                
-                if(d.roundType === 'クラシック' || d.roundType === 'Classic') {
-                    classicT++; if(isWin) classicW++;
-                } else {
-                    specialT++; if(isWin) specialW++;
-                }
-
-                if(d.killers && d.killers.includes('/')) {
-                    multiT++; if(isWin) multiW++;
-                } else if(d.killers && d.killers !== 'None') {
-                    singleT++; if(isWin) singleW++;
-                }
+                const w = d.result === 'Win'; st.allT++; if(w) st.allW++;
+                if(d.roundType.includes('クラシック') || d.roundType.includes('Classic')) { st.clT++; if(w) st.clW++; } else { st.spT++; if(w) st.spW++; }
+                if(d.killers.includes('/')) { st.muT++; if(w) st.muW++; } else if(d.killers !== 'None') { st.siT++; if(w) st.siW++; }
             });
-
-            const calcRate = (w, t) => t > 0 ? Math.round((w/t)*100) : 0;
+            const rate = (w, t) => t > 0 ? Math.round((w/t)*100) : 0;
             myRadarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['全体勝率', 'クラシック', '特殊', '単体', '複数'],
-                    datasets: [{
-                        label: 'プレイスタイル適性',
-                        data: [calcRate(overallW, overallT), calcRate(classicW, classicT), calcRate(specialW, specialT), calcRate(singleW, singleT), calcRate(multiW, multiT)],
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                        borderColor: '#4CAF50',
-                        pointBackgroundColor: '#4CAF50',
-                        borderWidth: 2
-                    }]
+                    labels: ['全体', 'クラシック', '特殊', '単体', '複数'],
+                    datasets: [{ label: '適性', data: [rate(st.allW, st.allT), rate(st.clW, st.clT), rate(st.spW, st.spT), rate(st.siW, st.siT), rate(st.muW, st.muT)], backgroundColor: 'rgba(76, 175, 80, 0.2)', borderColor: '#4CAF50', borderWidth: 2 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { r: { angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, grid: { color: 'rgba(255, 255, 255, 0.2)' }, pointLabels: { color: '#ccc', font: { size: 11 } }, ticks: { display: false, min: 0, max: 100 } } }, plugins: { legend: { display: false } } }
+                options: { responsive:true, maintainAspectRatio:false, scales: { r: { angleLines: {color:'rgba(255,255,255,0.1)'}, grid: {color:'rgba(255,255,255,0.1)'}, pointLabels: {color:'#ccc'}, ticks: {display:false, max:100} } }, plugins: {legend:{display:false}} }
             });
-        }
-
-        function showNemesisProfile(killerName) {
-            let w = 0, l = 0, total = 0;
-            let lastDate = '-';
-            const mapStats = {};
-
-            filteredData.forEach(d => {
-                if (d.killers && d.killers.includes(killerName)) {
-                    total++;
-                    if (d.result === 'Win') w++; else l++;
-                    lastDate = d.timestamp;
-                    mapStats[d.map] = (mapStats[d.map] || 0) + 1;
-                }
-            });
-
-            if(total === 0) return;
-            let topMap = '-'; let topMapCount = 0;
-            Object.entries(mapStats).forEach(([m, count]) => { if(count > topMapCount) { topMapCount = count; topMap = m; } });
-
-            document.getElementById('nemName').textContent = killerName;
-            document.getElementById('nemTotal').textContent = total;
-            document.getElementById('nemWin').textContent = w;
-            document.getElementById('nemLost').textContent = l;
-            document.getElementById('nemRate').textContent = ((w/total)*100).toFixed(1);
-            document.getElementById('nemLastDate').textContent = lastDate;
-            document.getElementById('nemMap').textContent = `${topMap} (${topMapCount}回)`;
-            document.getElementById('nemesisBox').style.display = 'block';
         }
 
         function updateChart() {
-            const data = filteredData;
-            const viewMode = document.getElementById('viewSelector').value;
+            const mode = document.getElementById('viewSelector').value;
             const ctx = document.getElementById('resultChart').getContext('2d');
             if (myChart) myChart.destroy();
-            
-            document.querySelector('.chart-container').style.height = (viewMode.includes('Rate') || viewMode === 'overall' || viewMode === 'dailyTrend') ? '400px' : 'auto';
+            document.querySelector('.chart-container').style.height = (mode.includes('Rate') || mode === 'overall' || mode === 'dailyTrend') ? '450px' : 'auto';
 
-            if (viewMode === 'overall') {
-                const w = data.filter(d => d.result === 'Win').length;
-                const l = data.length - w;
-                myChart = new Chart(ctx, { type: 'pie', data: { labels: ['Win', 'Lost'], datasets: [{ data: [w, l], backgroundColor: ['#4CAF50', '#F44336'] }] }, options:{maintainAspectRatio:false} });
-            } 
-            else if (viewMode === 'dailyTrend') {
-                const dayStats = {};
-                data.forEach(d => {
-                    const date = d.timestamp.split(' ')[0];
-                    if (!dayStats[date]) dayStats[date] = { win: 0, total: 0 };
-                    dayStats[date].total++;
-                    if (d.result === 'Win') dayStats[date].win++;
-                });
-                const labels = Object.keys(dayStats).sort();
-                const rates = labels.map(l => ((dayStats[l].win / dayStats[l].total) * 100).toFixed(1));
-                
-                myChart = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: labels, datasets: [{ label: '勝率 (%)', data: rates, borderColor: '#4CAF50', tension: 0, fill: true, backgroundColor: 'rgba(76, 175, 80, 0.1)' }] },
-                    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
-                });
-            }
-            else if (['roundType', 'map', 'killer'].includes(viewMode)) {
+            if (mode === 'dailyTrend') {
                 const stats = {};
-                data.forEach(d => {
-                    const items = viewMode === 'killer' ? d.killers.split('/') : [d[viewMode]];
-                    items.forEach(item => {
-                        const val = item.trim(); if(!val || val === 'None') return;
-                        if (!stats[val]) stats[val] = { win: 0, lost: 0 };
-                        d.result === 'Win' ? stats[val].win++ : stats[val].lost++;
-                    });
+                filteredData.forEach(d => { const dt = d.timestamp.split(' ')[0]; if(!stats[dt]) stats[dt]={w:0,t:0}; stats[dt].t++; if(d.result==='Win') stats[dt].w++; });
+                const lbls = Object.keys(stats).sort();
+                myChart = new Chart(ctx, { type: 'line', data: { labels: lbls, datasets: [{ label: '勝率', data: lbls.map(l=>((stats[l].w/stats[l].t)*100).toFixed(1)), borderColor: '#4CAF50', tension: 0, fill: true, backgroundColor: 'rgba(76,175,80,0.1)' }] }, options: { maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}} } });
+            } 
+            else if (['roundType', 'map', 'killer'].includes(mode)) {
+                const stats = {};
+                filteredData.forEach(d => {
+                    const items = mode === 'killer' ? d.killers.split('/') : [d[mode]];
+                    items.forEach(i => { const v = i.trim(); if(!v || v==='None') return; if(!stats[v]) stats[v]={w:0,l:0}; d.result==='Win' ? stats[v].w++ : stats[v].l++; });
                 });
-                
-                let entries = Object.entries(stats).sort((a,b) => (b[1].win + b[1].lost) - (a[1].win + a[1].lost));
-                // 上位20件の制限を削除し、全件表示する
-                // if (viewMode === 'killer') entries = entries.slice(0, 20);
-
-                const labels = entries.map(e => e[0]);
-                myChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: { labels: labels, datasets: [
-                        { label: 'Win', data: entries.map(e => e[1].win), backgroundColor: '#4CAF50' },
-                        { label: 'Lost', data: entries.map(e => e[1].lost), backgroundColor: '#F44336' }
-                    ]},
-                    options: { 
-                        scales: { x: { stacked: true }, y: { stacked: true } },
-                        onClick: (event, elements) => {
-                            if (elements.length > 0 && viewMode === 'killer') {
-                                const idx = elements[0].index;
-                                showNemesisProfile(myChart.data.labels[idx]);
-                            }
-                        }
-                    }
-                });
+                const lbls = Object.keys(stats).sort((a,b)=>(stats[b].w+stats[b].l)-(stats[a].w+stats[a].l));
+                myChart = new Chart(ctx, { type: 'bar', data: { labels: lbls, datasets: [{label:'Win',data:lbls.map(l=>stats[l].w),backgroundColor:'#4CAF50'}, {label:'Lost',data:lbls.map(l=>stats[l].l),backgroundColor:'#F44336'}] }, options: { scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e, el)=>{ if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]); } } });
             }
             else {
-                const key = viewMode.replace('Rate', '');
-                const counts = {};
-                data.forEach(d => {
+                const key = mode.replace('Rate', '');
+                const cnts = {};
+                filteredData.forEach(d => {
                     const items = key === 'killer' ? d.killers.split('/') : [d[key]];
-                    items.forEach(i => { const v = i.trim(); if(v && v !== 'None') counts[v] = (counts[v] || 0) + 1; });
+                    items.forEach(i => { const v = i.trim(); if(v && v!=='None') cnts[v] = (cnts[v]||0)+1; });
                 });
-                let sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-                // 上位20件の制限を削除し、全件表示する
-                // if (key === 'killer') sorted = sorted.slice(0, 20);
-                
-                myChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: { labels: sorted.map(x=>x[0]), datasets: [{ data: sorted.map(x=>x[1]), backgroundColor: sorted.map((_,i)=>`hsl(${(i*360)/sorted.length},70%,50%)`) }] },
-                    options: { plugins: { legend: { position: 'right' } }, maintainAspectRatio: false }
-                });
+                const srt = Object.entries(cnts).sort((a,b)=>b[1]-a[1]);
+                myChart = new Chart(ctx, { type: 'pie', data: { labels: srt.map(x=>x[0]), datasets: [{ data: srt.map(x=>x[1]), backgroundColor: srt.map((_,i)=>`hsl(${(i*360)/srt.length},70%,50%)`) }] }, options: { maintainAspectRatio:false, plugins:{legend:{position:'right'}} } });
             }
+        }
+
+        function showNemesis(name) {
+            let w=0, l=0, t=0, last='-', maps={};
+            filteredData.forEach(d => { if(d.killers.includes(name)) { t++; d.result==='Win'?w++:l++; last=d.timestamp; maps[d.map]=(maps[d.map]||0)+1; } });
+            const topM = Object.entries(maps).sort((a,b)=>b[1]-a[1])[0];
+            document.getElementById('nemName').textContent = name;
+            document.getElementById('nemTotal').textContent = t;
+            document.getElementById('nemWin').textContent = w;
+            document.getElementById('nemLost').textContent = l;
+            document.getElementById('nemRate').textContent = ((w/t)*100).toFixed(1);
+            document.getElementById('nemLastDate').textContent = last;
+            document.getElementById('nemMap').textContent = `${topM[0]} (${topM[1]}回)`;
+            document.getElementById('nemesisBox').style.display = 'block';
         }
     </script>
 </body>
