@@ -59,7 +59,7 @@
         <button class="tab-btn active" onclick="switchTab('tab-dashboard')" data-i18n="tab_dash">📊 ダッシュボード</button>
         <button class="tab-btn" onclick="switchTab('tab-analytics')" data-i18n="tab_chart">📈 チャート分析</button>
         <button class="tab-btn" onclick="switchTab('tab-history')" data-i18n="tab_history">📝 対戦履歴</button>
-        <button class="tab-btn" onclick="switchTab('tab-unbound')" data-i18n="tab_unbound">🌀 アンバウンド発見</button>
+        <button class="tab-btn" onclick="switchTab('tab-unbound')" data-i18n="tab_unbound">🌀 アンバウンド図鑑</button>
     </div>
 
     <div id="tab-dashboard" class="tab-content active">
@@ -67,7 +67,9 @@
             <div id="summaryBox" style="padding:25px; background:#2a2a2a; border-radius:10px; border-left:5px solid var(--accent-color);">
                 <p style="font-size:22px; font-weight:bold; color:var(--accent-color); margin:0 0 10px 0;"><span data-i18n="stat_total">総試合</span>: <span id="totalGames">0</span> | <span data-i18n="stat_win">勝利</span>: <span id="totalWins">0</span> | <span data-i18n="stat_lost">敗北</span>: <span id="totalLost">0</span></p>
                 <p><span data-i18n="stat_rate">🏆 全体勝率</span>: <strong style="color:var(--accent-color); font-size:24px;"><span id="winRate">0</span>%</strong></p>
-                <hr style="border-color:var(--border-color); margin:15px 0;"><p><span data-i18n="date_first">🎮 記録開始</span>: <span id="firstPlayDate">-</span></p><p><span data-i18n="date_last">🔄 最終プレイ</span>: <span id="lastPlayDate">-</span></p>
+                <hr style="border-color:var(--border-color); margin:15px 0;">
+                <p><span data-i18n="date_first">🎮 記録開始</span>: <span id="firstPlayDate">-</span></p>
+                <p><span data-i18n="date_last">🔄 最終プレイ</span>: <span id="lastPlayDate">-</span></p>
             </div>
             <div style="background:#2a2a2a; border-radius:10px; padding:15px;"><canvas id="radarChartCanvas"></canvas></div>
         </div>
@@ -97,7 +99,7 @@
     <div id="tab-unbound" class="tab-content">
         <div style="text-align: left; background: rgba(186, 104, 200, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--unbound-accent); margin-bottom: 20px;">
             <strong style="color: var(--unbound-accent);" data-i18n="unbound_title">🌀 Unbound Discovery:</strong>
-            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">検出されたアンバウンドの記録です。</p>
+            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">テラーの種類からセット番号を逆引き判定しています。</p>
         </div>
         <div id="unboundDynamicList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
             <p style="color: #888; grid-column: 1/-1;" data-i18n="no_data_unbound">ログを読み込んでください。</p>
@@ -106,13 +108,22 @@
 
     <script>
         const i18n = {
-            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド発見", unbound_title: "🌀 アンバウンド発見", unbound_desc: "ログから検出されたアンバウンドのセット番号とテラーの記録です。", no_data_unbound: "記録が見つかりませんでした。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
-            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery", unbound_desc: "Recorded Unbound sets and terrors detected in your logs.", no_data_unbound: "No Unbound data found.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
+            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド図鑑", unbound_title: "🌀 アンバウンド図鑑", unbound_desc: "テラーの名前からアンバウンドのセット番号を自動判定した記録です。", no_data_unbound: "アンバウンドの記録は見つかりませんでした。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
+            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery", unbound_desc: "Automatically identified Unbound sets based on terror names.", no_data_unbound: "No Unbound data found.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
         };
+
+        // アンバウンド逆引きマスタ（Wiki情報を元に随時追加可能）
+        const UNBOUND_MASTER = {
+            "1": ["Charlotte", "Black Sun", "Sturm", "Something Wicked"],
+            "2": ["Ao Oni", "Wario Apparition", "Don't Touch Me", "Harvest"],
+            "10": ["Army in Black", "Glaggle Gang", "WHITEFACE", "SM64.Z64"],
+            "15": ["Tragedy", "Voidwalker", "Paradise Bird", "Restless Creator"],
+            // 必要に応じてWikiのリストをここに追加しなさい
+        };
+
         let currentLang = 'ja'; let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1; const rowsPerPage = 50;
         const isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
 
-        // --- 全てのフィルター要素にリスナーを追加 ---
         document.getElementById('langSelect').addEventListener('change', e => { currentLang = e.target.value; updateUI(); if(parsedData.length) { initFilters(); updateAll(); } });
         document.getElementById('csvFileInput').addEventListener('change', e => { 
             const f = e.target.files[0]; if(!f) return; document.getElementById('fileNameDisplay').textContent = f.name; 
@@ -153,7 +164,8 @@
         function renderTable() {
             const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1; tb.innerHTML = '';
             rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => { const win = isWin(d.result); tb.innerHTML += `<tr><td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${win?'win-text':'lost-text'}">${d.result}</td></tr>`; });
-            document.getElementById('pageInfo').textContent = `Page ${currentPage} / ${tp}`; document.getElementById('prevBtn').disabled = currentPage===1; document.getElementById('nextBtn').disabled = currentPage===tp;
+            document.getElementById('pageInfo').textContent = (currentLang === 'ja') ? `ページ ${currentPage} / ${tp}` : `Page ${currentPage} / ${tp}`;
+            document.getElementById('prevBtn').disabled = currentPage===1; document.getElementById('nextBtn').disabled = currentPage===tp;
         }
         function changePage(d) { currentPage+=d; renderTable(); }
 
@@ -166,17 +178,25 @@
         }
 
         function updateUnboundList() {
-            const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const unboundMap = {};
-            filteredData.forEach(d => { // フィルター適用後のデータを使用
-                const match = d.roundType.match(/(?:Unbound|アンバウンド)\s*(\d+)/i);
-                if (match) { const num = match[1]; if (!unboundMap[num]) unboundMap[num] = new Set(); if (d.killers && d.killers !== 'None') d.killers.split('/').forEach(k => unboundMap[num].add(k.trim())); }
+            const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const unboundDiscovery = {};
+            filteredData.forEach(d => {
+                if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) {
+                    let setID = "Unknown";
+                    const killersInRound = d.killers.split('/').map(k => k.trim());
+                    // マスターデータから一致するセットを探す
+                    for (const [id, list] of Object.entries(UNBOUND_MASTER)) {
+                        if (killersInRound.some(k => list.includes(k))) { setID = id; break; }
+                    }
+                    if (!unboundDiscovery[setID]) unboundDiscovery[setID] = new Set();
+                    killersInRound.forEach(k => { if(k !== 'None') unboundDiscovery[setID].add(k); });
+                }
             });
-            const sortedNums = Object.keys(unboundMap).sort((a, b) => parseInt(a) - parseInt(b));
-            if (!sortedNums.length) { listEl.innerHTML = `<p style="color: #888; grid-column: 1/-1;">${i18n[currentLang].no_data_unbound}</p>`; return; }
-            sortedNums.forEach(num => {
+            const sortedSets = Object.keys(unboundDiscovery).sort((a,b) => (a === "Unknown" ? 1 : (b === "Unknown" ? -1 : parseInt(a) - parseInt(b))));
+            if (!sortedSets.length) { listEl.innerHTML = `<p style="color: #888; grid-column: 1/-1;">${i18n[currentLang].no_data_unbound}</p>`; return; }
+            sortedSets.forEach(id => {
                 const card = document.createElement('div'); card.className = 'unbound-card';
-                let killerHtml = ''; Array.from(unboundMap[num]).sort().forEach(k => killerHtml += `<span class="unbound-killer">${k}</span>`);
-                card.innerHTML = `<strong style="color:var(--unbound-accent); display:block; margin-bottom:10px;">Set #${num}</strong>${killerHtml}`;
+                let killerHtml = ''; Array.from(unboundDiscovery[id]).sort().forEach(k => killerHtml += `<span class="unbound-killer">${k}</span>`);
+                card.innerHTML = `<strong style="color:var(--unbound-accent); display:block; margin-bottom:10px;">Set #${id}</strong>${killerHtml}`;
                 listEl.appendChild(card);
             });
         }
@@ -192,8 +212,7 @@
                 const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
                 myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
             } else {
-                const k=mode.replace('Rate',''), s={}; 
-                filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
+                const k=mode.replace('Rate',''), s={}; filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
                 let sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]); let l = [], c = [], cum = 0, oth = 0;
                 sorted.forEach(([name, count]) => { if ((cum / sorted.reduce((a,b)=>a+b[1],0) < 0.5 || l.length < 10) && l.length < 50) { l.push(name); c.push(count); cum += count; } else { oth += count; } });
                 if (oth > 0) { l.push("Others"); c.push(oth); }
