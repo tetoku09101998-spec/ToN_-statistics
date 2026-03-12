@@ -5,7 +5,7 @@
     <title>ToN Statistics Viewer Global</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg-color: #1a1a1a; --panel-bg: #222; --control-bg: #333; --accent-color: #4CAF50; --sub-accent: #64B5F6; --text-color: #eee; --border-color: #444; }
+        :root { --bg-color: #1a1a1a; --panel-bg: #222; --control-bg: #333; --accent-color: #4CAF50; --sub-accent: #64B5F6; --unbound-accent: #ba68c8; --text-color: #eee; --border-color: #444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; margin: 0; padding: 20px; }
         .header-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 25px; }
         .header-links { display: flex; gap: 10px; align-items: center; }
@@ -28,6 +28,8 @@
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
         .win-text { color: var(--accent-color); font-weight: bold; }
         .lost-text { color: #F44336; font-weight: bold; }
+        .unbound-card { background: #2a2a2a; padding: 15px; border-radius: 8px; border-top: 3px solid var(--unbound-accent); text-align: left; }
+        .unbound-killer { display: block; margin-bottom: 4px; background: #333; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -39,6 +41,7 @@
             <select id="langSelect" class="lang-select"><option value="ja">日本語</option><option value="en">English</option></select>
         </div>
     </div>
+
     <div class="controls">
         <div class="control-group"><strong data-i18n="label_load">📁 データ読込:</strong>
             <div class="file-input-wrapper"><button class="btn-upload" data-i18n="btn_browse">ファイルを選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
@@ -51,11 +54,14 @@
             <select id="killerFilter"><option value="all" data-i18n="opt_all_killer">全テラー</option></select>
         </div>
     </div>
+
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tab-dashboard')" data-i18n="tab_dash">📊 ダッシュボード</button>
         <button class="tab-btn" onclick="switchTab('tab-analytics')" data-i18n="tab_chart">📈 チャート分析</button>
         <button class="tab-btn" onclick="switchTab('tab-history')" data-i18n="tab_history">📝 対戦履歴</button>
+        <button class="tab-btn" onclick="switchTab('tab-unbound')" data-i18n="tab_unbound">🌀 アンバウンド発見</button>
     </div>
+
     <div id="tab-dashboard" class="tab-content active">
         <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; text-align:left;">
             <div id="summaryBox" style="padding:25px; background:#2a2a2a; border-radius:10px; border-left:5px solid var(--accent-color);">
@@ -67,6 +73,7 @@
         </div>
         <div id="appearanceRates" style="display:flex; justify-content:space-between; margin-top:25px; gap:15px;"></div>
     </div>
+
     <div id="tab-analytics" class="tab-content">
         <div style="text-align:left; margin-bottom:15px;"><strong data-i18n="label_view">表示切替:</strong>
             <select id="viewSelector" disabled>
@@ -81,29 +88,36 @@
         </div>
         <div class="chart-container"><canvas id="resultChart"></canvas></div>
     </div>
+
     <div id="tab-history" class="tab-content">
         <table><thead><tr><th data-i18n="th_date">日時</th><th data-i18n="th_map">マップ</th><th data-i18n="th_type">種類</th><th data-i18n="th_killer">テラー</th><th data-i18n="th_res">結果</th></tr></thead><tbody id="historyTableBody"></tbody></table>
         <div style="margin-top:20px;"><button id="prevBtn" onclick="changePage(-1)" disabled>◀</button> <span id="pageInfo">Page 1 / 1</span> <button id="nextBtn" onclick="changePage(1)" disabled>▶</button></div>
     </div>
+
+    <div id="tab-unbound" class="tab-content">
+        <div style="text-align: left; background: rgba(186, 104, 200, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--unbound-accent); margin-bottom: 20px;">
+            <strong style="color: var(--unbound-accent);" data-i18n="unbound_title">🌀 Unbound Discovery:</strong>
+            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">ログから検出されたアンバウンドのセット番号と、遭遇したテラーの記録です。</p>
+        </div>
+        <div id="unboundDynamicList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+            <p style="color: #888; grid-column: 1/-1;" data-i18n="no_data_unbound">ログを読み込むと、ここにアンバウンドの記録が表示されます。</p>
+        </div>
+    </div>
+
     <script>
         const i18n = {
-            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
-            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
+            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド発見", unbound_title: "🌀 アンバウンド発見", unbound_desc: "ログから検出されたアンバウンドのセット番号とテラーの記録です。", no_data_unbound: "記録が見つかりませんでした。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
+            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery", unbound_desc: "Recorded Unbound sets and terrors detected in your logs.", no_data_unbound: "No Unbound data found.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
         };
         let currentLang = 'ja'; let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1; const rowsPerPage = 50;
         const isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
 
         document.getElementById('langSelect').addEventListener('change', e => { currentLang = e.target.value; updateUI(); if(parsedData.length) { initFilters(); updateAll(); } });
-        document.getElementById('viewSelector').addEventListener('change', () => { document.getElementById('nemesisBox').style.display='none'; updateChart(); });
         document.getElementById('csvFileInput').addEventListener('change', e => { 
             const f = e.target.files[0]; if(!f) return; 
             document.getElementById('fileNameDisplay').textContent = f.name; 
             const r = new FileReader(); r.onload = ev => { parseCSV(ev.target.result); initFilters(); updateAll(); }; r.readAsText(f); 
         });
-        document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
-        document.getElementById('roundFilter').addEventListener('change', updateAll);
-        document.getElementById('mapFilter').addEventListener('change', updateAll);
-        document.getElementById('killerFilter').addEventListener('change', updateAll);
 
         function updateUI() { document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); el.textContent = i18n[currentLang][k] || k; }); }
         function switchTab(t) { 
@@ -124,7 +138,7 @@
         function updateAll() {
             const rf = document.getElementById('roundFilter').value, mf = document.getElementById('mapFilter').value, kf = document.getElementById('killerFilter').value, exc = document.getElementById('excludeClassicCheckbox').checked;
             filteredData = parsedData.filter(d => (rf==='all'||d.roundType===rf) && (mf==='all'||d.map===mf) && (kf==='all'||d.killers.includes(kf)) && !(exc && (d.roundType.includes('クラシック')||d.roundType.includes('Classic'))));
-            updateDashboard(); updateRadar(); renderTable(); if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
+            updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
         function updateDashboard() {
@@ -132,11 +146,7 @@
             filteredData.forEach(d => { isWin(d.result)?w++:l++; rC[d.roundType]=(rC[d.roundType]||0)+1; mC[d.map]=(mC[d.map]||0)+1; if(d.killers!=='None') d.killers.split('/').forEach(k => kC[k.trim()]=(kC[k.trim()]||0)+1); });
             document.getElementById('totalGames').textContent = w+l; document.getElementById('totalWins').textContent = w; document.getElementById('totalLost').textContent = l;
             document.getElementById('winRate').textContent = (w+l)>0?((w/(w+l))*100).toFixed(1):0;
-            const render = (c, t, col, lbl) => { 
-                let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${col}; display:block; margin-bottom:10px;">${lbl}</strong>`; 
-                Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> h+=`<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px;">${n}: ${((v/t)*100).toFixed(1)}% (${v})</span>`); 
-                return h + '</div>'; 
-            };
+            const render = (c, t, col, lbl) => { let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${col}; display:block; margin-bottom:10px;">${lbl}</strong>`; Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> h+=`<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px;">${n}: ${((v/t)*100).toFixed(1)}% (${v})</span>`); return h + '</div>'; };
             document.getElementById('appearanceRates').innerHTML = render(rC, filteredData.length, '#4CAF50', 'Round Type') + render(mC, filteredData.length, '#2196F3', 'Map') + render(kC, Object.values(kC).reduce((a,b)=>a+b,0), '#F44336', 'Terror');
         }
 
@@ -155,10 +165,29 @@
             myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{label:i18n[currentLang].radar_title, data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{ticks:{display:false,max:100},grid:{color:'rgba(255,255,255,0.1)'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
 
+        function updateUnboundList() {
+            const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = '';
+            const unboundMap = {};
+            parsedData.forEach(d => {
+                const match = d.roundType.match(/(?:Unbound|アンバウンド)\s*(\d+)/i);
+                if (match) {
+                    const num = match[1]; if (!unboundMap[num]) unboundMap[num] = new Set();
+                    if (d.killers && d.killers !== 'None') d.killers.split('/').forEach(k => unboundMap[num].add(k.trim()));
+                }
+            });
+            const sortedNums = Object.keys(unboundMap).sort((a, b) => parseInt(a) - parseInt(b));
+            if (!sortedNums.length) { listEl.innerHTML = `<p style="color: #888; grid-column: 1/-1;">${i18n[currentLang].no_data_unbound}</p>`; return; }
+            sortedNums.forEach(num => {
+                const card = document.createElement('div'); card.className = 'unbound-card';
+                let killerHtml = ''; Array.from(unboundMap[num]).sort().forEach(k => killerHtml += `<span class="unbound-killer">${k}</span>`);
+                card.innerHTML = `<strong style="color:var(--unbound-accent); display:block; margin-bottom:10px;">Set #${num}</strong>${killerHtml}`;
+                listEl.appendChild(card);
+            });
+        }
+
         function updateChart() {
             const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d'); if(myChart) myChart.destroy();
             if(!filteredData.length) return;
-            
             if(mode === 'dailyTrend'){
                 const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; }); const l=Object.keys(s).sort();
                 myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
@@ -167,30 +196,12 @@
                 const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
                 myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
             } else {
-                // 出現率（円グラフ）の累積50%ロジック修正
-                const k=mode.replace('Rate',''), s={}; 
-                filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
-                
+                const k=mode.replace('Rate',''), s={}; filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
                 let sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]);
                 let total = sorted.reduce((acc, curr) => acc + curr[1], 0);
                 let labels = [], counts = [], cumulative = 0, others = 0;
-                
-                sorted.forEach(([name, count]) => {
-                    // 全データ走査。条件を満たさない分は確実にothersへ
-                    if ((cumulative / total < 0.5 || labels.length < 10) && labels.length < 50) {
-                        labels.push(name);
-                        counts.push(count);
-                        cumulative += count;
-                    } else {
-                        others += count;
-                    }
-                });
-                
-                if (others > 0) {
-                    labels.push("Others");
-                    counts.push(others);
-                }
-
+                sorted.forEach(([name, count]) => { if ((cumulative / total < 0.5 || labels.length < 10) && labels.length < 50) { labels.push(name); counts.push(count); cumulative += count; } else { others += count; } });
+                if (others > 0) { labels.push("Others"); counts.push(others); }
                 myChart = new Chart(ctx, { type:'pie', data:{labels:labels, datasets:[{data:counts, backgroundColor:labels.map((_,i)=>`hsl(${(i*360)/labels.length},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right',labels:{color:'#ccc', boxWidth: 15, font: {size: 10}}}} } });
             }
         }
