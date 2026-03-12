@@ -97,10 +97,10 @@
     <div id="tab-unbound" class="tab-content">
         <div style="text-align: left; background: rgba(186, 104, 200, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--unbound-accent); margin-bottom: 20px;">
             <strong style="color: var(--unbound-accent);" data-i18n="unbound_title">🌀 Unbound Discovery:</strong>
-            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">ログから検出されたアンバウンドのセット番号と、遭遇したテラーの記録です。</p>
+            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">検出されたアンバウンドの記録です。</p>
         </div>
         <div id="unboundDynamicList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
-            <p style="color: #888; grid-column: 1/-1;" data-i18n="no_data_unbound">ログを読み込むと、ここにアンバウンドの記録が表示されます。</p>
+            <p style="color: #888; grid-column: 1/-1;" data-i18n="no_data_unbound">ログを読み込んでください。</p>
         </div>
     </div>
 
@@ -112,20 +112,20 @@
         let currentLang = 'ja'; let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1; const rowsPerPage = 50;
         const isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
 
+        // --- 全てのフィルター要素にリスナーを追加 ---
         document.getElementById('langSelect').addEventListener('change', e => { currentLang = e.target.value; updateUI(); if(parsedData.length) { initFilters(); updateAll(); } });
         document.getElementById('csvFileInput').addEventListener('change', e => { 
-            const f = e.target.files[0]; if(!f) return; 
-            document.getElementById('fileNameDisplay').textContent = f.name; 
+            const f = e.target.files[0]; if(!f) return; document.getElementById('fileNameDisplay').textContent = f.name; 
             const r = new FileReader(); r.onload = ev => { parseCSV(ev.target.result); initFilters(); updateAll(); }; r.readAsText(f); 
         });
+        document.getElementById('viewSelector').addEventListener('change', () => { document.getElementById('nemesisBox').style.display='none'; updateChart(); });
+        document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
+        document.getElementById('roundFilter').addEventListener('change', updateAll);
+        document.getElementById('mapFilter').addEventListener('change', updateAll);
+        document.getElementById('killerFilter').addEventListener('change', updateAll);
 
         function updateUI() { document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); el.textContent = i18n[currentLang][k] || k; }); }
-        function switchTab(t) { 
-            document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); 
-            document.getElementById(t).classList.add('active'); 
-            document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active'); 
-            if (t === 'tab-analytics' && filteredData.length) updateChart(); 
-        }
+        function switchTab(t) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active'); if (t === 'tab-analytics' && filteredData.length) updateChart(); }
         function parseCSV(t) { parsedData = t.trim().split('\n').slice(1).map(l => { const c = l.split(','); return { timestamp:(c[0]||"").trim(), map:(c[1]||"").trim(), roundType:(c[2]||"").trim(), killers:(c[3]||"").trim(), result:(c[4]||"").trim() }; }); }
         
         function initFilters() {
@@ -166,14 +166,10 @@
         }
 
         function updateUnboundList() {
-            const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = '';
-            const unboundMap = {};
-            parsedData.forEach(d => {
+            const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const unboundMap = {};
+            filteredData.forEach(d => { // フィルター適用後のデータを使用
                 const match = d.roundType.match(/(?:Unbound|アンバウンド)\s*(\d+)/i);
-                if (match) {
-                    const num = match[1]; if (!unboundMap[num]) unboundMap[num] = new Set();
-                    if (d.killers && d.killers !== 'None') d.killers.split('/').forEach(k => unboundMap[num].add(k.trim()));
-                }
+                if (match) { const num = match[1]; if (!unboundMap[num]) unboundMap[num] = new Set(); if (d.killers && d.killers !== 'None') d.killers.split('/').forEach(k => unboundMap[num].add(k.trim())); }
             });
             const sortedNums = Object.keys(unboundMap).sort((a, b) => parseInt(a) - parseInt(b));
             if (!sortedNums.length) { listEl.innerHTML = `<p style="color: #888; grid-column: 1/-1;">${i18n[currentLang].no_data_unbound}</p>`; return; }
@@ -196,13 +192,12 @@
                 const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
                 myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
             } else {
-                const k=mode.replace('Rate',''), s={}; filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
-                let sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]);
-                let total = sorted.reduce((acc, curr) => acc + curr[1], 0);
-                let labels = [], counts = [], cumulative = 0, others = 0;
-                sorted.forEach(([name, count]) => { if ((cumulative / total < 0.5 || labels.length < 10) && labels.length < 50) { labels.push(name); counts.push(count); cumulative += count; } else { others += count; } });
-                if (others > 0) { labels.push("Others"); counts.push(others); }
-                myChart = new Chart(ctx, { type:'pie', data:{labels:labels, datasets:[{data:counts, backgroundColor:labels.map((_,i)=>`hsl(${(i*360)/labels.length},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right',labels:{color:'#ccc', boxWidth: 15, font: {size: 10}}}} } });
+                const k=mode.replace('Rate',''), s={}; 
+                filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
+                let sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]); let l = [], c = [], cum = 0, oth = 0;
+                sorted.forEach(([name, count]) => { if ((cum / sorted.reduce((a,b)=>a+b[1],0) < 0.5 || l.length < 10) && l.length < 50) { l.push(name); c.push(count); cum += count; } else { oth += count; } });
+                if (oth > 0) { l.push("Others"); c.push(oth); }
+                myChart = new Chart(ctx, { type:'pie', data:{labels:l, datasets:[{data:c, backgroundColor:l.map((_,i)=>`hsl(${(i*360)/l.length},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right',labels:{color:'#ccc', boxWidth: 15, font: {size: 10}}}} } });
             }
         }
         function showNemesis(n) {
