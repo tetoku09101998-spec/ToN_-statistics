@@ -108,17 +108,15 @@
 
     <script>
         const i18n = {
-            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド図鑑", unbound_title: "🌀 アンバウンド図鑑", unbound_desc: "テラーの名前からアンバウンドのセット番号を自動判定した記録です。", no_data_unbound: "アンバウンドの記録は見つかりませんでした。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
-            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery", unbound_desc: "Automatically identified Unbound sets based on terror names.", no_data_unbound: "No Unbound data found.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
+            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド図鑑", unbound_title: "🌀 アンバウンド図鑑", unbound_desc: "テラー名からアンバウンドのセット番号を自動判定した記録です。", no_data_unbound: "アンバウンドの記録は見つかりませんでした。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
+            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery", unbound_desc: "Identified Unbound sets based on terror names.", no_data_unbound: "No Unbound data found.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
         };
 
-        // アンバウンド逆引きマスタ（Wiki情報を元に随時追加可能）
         const UNBOUND_MASTER = {
             "1": ["Charlotte", "Black Sun", "Sturm", "Something Wicked"],
             "2": ["Ao Oni", "Wario Apparition", "Don't Touch Me", "Harvest"],
             "10": ["Army in Black", "Glaggle Gang", "WHITEFACE", "SM64.Z64"],
-            "15": ["Tragedy", "Voidwalker", "Paradise Bird", "Restless Creator"],
-            // 必要に応じてWikiのリストをここに追加しなさい
+            "15": ["Tragedy", "Voidwalker", "Paradise Bird", "Restless Creator"]
         };
 
         let currentLang = 'ja'; let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1; const rowsPerPage = 50;
@@ -137,10 +135,20 @@
 
         function updateUI() { document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); el.textContent = i18n[currentLang][k] || k; }); }
         function switchTab(t) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active'); if (t === 'tab-analytics' && filteredData.length) updateChart(); }
-        function parseCSV(t) { parsedData = t.trim().split('\n').slice(1).map(l => { const c = l.split(','); return { timestamp:(c[0]||"").trim(), map:(c[1]||"").trim(), roundType:(c[2]||"").trim(), killers:(c[3]||"").trim(), result:(c[4]||"").trim() }; }); }
+        
+        function parseCSV(t) {
+            parsedData = t.trim().split('\n').slice(1).map(l => {
+                const c = l.split(',');
+                return { 
+                    timestamp: (c[0]||"").trim(), map: (c[1]||"").trim(), 
+                    roundType: (c[2]||"").trim(), killers: (c[3]||"").trim(), result: (c[4]||"").trim() 
+                };
+            }).filter(d => d.timestamp !== ""); // 空行を除去
+        }
         
         function initFilters() {
-            const r = new Set(), m = new Set(), k = new Set(); parsedData.forEach(d => { r.add(d.roundType); m.add(d.map); if(d.killers!=='None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
+            const r = new Set(), m = new Set(), k = new Set();
+            parsedData.forEach(d => { r.add(d.roundType); m.add(d.map); if(d.killers && d.killers !== 'None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
             const cR = document.getElementById('roundFilter').value, cM = document.getElementById('mapFilter').value, cK = document.getElementById('killerFilter').value;
             const fill = (id, set, key, saved) => { const el = document.getElementById(id); el.innerHTML = `<option value="all">${i18n[currentLang][key]}</option>`; Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}" ${v===saved?'selected':''}>${v}</option>`); };
             fill('roundFilter', r, 'opt_all_round', cR); fill('mapFilter', m, 'opt_all_map', cM); fill('killerFilter', k, 'opt_all_killer', cK); document.getElementById('viewSelector').disabled = false;
@@ -148,31 +156,59 @@
 
         function updateAll() {
             const rf = document.getElementById('roundFilter').value, mf = document.getElementById('mapFilter').value, kf = document.getElementById('killerFilter').value, exc = document.getElementById('excludeClassicCheckbox').checked;
-            filteredData = parsedData.filter(d => (rf==='all'||d.roundType===rf) && (mf==='all'||d.map===mf) && (kf==='all'||d.killers.includes(kf)) && !(exc && (d.roundType.includes('クラシック')||d.roundType.includes('Classic'))));
+            filteredData = parsedData.filter(d => (rf==='all'||d.roundType===rf) && (mf==='all'||d.map===mf) && (kf==='all'||(d.killers && d.killers.includes(kf))) && !(exc && (d.roundType.includes('クラシック')||d.roundType.includes('Classic'))));
             updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
         function updateDashboard() {
-            let w=0, l=0, rC={}, mC={}, kC={}; if(filteredData.length) { document.getElementById('firstPlayDate').textContent = filteredData[0].timestamp; document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp; }
-            filteredData.forEach(d => { isWin(d.result)?w++:l++; rC[d.roundType]=(rC[d.roundType]||0)+1; mC[d.map]=(mC[d.map]||0)+1; if(d.killers!=='None') d.killers.split('/').forEach(k => kC[k.trim()]=(kC[k.trim()]||0)+1); });
-            document.getElementById('totalGames').textContent = w+l; document.getElementById('totalWins').textContent = w; document.getElementById('totalLost').textContent = l;
-            document.getElementById('winRate').textContent = (w+l)>0?((w/(w+l))*100).toFixed(1):0;
-            const render = (c, t, col, lbl) => { let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${col}; display:block; margin-bottom:10px;">${lbl}</strong>`; Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> h+=`<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px;">${n}: ${((v/t)*100).toFixed(1)}% (${v})</span>`); return h + '</div>'; };
-            document.getElementById('appearanceRates').innerHTML = render(rC, filteredData.length, '#4CAF50', 'Round Type') + render(mC, filteredData.length, '#2196F3', 'Map') + render(kC, Object.values(kC).reduce((a,b)=>a+b,0), '#F44336', 'Terror');
+            let w=0, l=0, rC={}, mC={}, kC={};
+            if(filteredData.length) {
+                document.getElementById('firstPlayDate').textContent = filteredData[0].timestamp || "-";
+                document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp || "-";
+            }
+            filteredData.forEach(d => {
+                isWin(d.result)?w++:l++;
+                if(d.roundType) rC[d.roundType]=(rC[d.roundType]||0)+1;
+                if(d.map) mC[d.map]=(mC[d.map]||0)+1;
+                if(d.killers && d.killers !== 'None') d.killers.split('/').forEach(k => kC[k.trim()]=(kC[k.trim()]||0)+1);
+            });
+            document.getElementById('totalGames').textContent = w+l;
+            document.getElementById('totalWins').textContent = w;
+            document.getElementById('totalLost').textContent = l;
+            const rate = (w+l)>0 ? ((w/(w+l))*100).toFixed(1) : 0;
+            document.getElementById('winRate').textContent = rate;
+
+            const render = (c, t, col, lbl) => {
+                let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${col}; display:block; margin-bottom:10px;">${lbl}</strong>`;
+                Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> h+=`<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px;">${n}: ${((v/t)*100).toFixed(1)}% (${v})</span>`);
+                return h + '</div>';
+            };
+            document.getElementById('appearanceRates').innerHTML = render(rC, filteredData.length || 1, '#4CAF50', 'Round Type') + render(mC, filteredData.length || 1, '#2196F3', 'Map') + render(kC, Object.values(kC).reduce((a,b)=>a+b,0) || 1, '#F44336', 'Terror');
         }
 
         function renderTable() {
-            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1; tb.innerHTML = '';
-            rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => { const win = isWin(d.result); tb.innerHTML += `<tr><td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${win?'win-text':'lost-text'}">${d.result}</td></tr>`; });
+            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1;
+            tb.innerHTML = '';
+            rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => {
+                const win = isWin(d.result);
+                tb.innerHTML += `<tr><td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${win?'win-text':'lost-text'}">${d.result}</td></tr>`;
+            });
             document.getElementById('pageInfo').textContent = (currentLang === 'ja') ? `ページ ${currentPage} / ${tp}` : `Page ${currentPage} / ${tp}`;
             document.getElementById('prevBtn').disabled = currentPage===1; document.getElementById('nextBtn').disabled = currentPage===tp;
         }
+
         function changePage(d) { currentPage+=d; renderTable(); }
 
         function updateRadar() {
             const ctx = document.getElementById('radarChartCanvas').getContext('2d'); if(myRadarChart) myRadarChart.destroy();
             let s={aW:0,aT:0,cW:0,cT:0,sW:0,sT:0,siW:0,siT:0,muW:0,muT:0};
-            filteredData.forEach(d => { const w=isWin(d.result); s.aT++; if(w) s.aW++; if(d.roundType.includes('クラシック')||d.roundType.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;} if(d.killers.includes('/')){s.muT++; if(w)s.muW++;} else if(d.killers!=='None'){s.siT++; if(w)s.siW++;} });
+            filteredData.forEach(d => {
+                const w=isWin(d.result); s.aT++; if(w) s.aW++;
+                const rt = (d.roundType || "");
+                const kl = (d.killers || "");
+                if(rt.includes('クラシック')||rt.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;}
+                if(kl.includes('/')){s.muT++; if(w)s.muW++;} else if(kl !== 'None' && kl !== ""){s.siT++; if(w)s.siW++;}
+            });
             const r = (w,t) => t>0?Math.round((w/t)*100):0;
             myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{label:i18n[currentLang].radar_title, data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{ticks:{display:false,max:100},grid:{color:'rgba(255,255,255,0.1)'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
@@ -180,15 +216,13 @@
         function updateUnboundList() {
             const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const unboundDiscovery = {};
             filteredData.forEach(d => {
-                if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) {
+                const rt = (d.roundType || "");
+                if (rt.includes('Unbound') || rt.includes('アンバウンド')) {
                     let setID = "Unknown";
-                    const killersInRound = d.killers.split('/').map(k => k.trim());
-                    // マスターデータから一致するセットを探す
-                    for (const [id, list] of Object.entries(UNBOUND_MASTER)) {
-                        if (killersInRound.some(k => list.includes(k))) { setID = id; break; }
-                    }
+                    const killersInRound = (d.killers || "").split('/').map(k => k.trim());
+                    for (const [id, list] of Object.entries(UNBOUND_MASTER)) { if (killersInRound.some(k => list.includes(k))) { setID = id; break; } }
                     if (!unboundDiscovery[setID]) unboundDiscovery[setID] = new Set();
-                    killersInRound.forEach(k => { if(k !== 'None') unboundDiscovery[setID].add(k); });
+                    killersInRound.forEach(k => { if(k !== 'None' && k !== "") unboundDiscovery[setID].add(k); });
                 }
             });
             const sortedSets = Object.keys(unboundDiscovery).sort((a,b) => (a === "Unknown" ? 1 : (b === "Unknown" ? -1 : parseInt(a) - parseInt(b))));
@@ -208,19 +242,20 @@
                 const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; }); const l=Object.keys(s).sort();
                 myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
             } else if(['roundType','map','killer'].includes(mode)){
-                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?d.killers.split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); }); 
+                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?(d.killers||"").split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); });
                 const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
                 myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
             } else {
-                const k=mode.replace('Rate',''), s={}; filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); }); 
-                let sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]); let l = [], c = [], cum = 0, oth = 0;
-                sorted.forEach(([name, count]) => { if ((cum / sorted.reduce((a,b)=>a+b[1],0) < 0.5 || l.length < 10) && l.length < 50) { l.push(name); c.push(count); cum += count; } else { oth += count; } });
-                if (oth > 0) { l.push("Others"); c.push(oth); }
+                const k=mode.replace('Rate',''), s={};
+                filteredData.forEach(d=>{ const items=k==='killer'?(d.killers||"").split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
+                let sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]); let l = [], c = [], cum = 0, total = sorted.reduce((acc,curr)=>acc+curr[1],0);
+                sorted.forEach(([name, count]) => { if ((cum / total < 0.5 || l.length < 10) && l.length < 50) { l.push(name); c.push(count); cum += count; } else { if(!l.includes("Others")) { l.push("Others"); c.push(0); } c[l.length-1] += count; } });
                 myChart = new Chart(ctx, { type:'pie', data:{labels:l, datasets:[{data:c, backgroundColor:l.map((_,i)=>`hsl(${(i*360)/l.length},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right',labels:{color:'#ccc', boxWidth: 15, font: {size: 10}}}} } });
             }
         }
+
         function showNemesis(n) {
-            let w=0,l=0,t=0,m={}; filteredData.forEach(d=>{ if(d.killers.includes(n)){ t++; isWin(d.result)?w++:l++; m[d.map]=(m[d.map]||0)+1; } }); const sortedM = Object.entries(m).sort((a,b)=>b[1]-a[1]); const topM = sortedM[0] || ["-", 0];
+            let w=0,l=0,t=0,m={}; filteredData.forEach(d=>{ if((d.killers||"").includes(n)){ t++; isWin(d.result)?w++:l++; m[d.map]=(m[d.map]||0)+1; } }); const sortedM = Object.entries(m).sort((a,b)=>b[1]-a[1]); const topM = sortedM[0] || ["-", 0];
             document.getElementById('nemName').textContent = n; document.getElementById('nemDetails').innerHTML = `<span style="background:rgba(0,0,0,0.3); padding:5px 10px; border-radius:4px; margin-right:10px;">Encounters: ${t}</span><span style="color:var(--accent-color);">Win: ${w}</span> | <span style="color:#F44336;">Lost: ${l}</span><br>Top Map: ${topM[0]} (${topM[1]})`; document.getElementById('nemesisBox').style.display = 'block';
         }
         updateUI();
