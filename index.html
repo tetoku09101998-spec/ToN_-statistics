@@ -160,8 +160,92 @@
             en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear", label_date: "📅 Date:", check_exclude: "Exclude Classic", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "Total", stat_rate: "Win Rate", nemesis: "Nemesis", prey: "Prey", max_win: "Max Win Streak", max_lost: "Max Lost Streak", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", btn_dl_chart: "Save Image", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'] }
         };
 
+        // ★ 欠落一切なし。ペリンが用意した完全なマスタデータ
         const UNBOUND_MASTER = {
-            "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"], "2": ["Haket", "Blue Haket", "Red vs Blue"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Guardians"], "5": ["Security", "The Swarm", "Prisoner", "Higher Beings"], "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M", "Quadruple Sponge"], "7": ["BFF", "Nameless", "Your Best Friends"], "8": ["Seek", "Rush", "Eyes", "Hotel Monsters"], "9": ["Squibbs (Dev Bytes)", "Convict(D)", "Squibb Squad"], "10": ["Convict Squad", "Kimera", "Search and Destroy", "Garden Rejects"], "11": ["WhiteNight", "Paradise Bird", "Judgement Day"], "12": ["Roblander", "Inverted Roblander", "Me and My Shadow"], "13": ["An Arbiter", "The Red Mist", "Meltdown"], "14": ["Slender", "Slendy", "Hungry Home Invader", "Faceless Mafia"], "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10", "Mansion Monsters"], "16": ["MX", "Luigi", "Wario Apparition", "Copyright Infringement"], "17": ["Purple Guy", "Purple Bros"], "18": ["Scavenger", "Scavengers"], "19": ["The LifeBringer", "Scrapyard Machine", "Life & Death"], "20": ["Unknown Witch", "Labyrinth"], "21": ["Umbra", "Spiteful Eye", "Spiteful Shadows"], "22": ["Angry Munci", "Triple Munci"], "23": ["Karol_Corpse", "Daycare"], "24": ["Huggy", "Huggy Wuggy", "Huggy Horde"], "25": ["Arrival", "Infection"], "26": ["Hush", "Triple Hush"], "27": ["[CENSORED]"], "28": ["Dev Bytes", "Vana", "Duke", "Byte Horde"], "29": ["Sawrunner", "SawMarathon"], "30": ["Little Witch", "War", "Convict(N)", "TAKE THE NAMI CHALLENGE"], "31": ["Lightning", "Thunderstorm"], "32": ["Joy", "END OF THE WORLD"], "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER", "Fragmented Memories"], "34": ["Mona", "Mona & The Mountain", "Mona & Mona & Mona & Mona"], "35": ["Legs", "Seekers"], "36": ["Convict(N)", "Nugget Squad"], "37": ["Saul", "Saul's goodmen"], "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"], "39": ["Bigger Boot", "POV: Bug"], "40": ["Punishing Bird", "Punishing Birdemic"], "41": ["Chomper", "Chomper Trio"], "42": ["With Many Voices", "Too Many Voices"], "43": ["Miros Bird", "Memory Crypts"], "44": ["Jumbo Josh", "Zumbo Sauce"], "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann", "Freaks"], "46": ["Lunatic Cultist", "Lunatic Cult"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio & The Drifter", "Transportation Trio", "The Drifter"], "48": ["Purple Guy", "Voidwalker", "Father Son Bonding"], "49": ["HER", "WHITEFACE", "WHAT IS MY NAME"], "50": ["Dapper Enphoso", "Pyromatic Enphoso", "Glaggleland Cremators"], "51": ["Signus", "Triple Signus"], "52": ["Akumii-Kari", "Triple Akumii Kari"], "53": ["Big Bird", "Paradise Bird", "Black & White"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue gaper", "Blue Flies", "Blue Monsters"], "56": ["Drone", "Drones"], "57": ["Scrapyard Taker", "Scrapyard Takers"], "58": ["Luigi Doll", "Luigi Dolls"], "59": ["Meteor", "Meteor Shower"], "60": ["TBH", "TBH Spy", "Triple TBH"], "61": ["Lost Soul", "Lost Souls"], "62": ["Aku Ball", "Ballin"], "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket", "Reunion"], "64": ["Roblander", "Bliss", "Ancient Monarch", "Angels"], "65": ["Apocalypse Bird", "Immortal Snail", "Ordinary Apocalypse Bird"], "66": ["Wild Yet Curious Creature", "Pack of Wild Yet Curious Creatures"], "67": ["Beyond", "Manti", "ToN X SlashCo Collab"], "68": ["Yolm", "Pack of Yolm"], "69": ["Peepy", "Threepy"], "70": ["Ghost Girl", "??"], "71": ["Deleted", "Akumii-Kari", "Delete Me"], "72": ["Spamton", "Spamton Spam"], "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser", "Death From Above"], "74": ["Mirror", "Red Bus", "Terror of Nowhere", "It Came From Bus To Nowhere"], "75": ["SCP-049-B", "Zombie Apocalypse"], "76": ["Mountain of Smiling Bodies", "Eating Contest"], "77": ["Clockey", "Triple Clockey"], "78": ["Killer Fish", "Triple Killer Fish"], "79": ["MR.MEGA", "DoomBox", "Lethal League"], "80": ["Comedy", "Tragedy", "Trollage"], "81": ["MopeMope", "Mopemopemopemopemopemope"], "82": ["Sonic", "Rewrite", "Atrached", "Triple Trouble"], "83": ["Living Shadow", "Triple Living Shadow"], "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)", "Beyond's Masks"]
+            "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"],
+            "2": ["Haket", "Blue Haket", "Red vs Blue"],
+            "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"],
+            "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Gurdians", "Forest Guardians"],
+            "5": ["Security", "The Swarm", "Prisoner", "Higher Beings"],
+            "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M", "Quadruple Sponge"],
+            "7": ["BFF", "Nameless", "Your Best Friends"],
+            "8": ["Seek", "Rush", "Eyes", "Hotel Monsters"],
+            "9": ["Squibbs (Dev Bytes)", "Convict(D)", "Squibb Squad"],
+            "10": ["Convict Squad", "Kimera", "Search and Destroy", "Garden Rejects"],
+            "11": ["WhiteNight", "Paradise Bird", "Judgement Day"],
+            "12": ["Roblander", "Inverted Roblander", "Me and My Shadow"],
+            "13": ["An Arbiter", "The Red Mist", "Meltdown"],
+            "14": ["Slender", "Slendy", "Hungry Home Invader", "Faceless Mafia"],
+            "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10", "Mansion Monsters"],
+            "16": ["MX", "Luigi", "Wario Apparition", "Copyright Infringement"],
+            "17": ["Purple Guy", "Purple Bros"],
+            "18": ["Scavenger", "Scavengers"],
+            "19": ["The LifeBringer", "Scrapyard Machine", "Life & Death"],
+            "20": ["Unknown Witch", "Labyrinth"],
+            "21": ["Umbra", "Spiteful Eye", "Spiteful Shadows"],
+            "22": ["Angry Munci", "Triple Munci"],
+            "23": ["Karol_Corpse", "Daycare"],
+            "24": ["Huggy", "Huggy Wuggy", "Huggy Horde"],
+            "25": ["Arrival", "Infection"],
+            "26": ["Hush", "Triple Hush"],
+            "27": ["[CENSORED]"],
+            "28": ["Dev Bytes", "Vana", "Duke", "Byte Horde"],
+            "29": ["Sawrunner", "SawMarathon"],
+            "30": ["Little Witch", "War", "Convict(N)", "TAKE THE NAMI CHALLENGE"],
+            "31": ["Lightning", "Thunderstorm"],
+            "32": ["Joy", "END OF THE WORLD"],
+            "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER", "Fragmented Memories"],
+            "34": ["Mona", "Mona & The Mountain", "Mona & Mona & Mona & Mona"],
+            "35": ["Legs", "Seekers"],
+            "36": ["Convict(N)", "Nugget Squad"],
+            "37": ["Saul", "Saul's goodmen"],
+            "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"],
+            "39": ["Bigger Boot", "POV: Bug"],
+            "40": ["Punishing Bird", "Punishing Birdemic"],
+            "41": ["Chomper", "Chomper Trio"],
+            "42": ["With Many Voices", "Too Many Voices"],
+            "43": ["Miros Bird", "Memory Crypts"],
+            "44": ["Jumbo Josh", "Zumbo Sauce"],
+            "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann", "Freaks"],
+            "46": ["Lunatic Cultist", "Lunatic Cult"],
+            "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio & The Drifter", "Transportation Trio", "The Drifter"],
+            "48": ["Purple Guy", "Voidwalker", "Father Son Bonding"],
+            "49": ["HER", "WHITEFACE", "WHAT IS MY NAME"],
+            "50": ["Dapper Enphoso", "Pyromatic Enphoso", "Glaggleland Cremators"],
+            "51": ["Signus", "Triple Signus"],
+            "52": ["Akumii-Kari", "Triple Akumii Kari"],
+            "53": ["Big Bird", "Paradise Bird", "Black & White"],
+            "54": ["LESSER CENSORED", "[LESSER CENSORED]"],
+            "55": ["Blue gaper", "Blue Flies", "Blue Monsters"],
+            "56": ["Drone", "Drones"],
+            "57": ["Scrapyard Taker", "Scrapyard Takers"],
+            "58": ["Luigi Doll", "Luigi Dolls"],
+            "59": ["Meteor", "Meteor Shower"],
+            "60": ["TBH", "TBH Spy", "Triple TBH"],
+            "61": ["Lost Soul", "Lost Souls"],
+            "62": ["Aku Ball", "Ballin"],
+            "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket", "Reunion"],
+            "64": ["Roblander", "Bliss", "Ancient Monarch", "Angels"],
+            "65": ["Apocalypse Bird", "Immortal Snail", "Ordinary Apocalypse Bird"],
+            "66": ["Wild Yet Curious Creature", "Pack of Wild Yet Curious Creatures"],
+            "67": ["Beyond", "Manti", "ToN X SlashCo Collab"],
+            "68": ["Yolm", "Pack of Yolm"],
+            "69": ["Peepy", "Threepy"],
+            "70": ["Ghost Girl", "???"],
+            "71": ["Deleted", "Akumii-Kari", "Delete Me"],
+            "72": ["Spamton", "Spamton Spam"],
+            "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser", "Death From Above"],
+            "74": ["Mirror", "Red Bus", "Terror of Nowhere", "It Came From Bus To Nowhere"],
+            "75": ["SCP-049-B", "Zombie Apocalypse"],
+            "76": ["Mountain of Smiling Bodies", "Eating Contest"],
+            "77": ["Clockey", "Triple Clockey"],
+            "78": ["Killer Fish", "Triple Killer Fish"],
+            "79": ["MR.MEGA", "DoomBox", "Lethal League"],
+            "80": ["Comedy", "Tragedy", "Trollage"],
+            "81": ["MopeMope", "Mopemopemopemopemopemope"],
+            "82": ["Sonic", "Rewrite", "Atrached", "Triple Trouble"],
+            "83": ["Living Shadow", "Triple Living Shadow"],
+            "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)", "Beyond's Masks"]
         };
 
         let currentLang = 'ja', myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1;
@@ -169,7 +253,7 @@
         const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_ultimate_csv_fixed');
+            const saved = localStorage.getItem('ton_ultimate_perfect');
             if (saved) { parsedData = JSON.parse(saved); initFilters(); updateAll(); }
             updateUI();
         });
@@ -185,13 +269,20 @@
         document.getElementById('csvFileInput').addEventListener('change', e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader();
-            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_csv_fixed', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
+            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_perfect', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_csv_fixed'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_perfect'); location.reload(); } });
 
-        // ★ CSVパースの完全改修版（カンマ入りのダブルクォートやHTMLエンティティに対応）
+        // ★ HTMLエンティティを解読する関数
+        const decodeHTML = (html) => {
+            const txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+        };
+
+        // ★ 本格的CSVパーサー（カンマを含む名前、HTMLエンティティに完全対応）
         function parseCSV(t) {
             parsedData = [];
             const lines = t.trim().split('\n');
@@ -206,8 +297,10 @@
                     else { val += l[j]; }
                 }
                 c.push(val.trim());
+                
                 if (c.length >= 5) {
-                    const k = c.slice(3, c.length - 1).join(',').replace(/&amp;/g, '&');
+                    const kRaw = c.slice(3, c.length - 1).join(',');
+                    const k = decodeHTML(kRaw);
                     parsedData.push({
                         timestamp: c[0], map: c[1], roundType: c[2], killers: k, result: c[c.length - 1]
                     });
@@ -377,13 +470,14 @@
             myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,ticks:{display:false},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
 
+        // ★ アンバウンド図鑑：一切のデータ欠落なし。全構成員をタグとして表示
         function updateUnboundList() {
             const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const ds = new Set();
             filteredData.forEach(d => { if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) { const ks = d.killers.split('/').map(k => k.trim()); for (const [sId, list] of Object.entries(UNBOUND_MASTER)) { if (ks.some(k => list.includes(k))) { ds.add(sId); break; } } } });
             Array.from(ds).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => {
                 const card = document.createElement('div'); card.className = 'unbound-card'; const m = UNBOUND_MASTER[id] || [];
-                const sn = m.length > 1 ? m[m.length - 1] : `Set #${id}`; const mm = m.length > 1 ? m.slice(0, m.length - 1) : m;
-                card.innerHTML = `<span class="unbound-set-name">${sn}</span>${mm.map(k => `<span class="unbound-killer-tag">${k}</span>`).join('')}`;
+                const sn = m.length > 1 ? m[m.length - 1] : `Set #${id}`;
+                card.innerHTML = `<span class="unbound-set-name">${sn}</span>${m.map(k => `<span class="unbound-killer-tag">${k}</span>`).join('')}`;
                 listEl.appendChild(card);
             });
         }
