@@ -19,7 +19,7 @@
         .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
         .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
         .btn-upload { background: var(--control-bg); border: 1px solid #555; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .btn-clear { background: #333; border: 1px solid #555; color: #888; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: auto; }
+        .btn-clear { background: #333; border: 1px solid #555; color: #888; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: auto; transition: 0.2s; }
         .btn-clear:hover { background: #d32f2f; color: #fff; border-color: #f44336; }
         
         .tabs { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); max-width: 1100px; margin: 0 auto 20px auto; }
@@ -30,8 +30,8 @@
         .tab-content.active { display: block; }
         
         /* ういの診断パネル */
-        .ui-diagnosis-panel { background: #2d2d3a; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--sub-accent); text-align: left; display: flex; align-items: center; gap: 15px; }
-        .ui-avatar { width: 60px; height: 60px; border-radius: 50%; background: #444; border: 2px solid var(--sub-accent); display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        .ui-diagnosis-panel { background: #2d2d3a; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--sub-accent); text-align: left; position: relative; display: flex; align-items: center; gap: 15px; }
+        .ui-avatar { width: 60px; height: 60px; border-radius: 50%; background: #444; border: 2px solid var(--sub-accent); display: flex; align-items: center; justify-content: center; font-size: 30px; flex-shrink: 0; }
         .ui-text { font-size: 14px; line-height: 1.4; color: #ddd; }
 
         .stat-card { background: #2a2a2a; padding: 20px; border-radius: 10px; border-left: 5px solid var(--accent-color); }
@@ -60,15 +60,14 @@
         <h2>ToN Statistics Viewer Ultimate</h2>
         <div class="header-links">
             <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank" class="btn-link btn-github">📥 GitHub</a>
-            <select id="langSelect" class="lang-select"><option value="ja">日本語</option><option value="en">English</option></select>
         </div>
     </div>
 
     <div style="padding: 0 20px; width: 95%; max-width: 1100px; margin: 0 auto;">
         <div class="ui-diagnosis-panel" id="uiDiagnosisPanel" style="display:none;">
             <div class="ui-avatar">🎧</div>
-            <div class="ui-message-box">
-                <span style="font-weight:bold; color:var(--sub-accent); display:block;">うい (Ui)</span>
+            <div style="flex-grow: 1;">
+                <span style="font-weight:bold; color:var(--sub-accent); display:block; margin-bottom:4px;">うい (Ui)</span>
                 <span class="ui-text" id="uiMessage">ログを読み込みな。話はそれからだよ。</span>
             </div>
         </div>
@@ -76,7 +75,7 @@
 
     <div class="controls">
         <div class="control-group">
-            <strong data-i18n="label_load">📁 データ読込:</strong>
+            <strong>📁 データ読込:</strong>
             <div class="file-input-wrapper"><button class="btn-upload">ファイル選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
             <span id="fileNameDisplay">未選択</span>
         </div>
@@ -119,8 +118,8 @@
     </div>
 
     <div id="tab-analytics" class="tab-content">
-        <div class="flex-between">
-            <select id="viewSelector" disabled>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <select id="viewSelector" disabled style="background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 14px;">
                 <option value="overall">全体勝率</option>
                 <option value="dailyTrend">日別勝率推移</option>
                 <option value="timeOfDay">時間帯別勝率</option>
@@ -131,7 +130,7 @@
                 <option value="mapRate">マップ出現率</option>
                 <option value="killerRate">テラー出現率</option>
             </select>
-            <button class="btn-dl" onclick="downloadChartImage('resultChart', 'ToN_Analytics')">画像保存</button>
+            <button onclick="downloadChartImage('resultChart', 'ToN_Analytics')" style="background: var(--control-bg); border: 1px solid var(--sub-accent); color: var(--sub-accent); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">画像保存</button>
         </div>
         <div class="chart-container"><canvas id="resultChart"></canvas></div>
     </div>
@@ -150,24 +149,23 @@
             "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"], "2": ["Haket", "Blue Haket", "Red vs Blue"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Guardians"], "5": ["Security", "The Swarm", "Prisoner", "Higher Beings"], "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M", "Quadruple Sponge"], "7": ["BFF", "Nameless", "Your Best Friends"], "8": ["Seek", "Rush", "Eyes", "Hotel Monsters"], "9": ["Squibbs (Dev Bytes)", "Convict(D)", "Squibb Squad"], "10": ["Convict Squad", "Kimera", "Search and Destroy", "Garden Rejects"], "11": ["WhiteNight", "Paradise Bird", "Judgement Day"], "12": ["Roblander", "Inverted Roblander", "Me and My Shadow"], "13": ["An Arbiter", "The Red Mist", "Meltdown"], "14": ["Slender", "Slendy", "Hungry Home Invader", "Faceless Mafia"], "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10", "Mansion Monsters"], "16": ["MX", "Luigi", "Wario Apparition", "Copyright Infringement"], "17": ["Purple Guy", "Purple Bros"], "18": ["Scavenger", "Scavengers"], "19": ["The LifeBringer", "Scrapyard Machine", "Life & Death"], "20": ["Unknown Witch", "Labyrinth"], "21": ["Umbra", "Spiteful Eye", "Spiteful Shadows"], "22": ["Angry Munci", "Triple Munci"], "23": ["Karol_Corpse", "Daycare"], "24": ["Huggy", "Huggy Wuggy", "Huggy Horde"], "25": ["Arrival", "Infection"], "26": ["Hush", "Triple Hush"], "27": ["[CENSORED]"], "28": ["Dev Bytes", "Vana", "Duke", "Byte Horde"], "29": ["Sawrunner", "SawMarathon"], "30": ["Little Witch", "War", "Convict(N)", "TAKE THE NAMI CHALLENGE"], "31": ["Lightning", "Thunderstorm"], "32": ["Joy", "END OF THE WORLD"], "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER", "Fragmented Memories"], "34": ["Mona", "Mona & The Mountain", "Mona & Mona & Mona & Mona"], "35": ["Legs", "Seekers"], "36": ["Convict(N)", "Nugget Squad"], "37": ["Saul", "Saul's goodmen"], "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"], "39": ["Bigger Boot", "POV: Bug"], "40": ["Punishing Bird", "Punishing Birdemic"], "41": ["Chomper", "Chomper Trio"], "42": ["With Many Voices", "Too Many Voices"], "43": ["Miros Bird", "Memory Crypts"], "44": ["Jumbo Josh", "Zumbo Sauce"], "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann", "Freaks"], "46": ["Lunatic Cultist", "Lunatic Cult"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio & The Drifter", "Transportation Trio", "The Drifter"], "48": ["Purple Guy", "Voidwalker", "Father Son Bonding"], "49": ["HER", "WHITEFACE", "WHAT IS MY NAME"], "50": ["Dapper Enphoso", "Pyromatic Enphoso", "Glaggleland Cremators"], "51": ["Signus", "Triple Signus"], "52": ["Akumii-Kari", "Triple Akumii Kari"], "53": ["Big Bird", "Paradise Bird", "Black & White"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue gaper", "Blue Flies", "Blue Monsters"], "56": ["Drone", "Drones"], "57": ["Scrapyard Taker", "Scrapyard Takers"], "58": ["Luigi Doll", "Luigi Dolls"], "59": ["Meteor", "Meteor Shower"], "60": ["TBH", "TBH Spy", "Triple TBH"], "61": ["Lost Soul", "Lost Souls"], "62": ["Aku Ball", "Ballin"], "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket", "Reunion"], "64": ["Roblander", "Bliss", "Ancient Monarch", "Angels"], "65": ["Apocalypse Bird", "Immortal Snail", "Ordinary Apocalypse Bird"], "66": ["Wild Yet Curious Creature", "Pack of Wild Yet Curious Creatures"], "67": ["Beyond", "Manti", "ToN X SlashCo Collab"], "68": ["Yolm", "Pack of Yolm"], "69": ["Peepy", "Threepy"], "70": ["Ghost Girl", "??"], "71": ["Deleted", "Akumii-Kari", "Delete Me"], "72": ["Spamton", "Spamton Spam"], "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser", "Death From Above"], "74": ["Mirror", "Red Bus", "Terror of Nowhere", "It Came From Bus To Nowhere"], "75": ["SCP-049-B", "Zombie Apocalypse"], "76": ["Mountain of Smiling Bodies", "Eating Contest"], "77": ["Clockey", "Triple Clockey"], "78": ["Killer Fish", "Triple Killer Fish"], "79": ["MR.MEGA", "DoomBox", "Lethal League"], "80": ["Comedy", "Tragedy", "Trollage"], "81": ["MopeMope", "Mopemopemopemopemopemope"], "82": ["Sonic", "Rewrite", "Atrached", "Triple Trouble"], "83": ["Living Shadow", "Triple Living Shadow"], "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)", "Beyond's Masks"]
         };
 
-        let currentLang = 'ja', myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1;
+        let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1;
         const rowsPerPage = 50, isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
-        
         const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_v_ultimate_filtered');
+            const saved = localStorage.getItem('ton_ultimate_fixed');
             if (saved) { parsedData = JSON.parse(saved); initFilters(); updateAll(); }
         });
 
         document.getElementById('csvFileInput').addEventListener('change', e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader();
-            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_v_ultimate_filtered', JSON.stringify(parsedData)); initFilters(); updateAll(); };
+            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_fixed', JSON.stringify(parsedData)); initFilters(); updateAll(); };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_v_ultimate_filtered'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_fixed'); location.reload(); } });
 
         function parseCSV(t) {
             parsedData = t.trim().split('\n').slice(1).map(l => {
@@ -194,6 +192,7 @@
                 const classicMatch = !(exc && (d.roundType.includes('クラシック')||d.roundType.includes('Classic')));
                 return dateMatch && filterMatch && classicMatch;
             });
+            currentPage = 1;
             updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiDiagnosis();
             if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
@@ -262,11 +261,15 @@
 
             if(mode === 'overall') {
                 const w = filteredData.filter(d => isWin(d.result)).length;
-                myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Win', 'Lost'], datasets: [{ data: [w, filteredData.length - w], backgroundColor: ['#4CAF50', '#F44336'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+                myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Win', 'Lost'], datasets: [{ data: [w, filteredData.length - w], backgroundColor: ['#4CAF50', '#F44336'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false } });
             } else if(mode === 'dailyTrend') {
                 const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; });
                 const labels=Object.keys(s).sort();
                 myChart = new Chart(ctx, { type:'line', data:{labels, datasets:[{label:'Win %', data:labels.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
+            } else if(mode === 'timeOfDay') {
+                const s = Array.from({length: 24}, () => ({w:0, t:0}));
+                filteredData.forEach(d => { try { const h = parseInt(d.timestamp.split(' ')[1].split(':')[0]); s[h].t++; if(isWin(d.result)) s[h].w++; } catch(e){} });
+                myChart = new Chart(ctx, { type:'bar', data:{ labels: s.map((_,i)=>`${i}時`), datasets:[{type:'line', label:'Win %', data:s.map(x=>x.t>0?((x.w/x.t)*100).toFixed(1):0), borderColor:'#4CAF50', yAxisID:'y'},{type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.5)', yAxisID:'y1'}] }, options:{responsive:true, maintainAspectRatio:false, scales:{y:{max:100,position:'left'},y1:{position:'right',grid:{drawOnChartArea:false}}}} });
             } else if(['roundType','map','killer'].includes(mode)){
                 const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?(d.killers||"").split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); 
                     if(!v||v==='None'||(mode==='killer' && isExcludedKiller(v))) return;
@@ -317,9 +320,15 @@
 
         function downloadChartImage(id, name) { const c = document.getElementById(id); const link = document.createElement('a'); link.href = c.toDataURL('image/png'); link.download = `${name}.png`; link.click(); }
         function switchTab(t) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active'); if (t === 'tab-analytics' && filteredData.length) updateChart(); }
+        
+        // ★ ここが抜けてたイベントリスナー群
         document.getElementById('viewSelector').addEventListener('change', updateChart);
         document.getElementById('startDateFilter').addEventListener('change', updateAll);
         document.getElementById('endDateFilter').addEventListener('change', updateAll);
+        document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
+        document.getElementById('roundFilter').addEventListener('change', updateAll);
+        document.getElementById('mapFilter').addEventListener('change', updateAll);
+        document.getElementById('killerFilter').addEventListener('change', updateAll);
     </script>
 </body>
 </html>
