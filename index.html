@@ -160,12 +160,12 @@
             en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear", label_date: "📅 Date:", check_exclude: "Exclude Classic", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "Total", stat_rate: "Win Rate", nemesis: "Nemesis", prey: "Prey", max_win: "Max Win Streak", max_lost: "Max Lost Streak", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", btn_dl_chart: "Save Image", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'] }
         };
 
-        // ★ 欠落一切なし。ペリンが用意した完全なマスタデータ
+        // ★ Set 38, 47 などの配列順を「構成テラー」→「セット名」に完全修正
         const UNBOUND_MASTER = {
             "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"],
             "2": ["Haket", "Blue Haket", "Red vs Blue"],
             "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"],
-            "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Gurdians", "Forest Guardians"],
+            "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Guardians"],
             "5": ["Security", "The Swarm", "Prisoner", "Higher Beings"],
             "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M", "Quadruple Sponge"],
             "7": ["BFF", "Nameless", "Your Best Friends"],
@@ -199,7 +199,7 @@
             "35": ["Legs", "Seekers"],
             "36": ["Convict(N)", "Nugget Squad"],
             "37": ["Saul", "Saul's goodmen"],
-            "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"],
+            "38": ["Security", "Ancient Security", "Something Old", "Something New", "Something Old, Something New"],
             "39": ["Bigger Boot", "POV: Bug"],
             "40": ["Punishing Bird", "Punishing Birdemic"],
             "41": ["Chomper", "Chomper Trio"],
@@ -208,7 +208,7 @@
             "44": ["Jumbo Josh", "Zumbo Sauce"],
             "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann", "Freaks"],
             "46": ["Lunatic Cultist", "Lunatic Cult"],
-            "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio & The Drifter", "Transportation Trio", "The Drifter"],
+            "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio", "The Drifter", "Transportation Trio & The Drifter"],
             "48": ["Purple Guy", "Voidwalker", "Father Son Bonding"],
             "49": ["HER", "WHITEFACE", "WHAT IS MY NAME"],
             "50": ["Dapper Enphoso", "Pyromatic Enphoso", "Glaggleland Cremators"],
@@ -253,7 +253,7 @@
         const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_ultimate_perfect');
+            const saved = localStorage.getItem('ton_ultimate_final_array');
             if (saved) { parsedData = JSON.parse(saved); initFilters(); updateAll(); }
             updateUI();
         });
@@ -269,20 +269,18 @@
         document.getElementById('csvFileInput').addEventListener('change', e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader();
-            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_perfect', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
+            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_final_array', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_perfect'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_final_array'); location.reload(); } });
 
-        // ★ HTMLエンティティを解読する関数
         const decodeHTML = (html) => {
             const txt = document.createElement("textarea");
             txt.innerHTML = html;
             return txt.value;
         };
 
-        // ★ 本格的CSVパーサー（カンマを含む名前、HTMLエンティティに完全対応）
         function parseCSV(t) {
             parsedData = [];
             const lines = t.trim().split('\n');
@@ -470,14 +468,15 @@
             myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,ticks:{display:false},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
 
-        // ★ アンバウンド図鑑：一切のデータ欠落なし。全構成員をタグとして表示
         function updateUnboundList() {
             const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const ds = new Set();
             filteredData.forEach(d => { if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) { const ks = d.killers.split('/').map(k => k.trim()); for (const [sId, list] of Object.entries(UNBOUND_MASTER)) { if (ks.some(k => list.includes(k))) { ds.add(sId); break; } } } });
             Array.from(ds).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => {
                 const card = document.createElement('div'); card.className = 'unbound-card'; const m = UNBOUND_MASTER[id] || [];
                 const sn = m.length > 1 ? m[m.length - 1] : `Set #${id}`;
-                card.innerHTML = `<span class="unbound-set-name">${sn}</span>${m.map(k => `<span class="unbound-killer-tag">${k}</span>`).join('')}`;
+                // セット名をタグから除外する処理を復活
+                const mm = m.length > 1 ? m.slice(0, m.length - 1) : m;
+                card.innerHTML = `<span class="unbound-set-name">${sn}</span>${mm.map(k => `<span class="unbound-killer-tag">${k}</span>`).join('')}`;
                 listEl.appendChild(card);
             });
         }
