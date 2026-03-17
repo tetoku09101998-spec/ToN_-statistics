@@ -2,178 +2,156 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ToN Statistics Viewer Global</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToN Statistics Viewer Ultimate</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg-color: #1a1a1a; --panel-bg: #222; --control-bg: #333; --accent-color: #4CAF50; --sub-accent: #64B5F6; --unbound-accent: #ba68c8; --text-color: #eee; --border-color: #444; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; margin: 0; padding: 20px; }
-        .header-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 25px; }
-        .controls { background: var(--panel-bg); padding: 20px; border-radius: 12px; margin: 0 auto 25px auto; max-width: 1100px; text-align: left; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; border: 1px solid var(--border-color); }
-        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
-        .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
-        .btn-upload { background: var(--control-bg); border: 1px solid #555; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        select { background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 14px; cursor: pointer; }
-        .tabs { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); max-width: 1100px; margin: 0 auto 20px auto; }
-        .tab-btn { background: transparent; border: none; color: #777; padding: 12px 25px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .tab-btn.active { background: var(--panel-bg); color: var(--accent-color); border-bottom: 3px solid var(--accent-color); }
-        .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; margin: 0; padding: 10px; }
+        
+        /* モバイル対応レイアウト */
+        .header-container { margin-bottom: 15px; }
+        .controls { background: var(--panel-bg); padding: 15px; border-radius: 12px; margin: 0 auto 15px auto; max-width: 1000px; text-align: left; display: flex; flex-wrap: wrap; gap: 10px; border: 1px solid var(--border-color); }
+        .control-group { flex: 1 1 200px; }
+        
+        /* タブのスクロール対応 */
+        .tabs { display: flex; overflow-x: auto; white-space: nowrap; border-bottom: 2px solid var(--border-color); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
+        .tab-btn { background: transparent; border: none; color: #777; padding: 12px 20px; font-size: 14px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+        .tab-btn.active { color: var(--accent-color); border-bottom: 3px solid var(--accent-color); }
+        
+        .tab-content { display: none; background: var(--panel-bg); padding: 15px; border-radius: 12px; max-width: 1000px; margin: 0 auto; }
         .tab-content.active { display: block; }
-        .chart-container { width: 100%; height: 450px; position: relative; margin: 20px auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
-        .win-text { color: var(--accent-color); font-weight: bold; }
-        .lost-text { color: #F44336; font-weight: bold; }
-        .unbound-card { background: #2a2a2a; padding: 15px; border-radius: 8px; border-top: 3px solid var(--unbound-accent); text-align: left; }
-        .unbound-killer { display: block; margin-bottom: 4px; background: #333; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        
+        /* ダッシュボードのレスポンシブ化 */
+        .dash-grid { display: flex; flex-direction: column; gap: 15px; }
+        @media (min-width: 768px) { .dash-grid { display: grid; grid-template-columns: 1fr 300px; } }
+        
+        /* ういのコメントボックス（モバイル調整） */
+        #ui-comment-box { display: flex; align-items: center; background: #2a2a2a; border: 1px solid #64B5F6; border-radius: 10px; padding: 12px; margin-bottom: 15px; }
+        #ui-face { width: 60px; height: 60px; border-radius: 50%; margin-right: 12px; border: 2px solid #555; flex-shrink: 0; }
+        #ui-message { font-size: 13px; text-align: left; line-height: 1.4; color: #ccc; margin: 0; }
+
+        .chart-container { width: 100%; height: 350px; position: relative; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { padding: 8px 4px; border-bottom: 1px solid var(--border-color); text-align: left; }
+        
+        /* アンバウンド図鑑 */
+        .unbound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .unbound-card { background: #2a2a2a; padding: 10px; border-radius: 8px; border-top: 3px solid var(--unbound-accent); text-align: left; font-size: 11px; }
     </style>
 </head>
 <body>
-    <div class="header-container">
-        <h2>ToN 統計ビュアー Ultimate Spec</h2>
-    </div>
+    <div class="header-container"><h2>ToN Stats Viewer Spec-V</h2></div>
 
     <div class="controls">
-        <div class="control-group"><strong>📁 データ読込:</strong>
-            <div class="file-input-wrapper"><button class="btn-upload">ファイルを選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
-            <span id="fileNameDisplay">未選択</span>
+        <div class="control-group"><strong>📁 Load:</strong> <input type="file" id="csvFileInput" accept=".csv" style="font-size:12px; width:100%;"></div>
+        <div class="control-group">
+            <select id="roundFilter" style="width:100%;"><option value="all">全Round</option></select>
         </div>
-        <div class="control-group"><label style="cursor:pointer; color:#ffeb3b;"><input type="checkbox" id="excludeClassicCheckbox"> 「クラシック」を除外</label></div>
-        <div class="control-group"><strong>🔍 フィルタ:</strong>
-            <select id="roundFilter"><option value="all">全ラウンド</option></select>
-            <select id="mapFilter"><option value="all">全マップ</option></select>
-            <select id="killerFilter"><option value="all">全テラー</option></select>
+        <div class="control-group">
+            <select id="killerFilter" style="width:100%;"><option value="all">全Terror</option></select>
         </div>
+        <div class="control-group" style="font-size:12px; color:#ffeb3b;"><label><input type="checkbox" id="excludeClassicCheckbox"> クラシック除外</label></div>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-dashboard')">📊 ダッシュボード</button>
-        <button class="tab-btn" onclick="switchTab('tab-analytics')">📈 チャート分析</button>
-        <button class="tab-btn" onclick="switchTab('tab-history')">📝 対戦履歴</button>
-        <button class="tab-btn" onclick="switchTab('tab-unbound')">🌀 アンバウンド図鑑</button>
+        <button class="tab-btn active" onclick="switchTab('tab-dashboard')">📊 Summary</button>
+        <button class="tab-btn" onclick="switchTab('tab-analytics')">📈 Chart</button>
+        <button class="tab-btn" onclick="switchTab('tab-history')">📝 History</button>
+        <button class="tab-btn" onclick="switchTab('tab-unbound')">🌀 Unbound</button>
     </div>
 
     <div id="tab-dashboard" class="tab-content active">
-        <div id="ui-comment-box" style="display:flex; align-items:center; background:#2a2a2a; border: 1px solid #64B5F6; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
-            <img id="ui-face" src="face_normal.png" alt="うい" style="width: 80px; height: 80px; border-radius: 50%; margin-right: 15px; border: 2px solid #555; object-fit: cover; background: #1a1a1a;">
-            <div style="text-align: left;">
-                <strong style="color: #64B5F6; font-size: 16px;">うい:</strong>
-                <p id="ui-message" style="margin: 5px 0 0 0; font-size: 14px; line-height: 1.5; color: #ccc;">論理的な評価が欲しければ、さっさとCSVファイルを読み込みなさい。</p>
-            </div>
+        <div id="ui-comment-box">
+            <img id="ui-face" src="face_normal.png" alt="うい">
+            <div><strong style="color: #64B5F6; font-size: 12px;">うい:</strong><p id="ui-message">CSVを読み込みなさい。論理的に評価してあげるわ。</p></div>
         </div>
-
-        <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; text-align:left;">
-            <div id="summaryBox" style="padding:25px; background:#2a2a2a; border-radius:10px; border-left:5px solid var(--accent-color);">
-                <p style="font-size:22px; font-weight:bold; color:var(--accent-color); margin:0 0 10px 0;">総試合: <span id="totalGames">0</span> | 勝利: <span id="totalWins">0</span> | 敗北: <span id="totalLost">0</span></p>
-                <p>🏆 全体勝率: <strong style="color:var(--accent-color); font-size:24px;"><span id="winRate">0</span>%</strong></p>
-                <hr style="border-color:var(--border-color); margin:15px 0;">
-                <p>🎮 記録開始: <span id="firstPlayDate">-</span></p>
-                <p>🔄 最終プレイ: <span id="lastPlayDate">-</span></p>
+        <div class="dash-grid">
+            <div id="summaryBox" style="padding:15px; background:#2a2a2a; border-radius:10px; border-left:5px solid var(--accent-color); text-align:left;">
+                <div style="font-size:16px; font-weight:bold;"><span id="totalWins">0</span>W / <span id="totalGames">0</span>T (<span id="winRate">0</span>%)</div>
+                <div style="font-size:11px; color:#888; margin-top:5px;">Last: <span id="lastPlayDate">-</span></div>
             </div>
-            <div style="background:#2a2a2a; border-radius:10px; padding:15px;"><canvas id="radarChartCanvas"></canvas></div>
+            <div style="background:#2a2a2a; border-radius:10px; padding:5px;"><canvas id="radarChartCanvas" height="200"></canvas></div>
         </div>
-        <div id="appearanceRates" style="display:flex; justify-content:space-between; margin-top:25px; gap:15px;"></div>
+        <div id="appearanceRates" style="display:flex; flex-direction:column; gap:10px; margin-top:15px;"></div>
     </div>
 
     <div id="tab-analytics" class="tab-content">
-        <div style="text-align:left; margin-bottom:15px;"><strong>表示切替:</strong>
-            <select id="viewSelector" disabled>
-                <option value="dailyTrend">日別勝率推移</option>
-                <option value="timeOfDay">時間帯別勝率</option>
-                <option value="overall">全体勝率</option>
-                <option value="roundType">ラウンド別勝敗</option>
-                <option value="map">マップ別勝敗</option>
-                <option value="killer">テラー別勝敗</option>
-                <option value="roundTypeRate">ラウンド出現率</option>
-                <option value="mapRate">マップ出現率</option>
-                <option value="killerRate">テラー出現率</option>
-            </select>
-        </div>
-        <div id="nemesisBox" style="display:none; background:#1a237e; border-left:5px solid #5c6bc0; padding:15px; border-radius:8px; margin-bottom:15px; text-align:left;">
-            <h3 style="margin:0 0 10px 0;">👿 ネメシスプロファイル: <span id="nemName" style="color:#ffeb3b;">-</span></h3><div id="nemDetails"></div>
-        </div>
+        <select id="viewSelector" style="width:100%; margin-bottom:10px;"><option value="dailyTrend">日別勝率</option><option value="timeOfDay">時間帯別勝率</option><option value="killer">テラー別</option></select>
         <div class="chart-container"><canvas id="resultChart"></canvas></div>
     </div>
 
     <div id="tab-history" class="tab-content">
-        <table><thead><tr><th>日時</th><th>マップ</th><th>種類</th><th>テラー</th><th>結果</th></tr></thead><tbody id="historyTableBody"></tbody></table>
-        <div style="margin-top:20px;"><button id="prevBtn" onclick="changePage(-1)" disabled>◀</button> <span id="pageInfo">Page 1 / 1</span> <button id="nextBtn" onclick="changePage(1)" disabled>▶</button></div>
+        <div style="overflow-x:auto;">
+            <table><thead><tr><th>日時</th><th>種類</th><th>テラー</th><th>結</th></tr></thead><tbody id="historyTableBody"></tbody></table>
+        </div>
+        <div style="margin-top:10px; font-size:12px;"><button onclick="changePage(-1)">◀</button> <span id="pageInfo">1/1</span> <button onclick="changePage(1)">▶</button></div>
     </div>
 
     <div id="tab-unbound" class="tab-content">
-        <div style="text-align: left; background: rgba(186, 104, 200, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--unbound-accent); margin-bottom: 20px;">
-            <strong style="color: var(--unbound-accent);">🌀 Unbound Discovery:</strong>
-            <p style="font-size: 13px; margin: 5px 0 0 0;">テラー名からセット番号を自動判定した記録です。</p>
-        </div>
-        <div id="unboundDynamicList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;"></div>
+        <div class="unbound-grid" id="unboundList"></div>
     </div>
 
     <script>
-        // ★ Wiki全84セット反映版
+        // ★ Wiki全84セット反映・完全マッチングリスト
         const UNBOUND_MASTER = {
-            "1": ["The Guidance", "BooBooBabies"], "2": ["Haket", "Blue Haket"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Security", "The Swarm"], "6": ["Demented Spongebob", "Spongefly Swarm"], "7": ["BFF", "Nameless"], "8": ["Seek", "Rush", "Eyes"], "9": ["Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Garden Rejects", "Kimera", "Convict Squad"], "11": ["WhiteNight", "Paradise Bird"], "12": ["Roblander", "Inverted Roblander"], "13": ["An Arbiter", "The Red Mist"], "14": ["Slender", "Slendy"], "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["MX", "Luigi", "Wario Apparition"], "17": ["Purple Guy"], "18": ["Scavenger"], "19": ["The LifeBringer", "Scrapyard Machine"], "20": ["Unknown Witch"], "21": ["Umbra", "Spiteful Eye"], "22": ["Angry Munci"], "23": ["Karol_Corpse"], "24": ["Huggy"], "25": ["Arrival"], "26": ["Hush"], "27": ["[CENSORED]"], "28": ["Dev Bytes", "Vana", "Duke"], "29": ["Sawrunner"], "30": ["Little Witch", "War", "Convict(N)"], "31": ["Lightning"], "32": ["Joy"], "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona"], "35": ["Legs"], "36": ["Convict(N)"], "37": ["Saul"], "38": ["Security", "Ancient Security"], "39": ["Bigger Boot"], "40": ["Punishing Bird"], "41": ["Chomper"], "42": ["With Many Voices"], "43": ["Miros Bird"], "44": ["Jumbo Josh"], "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cultist"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio"], "48": ["Purple Guy", "Voidwalker"], "49": ["HER", "WHITEFACE"], "50": ["Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Signus"], "52": ["Akumii-Kari"], "53": ["Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED"], "55": ["Blue gaper", "Blue Flies"], "56": ["Drone"], "57": ["Scrapyard Taker"], "58": ["Luigi Doll"], "59": ["Meteor"], "60": ["TBH"], "61": ["Lost Soul"], "62": ["Aku Ball"], "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Roblander", "Bliss", "Ancient Monarch"], "65": ["Apocalypse Bird", "Immortal Snail"], "66": ["Wild Yet Curious Creature"], "67": ["Beyond", "Manti"], "68": ["Yolm"], "69": ["Peepy"], "70": ["Ghost Girl"], "71": ["Deleted", "Akumii-Kari"], "72": ["Spamton"], "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["Mirror", "Red Bus", "Terror of Nowhere"], "75": ["SCP-049-B"], "76": ["Mountain of Smiling Bodies"], "77": ["Clockey"], "78": ["Killer Fish"], "79": ["MR.MEGA", "DoomBox"], "80": ["Comedy", "Tragedy"], "81": ["MopeMope"], "82": ["Sonic", "Rewrite", "Atrached"], "83": ["Living Shadow"], "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]
+            "1": ["The Guidance", "BooBooBabies"], "2": ["Haket", "Blue Haket"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Security", "The Swarm", "Prisoner"], "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["BFF", "Nameless"], "8": ["Seek", "Rush", "Eyes"], "9": ["Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Convict Squad", "Kimera", "Search and Destroy", "Garden Rejects"], "11": ["WhiteNight", "Paradise Bird"], "12": ["Roblander", "Inverted Roblander"], "13": ["An Arbiter", "The Red Mist"], "14": ["Slender", "Slendy", "Hungry Home Invader"], "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["MX", "Luigi", "Wario Apparition"], "17": ["Purple Guy"], "18": ["Scavenger"], "19": ["The LifeBringer", "Scrapyard Machine"], "20": ["Unknown Witch"], "21": ["Umbra", "Spiteful Eye"], "22": ["Angry Munci"], "23": ["Karol_Corpse"], "24": ["Huggy", "Huggy Wuggy"], "25": ["Arrival"], "26": ["Hush"], "27": ["[CENSORED]"], "28": ["Dev Bytes", "Vana", "Duke"], "29": ["Sawrunner", "SawMarathon"], "30": ["Little Witch", "War", "Convict(N)"], "31": ["Lightning"], "32": ["Joy"], "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona"], "35": ["Legs"], "36": ["Convict(N)"], "37": ["Saul"], "38": ["Security", "Ancient Security"], "39": ["Bigger Boot"], "40": ["Punishing Bird"], "41": ["Chomper"], "42": ["With Many Voices"], "43": ["Miros Bird"], "44": ["Jumbo Josh"], "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cultist"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Purple Guy", "Voidwalker"], "49": ["HER", "WHITEFACE"], "50": ["Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Signus"], "52": ["Akumii-Kari", "Triple Akumii Kari"], "53": ["Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED"], "55": ["Blue gaper", "Blue Flies"], "56": ["Drone"], "57": ["Scrapyard Taker"], "58": ["Luigi Doll"], "59": ["Meteor"], "60": ["TBH", "TBH Spy"], "61": ["Lost Soul"], "62": ["Aku Ball"], "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Roblander", "Bliss", "Ancient Monarch"], "65": ["Apocalypse Bird", "Immortal Snail"], "66": ["Wild Yet Curious Creature"], "67": ["Beyond", "Manti"], "68": ["Yolm"], "69": ["Peepy"], "70": ["Ghost Girl"], "71": ["Deleted", "Akumii-Kari"], "72": ["Spamton"], "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["Mirror", "Red Bus", "Terror of Nowhere"], "75": ["SCP-049-B"], "76": ["Mountain of Smiling Bodies"], "77": ["Clockey"], "78": ["Killer Fish"], "79": ["MR.MEGA", "DoomBox"], "80": ["Comedy", "Tragedy"], "81": ["MopeMope"], "82": ["Sonic", "Rewrite", "Atrached"], "83": ["Living Shadow"], "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]
         };
 
-        let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1; const rowsPerPage = 50;
-        const isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
+        let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1;
+        const rowsPerPage = 30; const isWin = (res) => res && res.trim().toLowerCase() === 'win';
 
-        document.getElementById('csvFileInput').addEventListener('change', e => { 
-            const f = e.target.files[0]; if(!f) return; document.getElementById('fileNameDisplay').textContent = f.name; 
-            const r = new FileReader(); r.onload = ev => { parseCSV(ev.target.result); initFilters(); updateAll(); }; r.readAsText(f); 
+        document.getElementById('csvFileInput').addEventListener('change', e => {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader(); r.onload = ev => { parseCSV(ev.target.result); initFilters(); updateAll(); }; r.readAsText(f);
         });
-        document.getElementById('viewSelector').addEventListener('change', () => { document.getElementById('nemesisBox').style.display='none'; updateChart(); });
+        document.getElementById('viewSelector').addEventListener('change', updateChart);
         document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
         document.getElementById('roundFilter').addEventListener('change', updateAll);
-        document.getElementById('mapFilter').addEventListener('change', updateAll);
         document.getElementById('killerFilter').addEventListener('change', updateAll);
 
-        function switchTab(t) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active'); if (t === 'tab-analytics' && filteredData.length) updateChart(); }
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(t).classList.add('active');
+            document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active');
+            if (t === 'tab-analytics') updateChart();
+        }
 
         function parseCSV(t) {
             parsedData = t.trim().split('\n').slice(1).map(l => {
                 const c = l.split(','); if (c.length < 5) return null;
-                const result = (c[c.length - 1]||"").trim();
+                const result = c[c.length - 1].trim();
                 const killers = c.slice(3, c.length - 1).join(',').trim();
                 return { timestamp: c[0].trim(), map: c[1].trim(), roundType: c[2].trim(), killers, result };
-            }).filter(d => d && d.timestamp !== "");
+            }).filter(d => d);
         }
 
         function initFilters() {
-            const r = new Set(), m = new Set(), k = new Set();
-            parsedData.forEach(d => { r.add(d.roundType); m.add(d.map); if(d.killers !== 'None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
+            const r = new Set(), k = new Set();
+            parsedData.forEach(d => { r.add(d.roundType); if(d.killers !== 'None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
             const fill = (id, set) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て</option>'; Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); };
-            fill('roundFilter', r); fill('mapFilter', m); fill('killerFilter', k); document.getElementById('viewSelector').disabled = false;
+            fill('roundFilter', r); fill('killerFilter', k);
         }
 
         function updateAll() {
-            const rf = document.getElementById('roundFilter').value, mf = document.getElementById('mapFilter').value, kf = document.getElementById('killerFilter').value, exc = document.getElementById('excludeClassicCheckbox').checked;
-            filteredData = parsedData.filter(d => (rf==='all'||d.roundType===rf) && (mf==='all'||d.map===mf) && (kf==='all'||(d.killers && d.killers.includes(kf))) && !(exc && d.roundType.includes('Classic')));
-            currentPage = 1; updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiComment(); if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
+            const rf = document.getElementById('roundFilter').value, kf = document.getElementById('killerFilter').value, exc = document.getElementById('excludeClassicCheckbox').checked;
+            filteredData = parsedData.filter(d => (rf==='all'||d.roundType===rf) && (kf==='all'||d.killers.includes(kf)) && !(exc && d.roundType.includes('Classic')));
+            updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiComment();
         }
 
         function updateDashboard() {
-            let w=0, l=0, rC={}, mC={}, kC={}; filteredData.forEach(d => {
-                isWin(d.result)?w++:l++;
-                rC[d.roundType]=(rC[d.roundType]||0)+1; mC[d.map]=(mC[d.map]||0)+1;
-                if(d.killers !== 'None') d.killers.split('/').forEach(k => kC[k.trim()]=(kC[k.trim()]||0)+1);
-            });
-            document.getElementById('totalGames').textContent = w+l; document.getElementById('totalWins').textContent = w; document.getElementById('totalLost').textContent = l;
+            let w=0, l=0; filteredData.forEach(d => isWin(d.result)?w++:l++);
+            document.getElementById('totalGames').textContent = w+l; document.getElementById('totalWins').textContent = w;
             document.getElementById('winRate').textContent = (w+l)>0 ? ((w/(w+l))*100).toFixed(1) : 0;
-            if(filteredData.length) { document.getElementById('firstPlayDate').textContent = filteredData[0].timestamp; document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp; }
-            const render = (c, t, col, lbl) => {
-                let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${col};">${lbl}</strong>`;
-                Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([n,v])=> h+=`<div style="font-size:11px; margin-top:5px;">${n}: ${v}</div>`);
-                return h + '</div>';
-            };
-            document.getElementById('appearanceRates').innerHTML = render(rC,1,'#4CAF50','Round') + render(mC,1,'#2196F3','Map') + render(kC,1,'#F44336','Terror');
+            if(filteredData.length) document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp;
         }
 
         function renderTable() {
-            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1; tb.innerHTML = '';
-            rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => {
-                tb.innerHTML += `<tr><td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${isWin(d.result)?'win-text':'lost-text'}">${d.result}</td></tr>`;
+            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1;
+            tb.innerHTML = ''; rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => {
+                tb.innerHTML += `<tr><td>${d.timestamp.slice(5,16)}</td><td>${d.roundType.slice(0,5)}</td><td>${d.killers.slice(0,10)}</td><td class="${isWin(d.result)?'win-text':'lost-text'}">${d.result[0]}</td></tr>`;
             });
-            document.getElementById('pageInfo').textContent = `Page ${currentPage} / ${tp}`;
-            document.getElementById('prevBtn').disabled = currentPage===1; document.getElementById('nextBtn').disabled = currentPage===tp;
+            document.getElementById('pageInfo').textContent = `${currentPage}/${tp}`;
         }
         function changePage(d) { currentPage+=d; renderTable(); }
 
@@ -181,58 +159,53 @@
             const ctx = document.getElementById('radarChartCanvas').getContext('2d'); if(myRadarChart) myRadarChart.destroy();
             let s={aW:0,aT:0,cW:0,cT:0,sW:0,sT:0}; filteredData.forEach(d => { const w=isWin(d.result); s.aT++; if(w) s.aW++; if(d.roundType.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;} });
             const r = (w,t) => t>0?Math.round((w/t)*100):0;
-            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels:['Overall', 'Classic', 'Special'], datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
+            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels:['Total', 'Classic', 'Special'], datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'}}}, plugins:{legend:{display:false}} } });
         }
 
         function updateUnboundList() {
-            const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const sets = {};
+            const listEl = document.getElementById('unboundList'); listEl.innerHTML = ''; const sets = {};
             filteredData.forEach(d => {
                 if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) {
                     let id = "Unknown"; const ks = d.killers.split('/').map(k => k.trim());
-                    for (const [sid, l] of Object.entries(UNBOUND_MASTER)) { if (ks.some(k => l.includes(k))) { id = sid; break; } }
+                    for (const [sid, list] of Object.entries(UNBOUND_MASTER)) {
+                        // ★ マッチングを強化 (includesで部分一致にも対応)
+                        if (ks.some(k => list.some(m => k.toLowerCase().includes(m.toLowerCase())))) { id = sid; break; }
+                    }
                     if (!sets[id]) sets[id] = new Set(); ks.forEach(k => sets[id].add(k));
                 }
             });
             Object.keys(sets).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
-                listEl.innerHTML += `<div class="unbound-card"><strong>Set #${id}</strong><div style="font-size:12px; margin-top:5px;">${Array.from(sets[id]).join(', ')}</div></div>`;
+                listEl.innerHTML += `<div class="unbound-card"><strong style="color:var(--unbound-accent);">Set #${id}</strong><div style="margin-top:4px;">${Array.from(sets[id]).join('<br>')}</div></div>`;
             });
         }
 
         function updateChart() {
             const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d'); if(myChart) myChart.destroy();
+            if(!filteredData.length) return;
             if(mode === 'dailyTrend'){
-                const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; }); const l=Object.keys(s).sort();
-                myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
+                const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isWin(d.result))s[dt].w++; }); const l=Object.keys(s).sort();
+                myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>(s[x].w/s[x].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
             } else if(mode === 'timeOfDay'){
-                const s = Array.from({length: 24}, () => ({w:0, t:0})); filteredData.forEach(d => { const match = d.timestamp.match(/\s(\d{1,2}):/); if(match) { const h = parseInt(match[1], 10); s[h].t++; if(isWin(d.result)) s[h].w++; } });
-                myChart = new Chart(ctx, { type: 'bar', data: { labels: s.map((_, i) => `${i}時`), datasets: [{ type: 'line', label: 'Win Rate (%)', data: s.map(x => x.t > 0 ? ((x.w/x.t)*100).toFixed(1) : 0), borderColor: '#4CAF50', yAxisID: 'y' }, { type: 'bar', label: 'Games', data: s.map(x => x.t), backgroundColor: 'rgba(100, 181, 246, 0.5)', yAxisID: 'y1' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { type: 'linear', position: 'left', max: 100 }, y1: { type: 'linear', position: 'right', grid: {drawOnChartArea: false} } } } });
-            } else if(['roundType','map','killer'].includes(mode)){
-                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?d.killers.split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); });
-                const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 15);
-                myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
+                const s = Array.from({length: 24}, () => ({w:0, t:0})); filteredData.forEach(d => { const h = parseInt((d.timestamp.match(/\s(\d{1,2}):/)||[0,0])[1], 10); s[h].t++; if(isWin(d.result)) s[h].w++; });
+                myChart = new Chart(ctx, { type: 'bar', data: { labels: s.map((_, i) => `${i}h`), datasets: [{ type: 'line', label: '%', data: s.map(x => x.t > 0 ? (x.w/x.t*100).toFixed(1) : 0), borderColor: '#4CAF50', yAxisID: 'y' }, { type: 'bar', label: 'Play', data: s.map(x => x.t), backgroundColor: 'rgba(100,181,246,0.5)', yAxisID: 'y1' }] }, options: { maintainAspectRatio: false, scales: { y: { max: 100 }, y1: { position: 'right', grid: {drawOnChartArea: false} } } } });
             } else {
-                const k=mode.replace('Rate',''), s={}; filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
-                const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,10);
-                myChart = new Chart(ctx, { type:'pie', data:{labels:sorted.map(x=>x[0]), datasets:[{data:sorted.map(x=>x[1]), backgroundColor:sorted.map((_,i)=>`hsl(${(i*360)/10},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false} });
+                const s={}; filteredData.forEach(d=>{ d.killers.split('/').forEach(k=>{ const v=k.trim(); if(v&&v!=='None'){ s[v]=(s[v]||{w:0,l:0}); isWin(d.result)?s[v].w++:s[v].l++; } }); });
+                const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 10);
+                myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'W',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'L',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
             }
-        }
-
-        function showNemesis(n) {
-            let w=0,l=0,t=0,m={}; filteredData.forEach(d=>{ if(d.killers.includes(n)){ t++; isWin(d.result)?w++:l++; m[d.map]=(m[d.map]||0)+1; } }); const sortedM = Object.entries(m).sort((a,b)=>b[1]-a[1]); const topM = sortedM[0] || ["-", 0];
-            document.getElementById('nemName').textContent = n; document.getElementById('nemDetails').innerHTML = `Encounters: ${t} | Win: ${w} | Lost: ${l} | Top Map: ${topM[0]} (${topM[1]})`; document.getElementById('nemesisBox').style.display = 'block';
         }
 
         function updateUiComment() {
             if (!filteredData.length) return;
             const faceImg = document.getElementById('ui-face'), msg = document.getElementById('ui-message');
             let w = 0, night = 0, work = 0;
-            filteredData.forEach(d => { if (isWin(d.result)) w++; const match = d.timestamp.match(/\s(\d{1,2}):/); if (match) { const h = parseInt(match[1], 10); if (h >= 0 && h <= 4) night++; if (h >= 10 && h <= 16) work++; } });
+            filteredData.forEach(d => { if (isWin(d.result)) w++; const h = parseInt((d.timestamp.match(/\s(\d{1,2}):/)||[0,0])[1], 10); if (h >= 0 && h <= 4) night++; if (h >= 10 && h <= 16) work++; });
             const rate = (w / filteredData.length) * 100;
-            if (night > 0) { faceImg.src = "face_tired.png"; msg.textContent = `深夜帯の記録が ${night} 件。睡眠不足は判断力を鈍らせる最大の要因よ。これ以上勝率を下げる前に、さっさと寝なさい。`; }
-            else if (work > 0) { faceImg.src = "face_angry.png"; msg.textContent = `平日の日中に ${work} 件も記録があるんだけど？ 休憩中であることを祈るけど、やるべきことを優先しなさい。`; }
+            if (night > 0) { faceImg.src = "face_tired.png"; msg.textContent = `深夜帯の記録が ${night} 件。睡眠不足は最大のデバフよ。勝率を下げる前に寝なさい。`; }
+            else if (work > 0) { faceImg.src = "face_angry.png"; msg.textContent = `平日の日中に ${work} 件も記録があるんだけど？ 休憩中であることを祈るわ。やるべきことを優先しなさい。`; }
             else if (rate >= 70) { faceImg.src = "face_tsundere.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。ま、当然の結果なんじゃない？ 勘違いしないでよね、事実を述べてるだけなんだから。`; }
-            else if (rate < 30) { faceImg.src = "face_sigh.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。完全に泥沼ね。今のあんたに足りないのは休息よ。大人しくログアウトしなさい。`; }
-            else { faceImg.src = "face_normal.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%。平均的なスタッツね。自分のペースで続けるのが一番論理的じゃない？ はい次。`; }
+            else if (rate < 30) { faceImg.src = "face_sigh.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。泥沼ね。足りないのは休息よ。大人しくログアウトしなさい。`; }
+            else { faceImg.src = "face_normal.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%。平均的ね。無理せず続けるのが一番論理的じゃない？ はい次。`; }
         }
     </script>
 </body>
