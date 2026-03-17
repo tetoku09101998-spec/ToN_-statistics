@@ -27,11 +27,8 @@
         .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
         .btn-upload { background: var(--control-bg); border: 1px solid #555; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
         .btn-clear { background: #444; border: 1px solid #666; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; margin-left: auto; }
-        .btn-clear:hover { background: #d32f2f; border-color: #f44336; }
         .btn-dl { background: var(--control-bg); border: 1px solid var(--sub-accent); color: var(--sub-accent); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s; }
-        .btn-dl:hover { background: var(--sub-accent); color: #fff; }
         select, input[type="date"] { background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 14px; }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         .tabs { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); max-width: 1100px; margin: 0 auto 20px auto; }
         .tab-btn { background: transparent; border: none; color: #777; padding: 12px 25px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: var(--panel-bg); color: var(--accent-color); border-bottom: 3px solid var(--accent-color); }
@@ -42,13 +39,9 @@
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
         .win-text { color: var(--accent-color); font-weight: bold; }
         .lost-text { color: #F44336; font-weight: bold; }
-        
-        /* アンバウンド図鑑用スタイル */
         .unbound-card { background: #2a2a2a; padding: 15px; border-radius: 8px; border-top: 3px solid var(--unbound-accent); text-align: left; }
-        .unbound-set-title { color: var(--unbound-accent); font-weight: bold; display: block; margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 5px; }
-        .unbound-killer { display: inline-block; margin: 2px 4px 2px 0; padding: 4px 8px; border-radius: 4px; font-size: 11px; color: #888; background: #222; border: 1px solid #333; }
-        .unbound-killer.discovered { color: #fff; background: #4a148c; border-color: var(--unbound-accent); font-weight: bold; }
-        
+        .unbound-set-title { color: var(--unbound-accent); font-weight: bold; display: block; margin-bottom: 8px; font-size: 16px; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        .unbound-killer { display: inline-block; margin: 2px 4px 2px 0; padding: 4px 10px; border-radius: 4px; font-size: 12px; color: #eee; background: #333; border: 1px solid #444; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     </style>
 </head>
@@ -139,18 +132,19 @@
 
     <div id="tab-unbound" class="tab-content">
         <div style="text-align: left; background: rgba(186, 104, 200, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--unbound-accent); margin-bottom: 20px;">
-            <strong style="color: var(--unbound-accent);" data-i18n="unbound_title">🌀 アンバウンド図鑑 Ultimate</strong>
-            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">発見したセットの構成テラー情報を表示します。紫色のテラーは遭遇済みです。</p>
+            <strong style="color: var(--unbound-accent);" data-i18n="unbound_title">🌀 アンバウンド図鑑</strong>
+            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">発見したアンバウンドの構成テラーとセット名称です。</p>
         </div>
         <div id="unboundDynamicList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px;"></div>
     </div>
 
     <script>
         const i18n = {
-            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", btn_clear: "🗑️ 保存データを消去", label_date: "📅 期間:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド図鑑", unbound_title: "🌀 アンバウンド図鑑 Ultimate", unbound_desc: "発見したセットの構成テラー情報を表示します。紫色のテラーは遭遇済みです。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_time: "時間帯別勝率", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", btn_dl_chart: "グラフを画像として保存", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
-            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear Data", label_date: "📅 Date:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery Ultimate", unbound_desc: "Full rosters for discovered sets. Purple items are encountered.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", btn_dl_chart: "Save Chart", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
+            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", btn_clear: "🗑️ 保存データを消去", label_date: "📅 期間:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド図鑑", unbound_title: "🌀 アンバウンド図鑑", unbound_desc: "発見したアンバウンドの構成テラーとセット名称です。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_time: "時間帯別勝率", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", btn_dl_chart: "グラフを画像として保存", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
+            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear Data", label_date: "📅 Date:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery", unbound_desc: "Names and members of discovered Unbound sets.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", btn_dl_chart: "Save Chart", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
         };
 
+        // ペリン提供のマスタデータ 84セット分
         const UNBOUND_MASTER = {
             "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"],
             "2": ["Haket", "Blue Haket", "Red vs Blue"],
@@ -242,7 +236,7 @@
         const rowsPerPage = 50, isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_data_v2');
+            const saved = localStorage.getItem('ton_data_v3');
             if (saved) {
                 parsedData = JSON.parse(saved);
                 document.getElementById('fileNameDisplay').textContent = "Stored Data";
@@ -258,14 +252,14 @@
             const r = new FileReader();
             r.onload = ev => {
                 parseCSV(ev.target.result);
-                localStorage.setItem('ton_data_v2', JSON.stringify(parsedData));
+                localStorage.setItem('ton_data_v3', JSON.stringify(parsedData));
                 document.getElementById('fileNameDisplay').textContent = f.name;
                 initFilters(); updateAll();
             };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if (confirm("全データを消去します。")) { localStorage.removeItem('ton_data_v2'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if (confirm("全データを消去します。")) { localStorage.removeItem('ton_data_v3'); location.reload(); } });
 
         function parseCSV(t) {
             parsedData = t.trim().split('\n').slice(1).map(l => {
@@ -315,32 +309,42 @@
             }
         }
 
+        // ★ グラフ描画バグ修正：必ずdestroyしてから新規作成、分岐を整理
         function updateChart() {
-            const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d');
-            if(myChart) myChart.destroy();
+            const mode = document.getElementById('viewSelector').value;
+            const canvas = document.getElementById('resultChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            if(myChart) { myChart.destroy(); myChart = null; }
             if(!filteredData.length) return;
 
-            if(mode === 'overall') {
-                const w = filteredData.filter(d => isWin(d.result)).length;
-                myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Win', 'Lost'], datasets: [{ data: [w, filteredData.length - w], backgroundColor: ['#4CAF50', '#F44336'] }] }, options: { responsive: true, maintainAspectRatio: false } });
-            } else if(mode === 'dailyTrend') {
-                const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; });
-                const labels=Object.keys(s).sort();
-                myChart = new Chart(ctx, { type:'line', data:{labels, datasets:[{label:'Win %', data:labels.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
-            } else if(mode === 'timeOfDay') {
-                const s = Array.from({length: 24}, () => ({w:0, t:0}));
-                filteredData.forEach(d => { const h = parseInt(d.timestamp.split(' ')[1].split(':')[0]); s[h].t++; if(isWin(d.result)) s[h].w++; });
-                myChart = new Chart(ctx, { type:'bar', data:{ labels: s.map((_,i)=>`${i}時`), datasets:[{type:'line', label:'Win %', data:s.map(x=>x.t>0?((x.w/x.t)*100).toFixed(1):0), borderColor:'#4CAF50', yAxisID:'y'},{type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.5)', yAxisID:'y1'}] }, options:{responsive:true, maintainAspectRatio:false, scales:{y:{max:100,position:'left'},y1:{position:'right',grid:{drawOnChartArea:false}}}} });
-            } else if(['roundType','map','killer'].includes(mode)){
-                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?(d.killers||"").split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); });
-                const labels = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
-                myChart = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'Win',data:labels.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:labels.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
-            } else {
-                const k=mode.replace('Rate',''), s={};
-                filteredData.forEach(d=>{ const items=k==='killer'?(d.killers||"").split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
-                const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0, 15);
-                myChart = new Chart(ctx, { type:'pie', data:{labels:sorted.map(x=>x[0]), datasets:[{data:sorted.map(x=>x[1]), backgroundColor:sorted.map((_,i)=>`hsl(${(i*360)/15},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'}}} });
-            }
+            try {
+                if(mode === 'overall') {
+                    const w = filteredData.filter(d => isWin(d.result)).length;
+                    myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Win', 'Lost'], datasets: [{ data: [w, filteredData.length - w], backgroundColor: ['#4CAF50', '#F44336'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+                } else if(mode === 'dailyTrend') {
+                    const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; });
+                    const labels=Object.keys(s).sort();
+                    myChart = new Chart(ctx, { type:'line', data:{labels, datasets:[{label:'Win %', data:labels.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
+                } else if(mode === 'timeOfDay') {
+                    const s = Array.from({length: 24}, () => ({w:0, t:0}));
+                    filteredData.forEach(d => { 
+                        const parts = d.timestamp.split(' ');
+                        if(parts.length > 1) { const h = parseInt(parts[1].split(':')[0]); if(!isNaN(h)) { s[h].t++; if(isWin(d.result)) s[h].w++; } }
+                    });
+                    myChart = new Chart(ctx, { type:'bar', data:{ labels: s.map((_,i)=>`${i}時`), datasets:[{type:'line', label:'Win %', data:s.map(x=>x.t>0?((x.w/x.t)*100).toFixed(1):0), borderColor:'#4CAF50', yAxisID:'y'},{type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.5)', yAxisID:'y1'}] }, options:{responsive:true, maintainAspectRatio:false, scales:{y:{max:100,position:'left'},y1:{position:'right',grid:{drawOnChartArea:false}}}} });
+                } else if(['roundType','map','killer'].includes(mode)){
+                    const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?(d.killers||"").split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); });
+                    const labels = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
+                    myChart = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'Win',data:labels.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:labels.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
+                } else {
+                    const k=mode.replace('Rate',''), s={};
+                    filteredData.forEach(d=>{ const items=k==='killer'?(d.killers||"").split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
+                    const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0, 15);
+                    myChart = new Chart(ctx, { type:'pie', data:{labels:sorted.map(x=>x[0]), datasets:[{data:sorted.map(x=>x[1]), backgroundColor:sorted.map((_,i)=>`hsl(${(i*360)/15},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'}}} });
+                }
+            } catch(e) { console.error("Chart generation failed:", e); }
         }
 
         function renderTable() {
@@ -364,42 +368,29 @@
             myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,ticks:{display:false}}}, plugins:{legend:{display:false}} } });
         }
 
-        // ★ アンバウンド図鑑の更新ロジック（遭遇セットの構成テラー全表示対応）
+        // ★ アンバウンド図鑑：色分け廃止、名称・構成メンバーの表示を整理
         function updateUnboundList() {
             const listEl = document.getElementById('unboundDynamicList'); 
             listEl.innerHTML = ''; 
-            const discoveredSets = {}; 
-            const encounteredKillers = new Set();
+            const discoveredSets = new Set(); 
 
-            // 1. まず遭遇した全キラーをリスト化
-            filteredData.forEach(d => {
-                if (d.killers && d.killers !== 'None') {
-                    d.killers.split('/').forEach(k => encounteredKillers.add(k.trim()));
-                }
-            });
-
-            // 2. 遭遇したアンバウンドセットを判定
+            // 遭遇したセットの特定
             filteredData.forEach(d => {
                 if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) {
                     const ks = d.killers.split('/').map(k => k.trim());
-                    let setId = "Unknown";
                     for (const [sId, list] of Object.entries(UNBOUND_MASTER)) {
-                        if (ks.some(k => list.includes(k))) { setId = sId; break; }
+                        if (ks.some(k => list.includes(k))) { discoveredSets.add(sId); break; }
                     }
-                    if (setId !== "Unknown") discoveredSets[setId] = true;
                 }
             });
 
-            // 3. 発見済みセットをカードとして描画
-            Object.keys(discoveredSets).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => {
+            // 発見済みセットをカード描画
+            Array.from(discoveredSets).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => {
                 const card = document.createElement('div'); card.className = 'unbound-card';
                 const masterList = UNBOUND_MASTER[id] || [];
                 
-                let killersHtml = '';
-                masterList.forEach(k => {
-                    const isSeen = encounteredKillers.has(k);
-                    killersHtml += `<span class="unbound-killer ${isSeen ? 'discovered' : ''}">${k}</span>`;
-                });
+                // 色分け（discoveredクラス）を廃止し、純粋なリストとして出力
+                let killersHtml = masterList.map(k => `<span class="unbound-killer">${k}</span>`).join('');
 
                 card.innerHTML = `<span class="unbound-set-title">Set #${id}</span>${killersHtml}`;
                 listEl.appendChild(card);
@@ -415,6 +406,7 @@
             if (t === 'tab-analytics' && filteredData.length) updateChart();
         }
         
+        document.getElementById('viewSelector').addEventListener('change', updateChart);
         document.getElementById('startDateFilter').addEventListener('change', updateAll);
         document.getElementById('endDateFilter').addEventListener('change', updateAll);
         document.getElementById('langSelect').addEventListener('change', e => { currentLang = e.target.value; updateUI(); updateAll(); });
