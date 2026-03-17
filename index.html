@@ -31,7 +31,7 @@
         .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .tab-content.active { display: block; }
         
-        /* ういの診断パネル（アイコン大型化） */
+        /* ういの診断パネル */
         .ui-diagnosis-panel { background: #2d2d3a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border-left: 6px solid var(--sub-accent); text-align: left; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .ui-avatar { width: 100px; height: 100px; border-radius: 50%; background: #444; border: 3px solid var(--sub-accent); object-fit: cover; flex-shrink: 0; box-shadow: 0 0 10px rgba(100, 181, 246, 0.2); }
         .ui-name { font-weight: bold; color: var(--sub-accent); font-size: 16px; display: block; margin-bottom: 8px; }
@@ -169,7 +169,7 @@
         const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_ultimate_final_links');
+            const saved = localStorage.getItem('ton_ultimate_csv_fixed');
             if (saved) { parsedData = JSON.parse(saved); initFilters(); updateAll(); }
             updateUI();
         });
@@ -185,17 +185,34 @@
         document.getElementById('csvFileInput').addEventListener('change', e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader();
-            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_final_links', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
+            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_csv_fixed', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_final_links'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_csv_fixed'); location.reload(); } });
 
+        // ★ CSVパースの完全改修版（カンマ入りのダブルクォートやHTMLエンティティに対応）
         function parseCSV(t) {
-            parsedData = t.trim().split('\n').slice(1).map(l => {
-                const c = l.split(','); if (c.length < 5) return null;
-                return { timestamp: c[0].trim(), map: c[1].trim(), roundType: c[2].trim(), killers: c.slice(3, c.length-1).join(',').trim(), result: c[c.length-1].trim() };
-            }).filter(d => d);
+            parsedData = [];
+            const lines = t.trim().split('\n');
+            for (let i = 1; i < lines.length; i++) {
+                const l = lines[i].trim();
+                if (!l) continue;
+                const c = [];
+                let inQ = false, val = '';
+                for (let j = 0; j < l.length; j++) {
+                    if (l[j] === '"') { inQ = !inQ; }
+                    else if (l[j] === ',' && !inQ) { c.push(val.trim()); val = ''; }
+                    else { val += l[j]; }
+                }
+                c.push(val.trim());
+                if (c.length >= 5) {
+                    const k = c.slice(3, c.length - 1).join(',').replace(/&amp;/g, '&');
+                    parsedData.push({
+                        timestamp: c[0], map: c[1], roundType: c[2], killers: k, result: c[c.length - 1]
+                    });
+                }
+            }
         }
 
         function initFilters() {
