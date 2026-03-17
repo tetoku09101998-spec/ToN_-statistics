@@ -3,32 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats Absolute V10</title>
+    <title>ToN Stats PRO Spec</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 10px; font-size: 13px; -webkit-text-size-adjust: 100%; }
-        .controls { background: var(--panel); padding: 12px; border-radius: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1px solid var(--brd); }
+        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 15px; font-size: 13px; -webkit-text-size-adjust: 100%; }
+        
+        .controls { background: var(--panel); padding: 12px; border-radius: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
-        select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; box-sizing: border-box; }
+        select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; box-sizing: border-box; cursor: pointer; }
+        
         .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
-        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 14px; font-weight: bold; flex-shrink: 0; cursor: pointer; }
+        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
         .tab-btn.active { color: var(--acc); border-bottom: 3px solid var(--acc); }
-        .tab-content { display: none; background: var(--panel); padding: 15px; border-radius: 12px; border: 1px solid var(--brd); max-width: 1000px; margin: 0 auto; }
+        
+        .tab-content { display: none; background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid var(--brd); max-width: 1200px; margin: 0 auto; }
         .tab-content.active { display: block; }
-        #ui-box { display: flex; align-items: center; background: #252525; border-radius: 10px; padding: 12px; margin-bottom: 15px; border: 1px solid var(--sub); }
-        #ui-face { width: 60px; height: 60px; border-radius: 50%; margin-right: 12px; border: 2px solid #555; flex-shrink: 0; object-fit: cover; }
-        .card { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--acc); margin-bottom: 15px; text-align: left; }
-        .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 12px; }
-        .full-table-wrapper { overflow-x: auto; margin-top: 10px; border-radius: 8px; background: #1a1a1a; margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 450px; }
+        
+        #ui-box { display: flex; align-items: center; background: #252525; border-radius: 10px; padding: 15px; margin-bottom: 20px; border: 1px solid var(--sub); }
+        #ui-face { width: 65px; height: 65px; border-radius: 50%; margin-right: 15px; border: 2px solid #555; flex-shrink: 0; object-fit: cover; }
+        .card { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--acc); margin-bottom: 20px; text-align: left; }
+        
+        /* ★ PC表示で3列横並びにするグリッドレイアウト */
+        .three-col-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 900px) { .three-col-grid { grid-template-columns: repeat(3, 1fr); align-items: start; } }
+        
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 13px; }
+        .table-wrapper { overflow-x: auto; border-radius: 8px; background: #1a1a1a; max-height: 500px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 300px; }
         th, td { padding: 10px 8px; border-bottom: 1px solid var(--brd); text-align: left; }
+        th { background: #252525; position: sticky; top: 0; z-index: 1; }
         .w { color: var(--acc); font-weight: bold; }
         .l { color: #f44336; font-weight: bold; }
-        .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-        .unb-card { background: #2c2c2c; padding: 12px; border-radius: 8px; border-top: 4px solid var(--unb); font-size: 11px; text-align: left; }
-        .unb-k-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-        .unb-k-tag { background: #444; padding: 2px 6px; border-radius: 4px; color: #eee; font-size: 9px; border: 1px solid #555; white-space: nowrap; }
+        
+        /* アンバウンド図鑑 */
+        .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .unb-card { background: #2c2c2c; padding: 15px; border-radius: 8px; border-top: 4px solid var(--unb); font-size: 12px; text-align: left; }
+        .unb-tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+        .unb-tag { background: #3d3d3d; padding: 4px 8px; border-radius: 4px; color: #eee; font-size: 10px; border: 1px solid #555; }
     </style>
 </head>
 <body>
@@ -37,85 +49,123 @@
         <select id="fDate"><option value="all">全期間</option></select>
         <select id="fRound"><option value="all">全Round</option></select>
         <select id="fKiller" class="full"><option value="all">全Terror</option></select>
+        <div class="full" style="font-size:12px; color:#ffeb3b;"><label><input type="checkbox" id="exClassic"> クラシック除外</label></div>
     </div>
 
     <div class="tabs">
         <button class="tab-btn active" onclick="tab('t-dash')">📊 Summary</button>
         <button class="tab-btn" onclick="tab('t-chart')">📈 Analytics</button>
-        <button class="tab-btn" onclick="tab('t-rank')">🏆 Ranking</button>
+        <button class="tab-btn" onclick="tab('t-rank')">🏆 Ranking (Full)</button>
         <button class="tab-btn" onclick="tab('t-list')">📝 History</button>
-        <button class="tab-btn" onclick="tab('t-unb')">🌀 Unbound</button>
+        <button class="tab-btn" onclick="tab('t-unb')">🌀 Unbound Dex</button>
     </div>
 
     <div id="t-dash" class="tab-content active">
-        <div id="ui-box"><img id="ui-face" src="face_normal.png"><p id="ui-msg" style="font-size:12px; margin:0; text-align:left;"></p></div>
-        <div class="card">
-            <div style="font-size:20px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div>
-            <div style="color:var(--acc); font-size:14px;">Win Rate: <span id="wr">0</span>%</div>
+        <div id="ui-box"><img id="ui-face" src="face_normal.png"><p id="ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4;"></p></div>
+        <div class="three-col-grid" style="margin-bottom:20px;">
+            <div class="card" style="margin:0;">
+                <div style="font-size:22px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div>
+                <div style="color:var(--acc); font-size:15px; margin-bottom:8px;">Win Rate: <span id="wr">0</span>%</div>
+                <div style="font-size:11px; color:#888;">Latest Log: <span id="lDt">-</span></div>
+            </div>
+            <div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2;"><canvas id="radar" height="200"></canvas></div>
         </div>
-        <div style="background:#252525; border-radius:10px; padding:10px; margin-bottom:15px;"><canvas id="radar" height="220"></canvas></div>
-        <h4 style="color:var(--sub); border-bottom:1px solid #444;">Top 10 Killers</h4><div id="dashK"></div>
-        <h4 style="color:var(--acc); border-bottom:1px solid #444; margin-top:20px;">Top 10 Maps</h4><div id="dashM"></div>
-        <h4 style="color:#ffeb3b; border-bottom:1px solid #444; margin-top:20px;">Top 10 Rounds</h4><div id="dashR"></div>
+        
+        <div class="three-col-grid">
+            <div><h3 style="color:var(--sub); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Killers</h3><div id="dashK"></div></div>
+            <div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Rounds</h3><div id="dashR"></div></div>
+            <div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Maps</h3><div id="dashM"></div></div>
+        </div>
     </div>
 
     <div id="t-chart" class="tab-content">
-        <select id="vMode" style="width:100%; margin-bottom:10px;">
-            <option value="trend">日別勝率推移</option><option value="time">時間帯別分析 (2軸)</option>
-            <option value="killer">テラー別勝敗</option><option value="map">マップ別勝敗</option>
-            <option value="p_round">出現: ラウンド</option><option value="p_map">出現: マップ</option>
+        <select id="vMode" style="width:100%; margin-bottom:15px;">
+            <option value="trend">日別勝率推移</option>
+            <option value="time">時間帯別分析 (2軸複合)</option>
+            <option value="killer">テラー別勝敗 (Stacked)</option>
+            <option value="map">マップ別勝敗 (Stacked)</option>
+            <option value="p_round">出現率: ラウンド (Pie)</option>
+            <option value="p_map">出現率: マップ (Pie)</option>
         </select>
-        <div style="height:350px;"><canvas id="mainChart"></canvas></div>
+        <div style="height:400px;"><canvas id="mainChart"></canvas></div>
     </div>
 
     <div id="t-rank" class="tab-content">
-        <h4 style="color:var(--sub);">All Killer Ranking</h4>
-        <div class="full-table-wrapper"><table id="fRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
-        <h4 style="color:var(--acc);">All Map Ranking</h4>
-        <div class="full-table-wrapper"><table id="fRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
-        <h4 style="color:#ffeb3b;">All Round Ranking</h4>
-        <div class="full-table-wrapper"><table id="fRankR"><thead><tr><th>Round</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
+        <div class="three-col-grid">
+            <div>
+                <h3 style="color:var(--sub);">All Killers</h3>
+                <div class="table-wrapper"><table id="fRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div>
+                <h3 style="color:#ffeb3b;">All Rounds</h3>
+                <div class="table-wrapper"><table id="fRankR"><thead><tr><th>Round</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
+            </div>
+            <div>
+                <h3 style="color:var(--acc);">All Maps</h3>
+                <div class="table-wrapper"><table id="fRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
+            </div>
+        </div>
     </div>
 
     <div id="t-list" class="tab-content">
-        <div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div>
-        <div style="margin-top:15px; display:flex; justify-content:space-between;"><button onclick="pg(-1)">◀ Prev</button><span id="pgInf">1/1</span><button onclick="pg(1)">Next ▶</button></div>
+        <div class="table-wrapper"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div>
+        <div style="margin-top:15px; display:flex; justify-content:space-between;">
+            <button class="tab-btn" style="border:1px solid #555;" onclick="pg(-1)">◀ Prev</button>
+            <span id="pgInf" style="align-self:center;">1/1</span>
+            <button class="tab-btn" style="border:1px solid #555;" onclick="pg(1)">Next ▶</button>
+        </div>
     </div>
 
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
 
     <script>
+        // ★ Wiki全84セット：構成要素完全搭載
         const MASTER = {
-            "1":["The Guidance","BooBooBabies","Guidance & The Booboo's"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell","Third Trumpet"],"4":["Big Bird","Judgement Bird","Punishing Bird","Forest Guardians"],"5":["Security","The Swarm","Prisoner","Higher Beings"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M","Quadruple Sponge"],"7":["BFF","Nameless","Your Best Friends"],"8":["Seek","Rush","Eyes","Hotel Monsters"],"9":["Squibbs","Convict(D)","Squibb Squad"],"10":["Garden Rejects","Convict Squad","Kimera","Search and Destroy"],"11":["WhiteNight","Paradise Bird","Judgement Day"],"12":["Roblander","Inverted Roblander","Me and My Shadow"],"13":["An Arbiter","The Red Mist","Meltdown"],"14":["Slender","Slendy","Faceless Mafia"],"15":["Specimen 2","Specimen 5","Specimen 8","Specimen 10","Mansion Monsters"],"16":["MX","Luigi","Wario Apparition","Copyright Infringement"],"17":["Purple Guy","Purple Bros"],"18":["Scavenger","Scavengers"],"19":["The LifeBringer","Scrapyard Machine","Life & Death"],"20":["Unknown Witch","Labyrinth"],"21":["Umbra","Spiteful Eye","Spiteful Shadows"],"22":["Angry Munci","Triple Munci"],"23":["Karol_Corpse","Daycare"],"24":["Huggy","Huggy Wuggy","Huggy Horde"],"25":["Arrival","Infection"],"26":["Hush","Triple Hush"],"27":["[CENSORED]"],"28":["Dev Bytes","Vana","Duke","Byte Horde"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","Convict(N)"],"31":["Lightning","Thunderstorm"],"32":["Joy","END OF THE WORLD"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER","Fragmented Memories"],"34":["Mona","Mona & Mona & Mona & Mona"],"35":["Legs","Seekers"],"36":["Convict(N)","Nugget Squad"],"37":["Saul","Saul's goodmen"],"38":["Something Old, Something New","Security","Ancient Security"],"39":["Bigger Boot","POV: Bug"],"40":["Punishing Bird","Punishing Birdemic"],"41":["Chomper","Chomper Trio"],"42":["With Many Voices","Too Many Voices"],"43":["Miros Bird","Memory Crypts"],"44":["Jumbo Josh","Zumbo Sauce"],"45":["Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann","Freaks"],"46":["Lunatic Cultist","Lunatic Cult"],"47":["Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter","Transportation Trio"],"48":["Father Son Bonding","Purple Guy","Voidwalker"],"49":["HER","WHITEFACE","WHAT IS MY NAME"],"50":["Dapper Enphoso","Pyromatic Enphoso","Glaggleland Cremators"],"51":["Signus","Triple Signus"],"52":["Akumii-Kari","Triple Akumii Kari"],"53":["Black & White","Big Bird","Paradise Bird"],"54":["[LESSER CENSORED]","LESSER CENSORED"],"55":["Blue Monsters","Blue gaper","Blue Flies"],"56":["Drones","Drone"],"57":["Scrapyard Takers","Scrapyard Taker"],"58":["Luigi Dolls","Luigi Doll"],"59":["Meteor Shower","Meteor"],"60":["Triple TBH","TBH","TBH Spy"],"61":["Lost Souls","Lost Soul"],"62":["Ballin","Aku Ball"],"63":["Reunion","Toren's Shadow","Mona","Karol_Corpse","Haket"],"64":["Angels","Roblander","Bliss","Ancient Monarch"],"65":["Ordinary Apocalypse Bird","Apocalypse Bird","Immortal Snail"],"66":["Wild Yet Curious Creature","Pack of Wild Yet Curious Creatures"],"67":["Beyond","Manti","ToN X SlashCo Collab"],"68":["Yolm","Pack of Yolm"],"69":["Threepy","Peepy"],"70":["Ghost Girl"],"71":["Delete Me","Deleted","Akumii-Kari"],"72":["Spamton Spam","Spamton"],"73":["Death From Above","Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser"],"74":["Mirror","Red Bus","Terror of Nowhere"],"75":["Zombie Apocalypse","SCP-049-B"],"76":["Mountain of Smiling Bodies","Eating Contest"],"77":["Triple Clockey","Clockey"],"78":["Triple Killer Fish","Killer Fish"],"79":["Lethal League","MR.MEGA","DoomBox"],"80":["Trollage","Comedy","Tragedy"],"81":["Mopemopemopemopemopemope","MopeMope"],"82":["Triple Trouble","Sonic","Rewrite","Atrached"],"83":["Triple Living Shadow","Living Shadow"],"84":["Beyond's Masks","Beyond","Convict[E]","Byte[E]"]
+            "1":["The Guidance","BooBooBabies","Guidance & The Booboo's"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell","Third Trumpet"],"4":["Big Bird","Judgement Bird","Punishing Bird","Forest Guardians"],"5":["Security","The Swarm","Prisoner","Higher Beings"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M","Quadruple Sponge"],"7":["BFF","Nameless","Your Best Friends"],"8":["Seek","Rush","Eyes","Hotel Monsters"],"9":["Squibbs (Dev Bytes)","Convict(D)","Squibb Squad"],"10":["Garden Rejects","Convict Squad","Kimera","Search and Destroy"],"11":["WhiteNight","Paradise Bird","Judgement Day"],"12":["Roblander","Inverted Roblander","Me and My Shadow"],"13":["An Arbiter","The Red Mist","Meltdown"],"14":["Slender","Slendy","Hungry Home Invader","Faceless Mafia"],"15":["Specimen 2","Specimen 5","Specimen 8","Specimen 10","Mansion Monsters"],"16":["MX","Luigi","Wario Apparition","Copyright Infringement"],"17":["Purple Guy","Purple Bros"],"18":["Scavenger","Scavengers"],"19":["The LifeBringer","Scrapyard Machine","Life & Death"],"20":["Unknown Witch","Labyrinth"],"21":["Umbra","Spiteful Eye","Spiteful Shadows"],"22":["Angry Munci","Triple Munci"],"23":["Karol_Corpse","Daycare"],"24":["Huggy","Huggy Wuggy","Huggy Horde"],"25":["Arrival","Infection"],"26":["Hush","Triple Hush"],"27":["[CENSORED]"],"28":["Dev Bytes","Vana","Duke","Byte Horde"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","Convict(N)","TAKE THE NAMI CHALLENGE"],"31":["Lightning","Thunderstorm"],"32":["Joy","END OF THE WORLD"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER","Fragmented Memories"],"34":["Mona","Mona & The Mountain","Mona & Mona & Mona & Mona"],"35":["Legs","Seekers"],"36":["Convict(N)","Nugget Squad"],"37":["Saul","Saul's goodmen"],"38":["Security","Ancient Security","Something Old, Something New"],"39":["Bigger Boot","POV: Bug"],"40":["Punishing Bird","Punishing Birdemic"],"41":["Chomper","Chomper Trio"],"42":["With Many Voices","Too Many Voices"],"43":["Miros Bird","Memory Crypts"],"44":["Jumbo Josh","Zumbo Sauce"],"45":["Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann","Freaks"],"46":["Lunatic Cultist","Lunatic Cult"],"47":["Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter","Transportation Trio"],"48":["Purple Guy","Voidwalker","Father Son Bonding"],"49":["HER","WHITEFACE","WHAT IS MY NAME"],"50":["Dapper Enphoso","Pyromatic Enphoso","Glaggleland Cremators"],"51":["Signus","Triple Signus"],"52":["Akumii-Kari","Triple Akumii Kari"],"53":["Big Bird","Paradise Bird","Black & White"],"54":["LESSER CENSORED","[LESSER CENSORED]"],"55":["Blue gaper","Blue Flies","Blue Monsters"],"56":["Drone","Drones"],"57":["Scrapyard Taker","Scrapyard Takers"],"58":["Luigi Doll","Luigi Dolls"],"59":["Meteor","Meteor Shower"],"60":["TBH","TBH Spy","Triple TBH"],"61":["Lost Soul","Lost Souls"],"62":["Aku Ball","Ballin"],"63":["Toren's Shadow","Mona","Karol_Corpse","Haket","Reunion"],"64":["Roblander","Bliss","Ancient Monarch","Angels"],"65":["Apocalypse Bird","Immortal Snail","Ordinary Apocalypse Bird"],"66":["Wild Yet Curious Creature","Pack of Wild Yet Curious Creatures"],"67":["Beyond","Manti","ToN X SlashCo Collab"],"68":["Yolm","Pack of Yolm"],"69":["Peepy","Threepy"],"70":["Ghost Girl"],"71":["Deleted","Akumii-Kari","Delete Me"],"72":["Spamton","Spamton Spam"],"73":["Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser","Death From Above"],"74":["Mirror","Red Bus","Terror of Nowhere","It Came From Bus To Nowhere"],"75":["SCP-049-B","Zombie Apocalypse"],"76":["Mountain of Smiling Bodies","Eating Contest"],"77":["Clockey","Triple Clockey"],"78":["Killer Fish","Triple Killer Fish"],"79":["MR.MEGA","DoomBox","Lethal League"],"80":["Comedy","Tragedy","Trollage"],"81":["MopeMope","Mopemopemopemopemopemope"],"82":["Sonic","Rewrite","Atrached","Triple Trouble"],"83":["Living Shadow","Triple Living Shadow"],"84":["Beyond","Convict[E]","Byte[E]","Wild Yet Curious Creature","Toren's Shadow","Paint(Beyond)","Beyond's Masks"]
         };
 
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
 
         window.onload = () => {
-            const saved = localStorage.getItem('ton_v10_ultimate');
+            const saved = localStorage.getItem('ton_pro_spec');
             if(saved) { parseCSV(saved); initF(); upd(); }
         };
 
         document.getElementById('csvFile').onchange = e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
-                localStorage.setItem('ton_v10_ultimate', ev.target.result);
+                localStorage.setItem('ton_pro_spec', ev.target.result);
                 parseCSV(ev.target.result); initF(); upd();
             }; r.readAsText(f);
         };
 
+        // ★ 正規CSVパーサー（カンマを含むラウンド名の列ズレを完璧に防ぐ）
         function parseCSV(t) {
-            raw = t.trim().split('\n').slice(1).map(l => {
-                const c = l.split(','); if (c.length < 5) return null;
-                const killers = c.slice(3, -1).join(',').trim(); 
-                return { t: c[0].trim(), m: c[1].trim(), r: c[2].trim(), k: killers, res: c[c.length-1].trim() };
+            raw = t.trim().split('\n').slice(1).map(line => {
+                let cols = []; let inQ = false; let cur = '';
+                for(let i=0; i<line.length; i++) {
+                    if(line[i] === '"') inQ = !inQ;
+                    else if(line[i] === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+                    else cur += line[i];
+                }
+                cols.push(cur.trim());
+                if (cols.length < 5) return null;
+                const res = cols.pop();
+                const time = cols.shift();
+                const map = cols.shift();
+                const round = cols.shift();
+                const killers = cols.join(','); // 残りは全てテラー（複数カンマも結合）
+                return { t: time, m: map, r: round, k: killers, res: res };
             }).filter(x => x);
         }
 
         function initF() {
             const dS = new Set(), rS = new Set(), kS = new Set();
-            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); if(x.k!=='None') x.k.split(',').forEach(i=>kS.add(i.trim())); });
+            raw.forEach(x => { 
+                dS.add(x.t.split(' ')[0]); rS.add(x.r);
+                x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') kS.add(v); });
+            });
             const f = (id, s, rev=false) => { 
                 const el = document.getElementById(id); el.innerHTML = '<option value="all">全て</option>'; 
                 let a = Array.from(s).sort(); if(rev) a.reverse();
@@ -127,8 +177,8 @@
         document.querySelectorAll('select, input[type=checkbox]').forEach(el => el.onchange = upd);
 
         function upd() {
-            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value;
-            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)));
+            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, exc = document.getElementById('exClassic')?.checked || false;
+            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && !(exc && x.r.includes('Classic')));
             page = 1; render();
         }
 
@@ -138,11 +188,13 @@
             let w=0; filtered.forEach(x => { if(isW(x.res)) w++; });
             document.getElementById('tg').innerText = filtered.length; document.getElementById('tw').innerText = w;
             document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0;
-            const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/30)||1;
-            tb.innerHTML = ''; rev.slice((page-1)*30, page*30).forEach(x => {
-                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r.slice(0,10)}</td><td>${x.k.slice(0,12)}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`;
+            if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t;
+            
+            const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1;
+            tb.innerHTML = ''; rev.slice((page-1)*50, page*50).forEach(x => {
+                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`;
             });
-            document.getElementById('pgInf').innerText = `${page}/${tp}`;
+            document.getElementById('pgInf').innerText = `${page} / ${tp}`;
             updRankings(); updUnb(); updUi(); renderC();
         }
 
@@ -152,39 +204,51 @@
             const kM = {}, mM = {}, rM = {};
             filtered.forEach(x => {
                 const win = isW(x.res);
-                x.k.split(',').forEach(k => { 
-                    const n=k.trim(); if(n&&n!=='None'&&!n.includes('???')){ kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; }
+                x.k.split(/[\/,]+/).forEach(k => { 
+                    const n=k.trim(); 
+                    if(n && n!=='None' && !n.includes('???')) { // ★「???」を除外
+                        kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; 
+                    }
                 });
                 mM[x.m]=(mM[x.m]||{t:0,w:0}); mM[x.m].t++; if(win) mM[x.m].w++;
                 rM[x.r]=(rM[x.r]||{t:0,w:0}); rM[x.r].t++; if(win) rM[x.r].w++;
             });
+            
             const fillDash = (id, m, col) => {
                 const el = document.getElementById(id); el.innerHTML = '';
-                Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => el.innerHTML += `<div class="rank-item"><span>${n} (${s.t})</span><span style="color:${col}">${(s.w/s.t*100).toFixed(0)}%</span></div>`);
+                Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => el.innerHTML += `<div class="rank-item"><span>${n} <span style="color:#888;">(${s.t})</span></span><span style="color:${col}; font-weight:bold;">${(s.w/s.t*100).toFixed(0)}%</span></div>`);
             };
             fillDash('dashK', kM, 'var(--sub)'); fillDash('dashM', mM, 'var(--acc)'); fillDash('dashR', rM, '#ffeb3b');
 
             const fillFull = (id, m) => {
                 const el = document.querySelector(`#${id} tbody`); el.innerHTML = '';
-                Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => el.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td>${s.w}</td><td>${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`);
+                Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => el.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td class="w">${s.w}</td><td class="l">${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`);
             };
             fillFull('fRankK', kM); fillFull('fRankM', mM); fillFull('fRankR', rM);
         }
 
         function updUnb() {
-            const l = document.getElementById('unbL'), s = {}; l.innerHTML = '';
+            const l = document.getElementById('unbL'), s = new Set(); l.innerHTML = '';
             filtered.forEach(x => {
-                if (!x.r.includes('Unbound') && !x.r.includes('アンバウンド')) return;
-                let id = "Unknown", ks = x.k.split(',').map(k => k.trim());
+                const rowStr = (x.r + ' ' + x.k).toLowerCase();
+                if (!rowStr.includes('unbound') && !rowStr.includes('アンバウンド')) return;
+                
+                let found = false;
                 for (const [sid, master] of Object.entries(MASTER)) {
-                    if (master.some(m => x.r.toLowerCase().includes(m.toLowerCase()) || ks.some(k => m.toLowerCase().includes(k.toLowerCase())))) { id = sid; break; }
+                    if (master.some(m => rowStr.includes(m.toLowerCase()))) { s.add(sid); found = true; break; }
                 }
-                if (!s[id]) s[id] = new Set();
-                ks.forEach(k => { if(k.length > 2 && k !== 'None') s[id].add(k); });
+                if (!found) s.add("Unknown");
             });
-            Object.keys(s).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
-                let tags = ''; Array.from(s[id]).forEach(k => tags += `<span class="unb-k-tag">${k}</span>`);
-                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">Set #${id}</strong><div class="unb-tag-list">${tags}</div></div>`;
+            
+            Array.from(s).sort((a,b)=>a==="Unknown"?1:parseInt(a)-parseInt(b)).forEach(id => {
+                let tags = ''; 
+                if (id === "Unknown") {
+                    tags = '<span class="unb-tag" style="border-color:#f44336; color:#f44336;">解析不能データ</span>';
+                } else {
+                    // ★ Wikiのマスターデータをタグとして全展開表示
+                    MASTER[id].forEach(k => tags += `<span class="unb-tag">${k}</span>`);
+                }
+                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb); font-size:14px;">Set #${id}</strong><div class="unb-tag-list">${tags}</div></div>`;
             });
         }
 
@@ -192,23 +256,24 @@
             const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
             let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0;
             filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(x.r.includes('Classic')) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
-            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Total','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'}}}, plugins:{legend:{display:false}} } });
+            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Overall','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50', borderWidth: 2}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc', font:{size:13}}}}, plugins:{legend:{display:false}} } });
+            
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
                 if(mode==='trend'){
-                    const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const l=Object.keys(s).sort();
-                    charts.m = new Chart(mc, { type:'line', data:{labels:l, datasets:[{label:'Win%', data:l.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
+                    const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort();
+                    charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50', backgroundColor:'rgba(76,175,80,0.1)', fill:true}]}, options:{maintainAspectRatio:false} });
                 } else if(mode==='time'){
                     const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; });
-                    charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options:{maintainAspectRatio:false, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}}} });
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'Win Rate (%)', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games Played', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options:{maintainAspectRatio:false, scales:{y:{max:100, position:'left'},y1:{position:'right', grid:{drawOnChartArea:false}}}} });
                 } else if(['killer','map'].includes(mode)){
-                    const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(','):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); });
-                    const l=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0,15);
-                    charts.m = new Chart(mc, { type:'bar', data:{labels:l, datasets:[{label:'W',data:l.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'L',data:l.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
+                    const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); });
+                    const lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0,15);
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:lbl, datasets:[{label:'Win',data:lbl.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:lbl.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
                 } else {
                     const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items=k==='round'?[x.r]:[x.m]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
-                    const l=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,15);
-                    charts.m = new Chart(mc, { type:'pie', data:{labels:l.map(x=>x[0]), datasets:[{data:l.map(x=>x[1]), backgroundColor:l.map((_,i)=>`hsl(${i*24},70%,50%)`)}]}, options:{maintainAspectRatio:false} });
+                    const lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,15);
+                    charts.m = new Chart(mc, { type:'pie', data:{labels:lbl.map(x=>x[0]), datasets:[{data:lbl.map(x=>x[1]), backgroundColor:lbl.map((_,i)=>`hsl(${i*24},70%,45%)`)}]}, options:{maintainAspectRatio:false} });
                 }
             }
         }
@@ -223,7 +288,7 @@
                 work: { f: "face_angry.png", t: [`日中に ${d} 回の記録。……今、仕事中じゃないの？`, `就業時間中にツールを弄るな。業務を優先しなさい。`] },
                 high: { f: "face_tsundere.png", t: [`勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。`, `へぇ、悪くないじゃない。別に褒めてないわよ。`] },
                 low: { f: "face_sigh.png", t: [`勝率 ${r.toFixed(1)}%……。泥沼ね。休息しなさい。`, `あまりに非論理的な敗北。大人しくログアウトしなさい。`] },
-                normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。`] }
+                normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。`, `データとしては標準的ね。はい次。`] }
             };
             let c = "normal"; const rnd = Math.random();
             if(n>0 && rnd > 0.3) c = "night"; else if(d>0 && rnd > 0.4) c = "work"; else if(r>=70) c = "high"; else if(r<30 && filtered.length > 5) c = "low";
