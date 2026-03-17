@@ -162,4 +162,75 @@
             });
             const fillDash = (id, m, col) => {
                 const el = document.getElementById(id); el.innerHTML = '';
-                Object.entries(m).sort((a,b)=>b[1].t-a[1].
+                Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => el.innerHTML += `<div class="rank-item"><span>${n} (${s.t})</span><span style="color:${col}">${(s.w/s.t*100).toFixed(0)}%</span></div>`);
+            };
+            fillDash('dashK', kM, 'var(--sub)'); fillDash('dashM', mM, 'var(--acc)'); fillDash('dashR', rM, '#ffeb3b');
+
+            const fillFull = (id, m) => {
+                const el = document.querySelector(`#${id} tbody`); el.innerHTML = '';
+                Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => el.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td>${s.w}</td><td>${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`);
+            };
+            fillFull('fRankK', kM); fillFull('fRankM', mM); fillFull('fRankR', rM);
+        }
+
+        function updUnb() {
+            const l = document.getElementById('unbL'), s = {}; l.innerHTML = '';
+            filtered.forEach(x => {
+                if (!x.r.includes('Unbound') && !x.r.includes('アンバウンド')) return;
+                let id = "Unknown", ks = x.k.split(',').map(k => k.trim());
+                for (const [sid, master] of Object.entries(MASTER)) {
+                    if (master.some(m => x.r.toLowerCase().includes(m.toLowerCase()) || ks.some(k => m.toLowerCase().includes(k.toLowerCase())))) { id = sid; break; }
+                }
+                if (!s[id]) s[id] = new Set();
+                ks.forEach(k => { if(k.length > 2 && k !== 'None') s[id].add(k); });
+            });
+            Object.keys(s).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
+                let tags = ''; Array.from(s[id]).forEach(k => tags += `<span class="unb-tag">${k}</span>`);
+                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">Set #${id}</strong><div class="unb-tag-list">${tags}</div></div>`;
+            });
+        }
+
+        function renderC() {
+            const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
+            let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0;
+            filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(x.r.includes('Classic')) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
+            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Total','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'}}}, plugins:{legend:{display:false}} } });
+            if(document.getElementById('t-chart').classList.contains('active')) {
+                const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
+                if(mode==='trend'){
+                    const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const l=Object.keys(s).sort();
+                    charts.m = new Chart(mc, { type:'line', data:{labels:l, datasets:[{label:'Win%', data:l.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
+                } else if(mode==='time'){
+                    const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; });
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options:{maintainAspectRatio:false, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}}} });
+                } else if(['killer','map'].includes(mode)){
+                    const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(','):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); });
+                    const l=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0,15);
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:l, datasets:[{label:'W',data:l.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'L',data:l.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
+                } else {
+                    const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items=k==='round'?[x.r]:[x.m]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
+                    const l=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,15);
+                    charts.m = new Chart(mc, { type:'pie', data:{labels:l.map(x=>x[0]), datasets:[{data:l.map(x=>x[1]), backgroundColor:l.map((_,i)=>`hsl(${i*24},70%,50%)`)}]}, options:{maintainAspectRatio:false} });
+                }
+            }
+        }
+
+        function updUi() {
+            if(!filtered.length) return;
+            const f = document.getElementById('ui-face'), m = document.getElementById('ui-msg');
+            let w=0, n=0, d=0; filtered.forEach(x=>{ if(isW(x.res)) w++; const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); if(h>=0&&h<=4)n++; if(h>=10&&h<=16)d++; });
+            const r = (w/filtered.length*100);
+            const DB = {
+                night: { f: "face_tired.png", t: [`深夜に ${n} 回もプレイ？ 非論理的ね。寝なさい。`, `この深夜ログ、脳が死んでるわ。早く寝なよ。`] },
+                work: { f: "face_angry.png", t: [`日中に ${d} 回の記録。……今、仕事中じゃないの？`, `就業時間中にツールを弄るな。業務を優先しなさい。`] },
+                high: { f: "face_tsundere.png", t: [`勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。`, `へぇ、悪くないじゃない。別に褒めてないわよ。`] },
+                low: { f: "face_sigh.png", t: [`勝率 ${r.toFixed(1)}%……。泥沼ね。休息しなさい。`, `あまりに非論理的な敗北。大人しくログアウトしなさい。`] },
+                normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。次。`] }
+            };
+            let c = "normal"; const rnd = Math.random();
+            if(n>0 && rnd > 0.3) c = "night"; else if(d>0 && rnd > 0.4) c = "work"; else if(r>=70) c = "high"; else if(r<30 && filtered.length > 5) c = "low";
+            f.src = DB[c].f; m.innerText = DB[c].t[Math.floor(Math.random()*DB[c].t.length)];
+        }
+    </script>
+</body>
+</html>
