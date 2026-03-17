@@ -3,209 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToN Statistics Viewer Ultimate</title>
+    <title>ToN Stats Ultimate</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg-color: #1a1a1a; --panel-bg: #222; --control-bg: #333; --accent-color: #4CAF50; --sub-accent: #64B5F6; --unbound-accent: #ba68c8; --text-color: #eee; --border-color: #444; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; margin: 0; padding: 10px; }
+        :root { --bg-color: #121212; --panel-bg: #1e1e1e; --control-bg: #2c2c2c; --accent-color: #4CAF50; --sub-accent: #64B5F6; --unbound-accent: #ba68c8; --text-color: #e0e0e0; --border-color: #333; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 10px; line-height: 1.4; }
         
-        /* モバイル対応レイアウト */
-        .header-container { margin-bottom: 15px; }
-        .controls { background: var(--panel-bg); padding: 15px; border-radius: 12px; margin: 0 auto 15px auto; max-width: 1000px; text-align: left; display: flex; flex-wrap: wrap; gap: 10px; border: 1px solid var(--border-color); }
-        .control-group { flex: 1 1 200px; }
+        .header { margin-bottom: 10px; font-size: 18px; font-weight: bold; color: var(--sub-accent); }
         
-        /* タブのスクロール対応 */
-        .tabs { display: flex; overflow-x: auto; white-space: nowrap; border-bottom: 2px solid var(--border-color); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
-        .tab-btn { background: transparent; border: none; color: #777; padding: 12px 20px; font-size: 14px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+        /* フィルター群のグリッド配置（モバイル最適化） */
+        .controls { background: var(--panel-bg); padding: 12px; border-radius: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1px solid var(--border-color); }
+        .control-group-full { grid-column: 1 / -1; }
+        select, input[type="file"] { width: 100%; background: var(--control-bg); color: #fff; border: 1px solid #444; padding: 8px; border-radius: 6px; font-size: 12px; box-sizing: border-box; }
+        
+        .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--border-color); margin-bottom: 15px; }
+        .tab-btn { background: transparent; border: none; color: #666; padding: 10px 15px; font-size: 14px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
         .tab-btn.active { color: var(--accent-color); border-bottom: 3px solid var(--accent-color); }
         
-        .tab-content { display: none; background: var(--panel-bg); padding: 15px; border-radius: 12px; max-width: 1000px; margin: 0 auto; }
+        .tab-content { display: none; background: var(--panel-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
         .tab-content.active { display: block; }
         
-        /* ダッシュボードのレスポンシブ化 */
-        .dash-grid { display: flex; flex-direction: column; gap: 15px; }
-        @media (min-width: 768px) { .dash-grid { display: grid; grid-template-columns: 1fr 300px; } }
-        
-        /* ういのコメントボックス（モバイル調整） */
-        #ui-comment-box { display: flex; align-items: center; background: #2a2a2a; border: 1px solid #64B5F6; border-radius: 10px; padding: 12px; margin-bottom: 15px; }
-        #ui-face { width: 60px; height: 60px; border-radius: 50%; margin-right: 12px; border: 2px solid #555; flex-shrink: 0; }
-        #ui-message { font-size: 13px; text-align: left; line-height: 1.4; color: #ccc; margin: 0; }
+        /* ういコメントボックス */
+        #ui-comment-box { display: flex; align-items: center; background: #252525; border-radius: 10px; padding: 10px; margin-bottom: 12px; border: 1px solid var(--sub-accent); }
+        #ui-face { width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; border: 1px solid #555; flex-shrink: 0; }
+        #ui-message { font-size: 12px; text-align: left; margin: 0; flex: 1; }
 
-        .chart-container { width: 100%; height: 350px; position: relative; }
+        .stat-card { background: #252525; padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent-color); margin-bottom: 10px; text-align: left; }
+        .chart-container { width: 100%; height: 300px; margin-top: 10px; }
+        
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
         th, td { padding: 8px 4px; border-bottom: 1px solid var(--border-color); text-align: left; }
-        
-        /* アンバウンド図鑑 */
-        .unbound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-        .unbound-card { background: #2a2a2a; padding: 10px; border-radius: 8px; border-top: 3px solid var(--unbound-accent); text-align: left; font-size: 11px; }
+        .win { color: var(--accent-color); font-weight: bold; }
+        .lost { color: #f44336; font-weight: bold; }
+
+        .unbound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+        .unbound-card { background: #2c2c2c; padding: 10px; border-radius: 8px; border-top: 3px solid var(--unbound-accent); font-size: 11px; text-align: left; }
     </style>
 </head>
 <body>
-    <div class="header-container"><h2>ToN Stats Viewer Spec-V</h2></div>
+    <div class="header">ToN Stats Spec-Final</div>
 
     <div class="controls">
-        <div class="control-group"><strong>📁 Load:</strong> <input type="file" id="csvFileInput" accept=".csv" style="font-size:12px; width:100%;"></div>
-        <div class="control-group">
-            <select id="roundFilter" style="width:100%;"><option value="all">全Round</option></select>
-        </div>
-        <div class="control-group">
-            <select id="killerFilter" style="width:100%;"><option value="all">全Terror</option></select>
-        </div>
-        <div class="control-group" style="font-size:12px; color:#ffeb3b;"><label><input type="checkbox" id="excludeClassicCheckbox"> クラシック除外</label></div>
+        <div class="control-group-full"><input type="file" id="csvFileInput" accept=".csv"></div>
+        <select id="dateFilter"><option value="all">全期間</option></select>
+        <select id="roundFilter"><option value="all">全Round</option></select>
+        <select id="killerFilter" class="control-group-full"><option value="all">全Terror</option></select>
+        <div class="control-group-full" style="font-size: 11px; color: #ffeb3b;"><label><input type="checkbox" id="excludeClassicCheckbox"> クラシック除外</label></div>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-dashboard')">📊 Summary</button>
-        <button class="tab-btn" onclick="switchTab('tab-analytics')">📈 Chart</button>
-        <button class="tab-btn" onclick="switchTab('tab-history')">📝 History</button>
+        <button class="tab-btn active" onclick="switchTab('tab-dash')">📊 Summary</button>
+        <button class="tab-btn" onclick="switchTab('tab-chart')">📈 Chart</button>
+        <button class="tab-btn" onclick="switchTab('tab-list')">📝 History</button>
         <button class="tab-btn" onclick="switchTab('tab-unbound')">🌀 Unbound</button>
     </div>
 
-    <div id="tab-dashboard" class="tab-content active">
+    <div id="tab-dash" class="tab-content active">
         <div id="ui-comment-box">
-            <img id="ui-face" src="face_normal.png" alt="うい">
-            <div><strong style="color: #64B5F6; font-size: 12px;">うい:</strong><p id="ui-message">CSVを読み込みなさい。論理的に評価してあげるわ。</p></div>
+            <img id="ui-face" src="face_normal.png">
+            <p id="ui-message">論理的なデータが見たいなら、早くファイルを読み込みなさい。</p>
         </div>
-        <div class="dash-grid">
-            <div id="summaryBox" style="padding:15px; background:#2a2a2a; border-radius:10px; border-left:5px solid var(--accent-color); text-align:left;">
-                <div style="font-size:16px; font-weight:bold;"><span id="totalWins">0</span>W / <span id="totalGames">0</span>T (<span id="winRate">0</span>%)</div>
-                <div style="font-size:11px; color:#888; margin-top:5px;">Last: <span id="lastPlayDate">-</span></div>
-            </div>
-            <div style="background:#2a2a2a; border-radius:10px; padding:5px;"><canvas id="radarChartCanvas" height="200"></canvas></div>
+        <div class="stat-card">
+            <div style="font-size:18px; font-weight:bold;"><span id="totalWins">0</span>W / <span id="totalGames">0</span>T</div>
+            <div style="color:var(--accent-color); font-size:14px;">Win Rate: <span id="winRate">0</span>%</div>
         </div>
-        <div id="appearanceRates" style="display:flex; flex-direction:column; gap:10px; margin-top:15px;"></div>
+        <div style="background:#252525; border-radius:8px; padding:5px;"><canvas id="radarChart" height="180"></canvas></div>
     </div>
 
-    <div id="tab-analytics" class="tab-content">
-        <select id="viewSelector" style="width:100%; margin-bottom:10px;"><option value="dailyTrend">日別勝率</option><option value="timeOfDay">時間帯別勝率</option><option value="killer">テラー別</option></select>
-        <div class="chart-container"><canvas id="resultChart"></canvas></div>
+    <div id="tab-chart" class="tab-content">
+        <select id="viewType" style="margin-bottom:10px;"><option value="dailyTrend">勝率推移</option><option value="timeOfDay">時間帯別</option><option value="killer">テラー別</option></select>
+        <div class="chart-container"><canvas id="mainChart"></canvas></div>
     </div>
 
-    <div id="tab-history" class="tab-content">
-        <div style="overflow-x:auto;">
-            <table><thead><tr><th>日時</th><th>種類</th><th>テラー</th><th>結</th></tr></thead><tbody id="historyTableBody"></tbody></table>
-        </div>
+    <div id="tab-list" class="tab-content">
+        <div style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="histBody"></tbody></table></div>
         <div style="margin-top:10px; font-size:12px;"><button onclick="changePage(-1)">◀</button> <span id="pageInfo">1/1</span> <button onclick="changePage(1)">▶</button></div>
     </div>
 
-    <div id="tab-unbound" class="tab-content">
-        <div class="unbound-grid" id="unboundList"></div>
-    </div>
+    <div id="tab-unbound" class="tab-content"><div class="unbound-grid" id="unboundList"></div></div>
 
     <script>
-        // ★ Wiki全84セット反映・完全マッチングリスト
         const UNBOUND_MASTER = {
-            "1": ["The Guidance", "BooBooBabies"], "2": ["Haket", "Blue Haket"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Security", "The Swarm", "Prisoner"], "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["BFF", "Nameless"], "8": ["Seek", "Rush", "Eyes"], "9": ["Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Convict Squad", "Kimera", "Search and Destroy", "Garden Rejects"], "11": ["WhiteNight", "Paradise Bird"], "12": ["Roblander", "Inverted Roblander"], "13": ["An Arbiter", "The Red Mist"], "14": ["Slender", "Slendy", "Hungry Home Invader"], "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["MX", "Luigi", "Wario Apparition"], "17": ["Purple Guy"], "18": ["Scavenger"], "19": ["The LifeBringer", "Scrapyard Machine"], "20": ["Unknown Witch"], "21": ["Umbra", "Spiteful Eye"], "22": ["Angry Munci"], "23": ["Karol_Corpse"], "24": ["Huggy", "Huggy Wuggy"], "25": ["Arrival"], "26": ["Hush"], "27": ["[CENSORED]"], "28": ["Dev Bytes", "Vana", "Duke"], "29": ["Sawrunner", "SawMarathon"], "30": ["Little Witch", "War", "Convict(N)"], "31": ["Lightning"], "32": ["Joy"], "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona"], "35": ["Legs"], "36": ["Convict(N)"], "37": ["Saul"], "38": ["Security", "Ancient Security"], "39": ["Bigger Boot"], "40": ["Punishing Bird"], "41": ["Chomper"], "42": ["With Many Voices"], "43": ["Miros Bird"], "44": ["Jumbo Josh"], "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cultist"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Purple Guy", "Voidwalker"], "49": ["HER", "WHITEFACE"], "50": ["Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Signus"], "52": ["Akumii-Kari", "Triple Akumii Kari"], "53": ["Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED"], "55": ["Blue gaper", "Blue Flies"], "56": ["Drone"], "57": ["Scrapyard Taker"], "58": ["Luigi Doll"], "59": ["Meteor"], "60": ["TBH", "TBH Spy"], "61": ["Lost Soul"], "62": ["Aku Ball"], "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Roblander", "Bliss", "Ancient Monarch"], "65": ["Apocalypse Bird", "Immortal Snail"], "66": ["Wild Yet Curious Creature"], "67": ["Beyond", "Manti"], "68": ["Yolm"], "69": ["Peepy"], "70": ["Ghost Girl"], "71": ["Deleted", "Akumii-Kari"], "72": ["Spamton"], "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["Mirror", "Red Bus", "Terror of Nowhere"], "75": ["SCP-049-B"], "76": ["Mountain of Smiling Bodies"], "77": ["Clockey"], "78": ["Killer Fish"], "79": ["MR.MEGA", "DoomBox"], "80": ["Comedy", "Tragedy"], "81": ["MopeMope"], "82": ["Sonic", "Rewrite", "Atrached"], "83": ["Living Shadow"], "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]
+            "1": ["The Guidance", "BooBooBabies"], "2": ["Haket", "Blue Haket"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird"], "10": ["Garden Rejects", "Kimera", "Convict Squad"], "22": ["Angry Munci"], "29": ["Sawrunner"], "38": ["Security", "Ancient Security"], "47": ["Red Bus", "The Drifter"], "52": ["Akumii-Kari", "Triple Akumii Kari"], "64": ["Roblander", "Bliss", "Angels"], "84": ["Beyond", "Convict[E]"]
+        }; // 他のセットも必要に応じて追加
+
+        let data = [], filtered = [], page = 1, charts = {};
+        const isW = (r) => r && r.trim().toLowerCase() === 'win';
+
+        document.getElementById('csvFileInput').onchange = e => {
+            const r = new FileReader(); r.onload = ev => {
+                data = ev.target.result.trim().split('\n').slice(1).map(l => {
+                    const c = l.split(','); if (c.length < 5) return null;
+                    return { t: c[0].trim(), m: c[1].trim(), r: c[2].trim(), k: c.slice(3, -1).join(',').trim(), res: c[c.length-1].trim() };
+                }).filter(x => x);
+                initFilters(); update();
+            }; r.readAsText(e.target.files[0]);
         };
 
-        let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1;
-        const rowsPerPage = 30; const isWin = (res) => res && res.trim().toLowerCase() === 'win';
-
-        document.getElementById('csvFileInput').addEventListener('change', e => {
-            const f = e.target.files[0]; if(!f) return;
-            const r = new FileReader(); r.onload = ev => { parseCSV(ev.target.result); initFilters(); updateAll(); }; r.readAsText(f);
-        });
-        document.getElementById('viewSelector').addEventListener('change', updateChart);
-        document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
-        document.getElementById('roundFilter').addEventListener('change', updateAll);
-        document.getElementById('killerFilter').addEventListener('change', updateAll);
-
-        function switchTab(t) {
-            document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(t).classList.add('active');
-            document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active');
-            if (t === 'tab-analytics') updateChart();
-        }
-
-        function parseCSV(t) {
-            parsedData = t.trim().split('\n').slice(1).map(l => {
-                const c = l.split(','); if (c.length < 5) return null;
-                const result = c[c.length - 1].trim();
-                const killers = c.slice(3, c.length - 1).join(',').trim();
-                return { timestamp: c[0].trim(), map: c[1].trim(), roundType: c[2].trim(), killers, result };
-            }).filter(d => d);
-        }
-
         function initFilters() {
-            const r = new Set(), k = new Set();
-            parsedData.forEach(d => { r.add(d.roundType); if(d.killers !== 'None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
-            const fill = (id, set) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て</option>'; Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); };
-            fill('roundFilter', r); fill('killerFilter', k);
+            const dS = new Set(), rS = new Set(), kS = new Set();
+            data.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); if(x.k!=='None') x.k.split('/').forEach(i=>kS.add(i.trim())); });
+            const fill = (id, set) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て</option>'; Array.from(set).sort().reverse().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); };
+            fill('dateFilter', dS); fill('roundFilter', rS); fill('killerFilter', kS);
         }
 
-        function updateAll() {
-            const rf = document.getElementById('roundFilter').value, kf = document.getElementById('killerFilter').value, exc = document.getElementById('excludeClassicCheckbox').checked;
-            filteredData = parsedData.filter(d => (rf==='all'||d.roundType===rf) && (kf==='all'||d.killers.includes(kf)) && !(exc && d.roundType.includes('Classic')));
-            updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiComment();
+        document.querySelectorAll('select, input[type=checkbox]').forEach(el => el.onchange = update);
+
+        function update() {
+            const df = document.getElementById('dateFilter').value, rf = document.getElementById('roundFilter').value, kf = document.getElementById('killerFilter').value, exc = document.getElementById('excludeClassicCheckbox').checked;
+            filtered = data.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && !(exc && x.r.includes('Classic')));
+            page = 1; render();
         }
 
-        function updateDashboard() {
-            let w=0, l=0; filteredData.forEach(d => isWin(d.result)?w++:l++);
-            document.getElementById('totalGames').textContent = w+l; document.getElementById('totalWins').textContent = w;
-            document.getElementById('winRate').textContent = (w+l)>0 ? ((w/(w+l))*100).toFixed(1) : 0;
-            if(filteredData.length) document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp;
-        }
+        function switchTab(t) { document.querySelectorAll('.tab-btn, .tab-content').forEach(el=>el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active'); renderCharts(); }
 
-        function renderTable() {
-            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1;
-            tb.innerHTML = ''; rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => {
-                tb.innerHTML += `<tr><td>${d.timestamp.slice(5,16)}</td><td>${d.roundType.slice(0,5)}</td><td>${d.killers.slice(0,10)}</td><td class="${isWin(d.result)?'win-text':'lost-text'}">${d.result[0]}</td></tr>`;
+        function render() {
+            let w=0; filtered.forEach(x => { if(isW(x.res)) w++; });
+            document.getElementById('totalGames').innerText = filtered.length;
+            document.getElementById('totalWins').innerText = w;
+            document.getElementById('winRate').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0;
+            
+            const tb = document.getElementById('histBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/30)||1;
+            tb.innerHTML = ''; rev.slice((page-1)*30, page*30).forEach(x => {
+                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r.slice(0,6)}</td><td>${x.k.slice(0,12)}</td><td class="${isW(x.res)?'win':'lost'}">${x.res[0]}</td></tr>`;
             });
-            document.getElementById('pageInfo').textContent = `${currentPage}/${tp}`;
-        }
-        function changePage(d) { currentPage+=d; renderTable(); }
-
-        function updateRadar() {
-            const ctx = document.getElementById('radarChartCanvas').getContext('2d'); if(myRadarChart) myRadarChart.destroy();
-            let s={aW:0,aT:0,cW:0,cT:0,sW:0,sT:0}; filteredData.forEach(d => { const w=isWin(d.result); s.aT++; if(w) s.aW++; if(d.roundType.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;} });
-            const r = (w,t) => t>0?Math.round((w/t)*100):0;
-            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels:['Total', 'Classic', 'Special'], datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'}}}, plugins:{legend:{display:false}} } });
+            document.getElementById('pageInfo').innerText = `${page}/${tp}`;
+            
+            updateUnbound(); updateUi(); renderCharts();
         }
 
-        function updateUnboundList() {
-            const listEl = document.getElementById('unboundList'); listEl.innerHTML = ''; const sets = {};
-            filteredData.forEach(d => {
-                if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) {
-                    let id = "Unknown"; const ks = d.killers.split('/').map(k => k.trim());
-                    for (const [sid, list] of Object.entries(UNBOUND_MASTER)) {
-                        // ★ マッチングを強化 (includesで部分一致にも対応)
-                        if (ks.some(k => list.some(m => k.toLowerCase().includes(m.toLowerCase())))) { id = sid; break; }
-                    }
-                    if (!sets[id]) sets[id] = new Set(); ks.forEach(k => sets[id].add(k));
+        function changePage(v) { page += v; render(); }
+
+        function updateUnbound() {
+            const l = document.getElementById('unboundList'), s = {}; l.innerHTML = '';
+            filtered.forEach(x => {
+                if (x.r.includes('Unbound') || x.r.includes('アンバウンド')) {
+                    let id = "Unknown", ks = x.k.split('/').map(k => k.trim());
+                    for (const [sid, list] of Object.entries(UNBOUND_MASTER)) { if (ks.some(k => list.some(m => k.includes(m)))) { id = sid; break; } }
+                    if (!s[id]) s[id] = new Set(); ks.forEach(k => s[id].add(k));
                 }
             });
-            Object.keys(sets).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
-                listEl.innerHTML += `<div class="unbound-card"><strong style="color:var(--unbound-accent);">Set #${id}</strong><div style="margin-top:4px;">${Array.from(sets[id]).join('<br>')}</div></div>`;
-            });
+            Object.keys(s).sort().forEach(id => { l.innerHTML += `<div class="unbound-card"><strong>#${id}</strong><div style="font-size:10px; margin-top:4px; opacity:0.8;">${Array.from(s[id]).join('<br>')}</div></div>`; });
         }
 
-        function updateChart() {
-            const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d'); if(myChart) myChart.destroy();
-            if(!filteredData.length) return;
-            if(mode === 'dailyTrend'){
-                const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isWin(d.result))s[dt].w++; }); const l=Object.keys(s).sort();
-                myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>(s[x].w/s[x].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
-            } else if(mode === 'timeOfDay'){
-                const s = Array.from({length: 24}, () => ({w:0, t:0})); filteredData.forEach(d => { const h = parseInt((d.timestamp.match(/\s(\d{1,2}):/)||[0,0])[1], 10); s[h].t++; if(isWin(d.result)) s[h].w++; });
-                myChart = new Chart(ctx, { type: 'bar', data: { labels: s.map((_, i) => `${i}h`), datasets: [{ type: 'line', label: '%', data: s.map(x => x.t > 0 ? (x.w/x.t*100).toFixed(1) : 0), borderColor: '#4CAF50', yAxisID: 'y' }, { type: 'bar', label: 'Play', data: s.map(x => x.t), backgroundColor: 'rgba(100,181,246,0.5)', yAxisID: 'y1' }] }, options: { maintainAspectRatio: false, scales: { y: { max: 100 }, y1: { position: 'right', grid: {drawOnChartArea: false} } } } });
-            } else {
-                const s={}; filteredData.forEach(d=>{ d.killers.split('/').forEach(k=>{ const v=k.trim(); if(v&&v!=='None'){ s[v]=(s[v]||{w:0,l:0}); isWin(d.result)?s[v].w++:s[v].l++; } }); });
-                const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 10);
-                myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'W',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'L',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
+        function renderCharts() {
+            const rc = document.getElementById('radarChart').getContext('2d');
+            if(charts.r) charts.r.destroy();
+            let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0;
+            filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(x.r.includes('Classic')) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
+            const r = (w,t) => t>0?Math.round(w/t*100):0;
+            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Total','Classic','Special'], datasets:[{data:[r(aW,aT),r(cW,cT),r(sW,sT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'}}}, plugins:{legend:{display:false}} } });
+
+            if(document.getElementById('tab-chart').classList.contains('active')) {
+                const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('viewType').value;
+                if(charts.m) charts.m.destroy();
+                if(mode==='dailyTrend'){
+                    const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; });
+                    const l=Object.keys(s).sort();
+                    charts.m = new Chart(mc, { type:'line', data:{labels:l, datasets:[{label:'Win%', data:l.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
+                } else if(mode==='timeOfDay'){
+                    const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; });
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?Math.round(x.w/x.t*100):0), borderColor:'#4CAF50'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)'}]}, options:{maintainAspectRatio:false} });
+                }
             }
         }
 
-        function updateUiComment() {
-            if (!filteredData.length) return;
-            const faceImg = document.getElementById('ui-face'), msg = document.getElementById('ui-message');
-            let w = 0, night = 0, work = 0;
-            filteredData.forEach(d => { if (isWin(d.result)) w++; const h = parseInt((d.timestamp.match(/\s(\d{1,2}):/)||[0,0])[1], 10); if (h >= 0 && h <= 4) night++; if (h >= 10 && h <= 16) work++; });
-            const rate = (w / filteredData.length) * 100;
-            if (night > 0) { faceImg.src = "face_tired.png"; msg.textContent = `深夜帯の記録が ${night} 件。睡眠不足は最大のデバフよ。勝率を下げる前に寝なさい。`; }
-            else if (work > 0) { faceImg.src = "face_angry.png"; msg.textContent = `平日の日中に ${work} 件も記録があるんだけど？ 休憩中であることを祈るわ。やるべきことを優先しなさい。`; }
-            else if (rate >= 70) { faceImg.src = "face_tsundere.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。ま、当然の結果なんじゃない？ 勘違いしないでよね、事実を述べてるだけなんだから。`; }
-            else if (rate < 30) { faceImg.src = "face_sigh.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。泥沼ね。足りないのは休息よ。大人しくログアウトしなさい。`; }
-            else { faceImg.src = "face_normal.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%。平均的ね。無理せず続けるのが一番論理的じゃない？ はい次。`; }
+        function updateUi() {
+            if(!filtered.length) return;
+            const f = document.getElementById('ui-face'), m = document.getElementById('ui-message');
+            let w=0, n=0, d=0; filtered.forEach(x=>{ if(isW(x.res)) w++; const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); if(h>=0&&h<=4)n++; if(h>=10&&h<=16)d++; });
+            const rate = (w/filtered.length*100);
+            if(n>0){ f.src="face_tired.png"; m.innerText=`深夜に ${n} 回もプレイしてるの？ 非論理的な生活リズムね。勝率を下げる前に寝なさい。`; }
+            else if(d>0){ f.src="face_angry.png"; m.innerText=`日中に ${d} 回の記録。……今、仕事中じゃないの？ やるべきことを優先しなさい。`; }
+            else if(rate>=70){ f.src="face_tsundere.png"; m.innerText=`勝率 ${rate.toFixed(1)}%……。ま、当然の結果ね。勘違いしないで、事実を述べてるだけ。`; }
+            else if(rate<30){ f.src="face_sigh.png"; m.innerText=`勝率 ${rate.toFixed(1)}%……。泥沼ね。足りないのは休息よ。大人しくログアウトしなさい。`; }
+            else { f.src="face_normal.png"; m.innerText=`勝率 ${rate.toFixed(1)}%。平均的ね。無理せず続けるのが一番論理的じゃない？ はい次。`; }
         }
     </script>
 </body>
