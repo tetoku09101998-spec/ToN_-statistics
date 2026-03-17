@@ -79,10 +79,15 @@
     <div id="tab-analytics" class="tab-content">
         <div style="text-align:left; margin-bottom:15px;"><strong data-i18n="label_view">表示切替:</strong>
             <select id="viewSelector" disabled>
-                <option value="dailyTrend" data-i18n="v_trend">日別勝率推移</option><option value="overall" data-i18n="v_overall">全体勝率</option>
-                <option value="roundType" data-i18n="v_round">ラウンド別勝敗</option><option value="map" data-i18n="v_map">マップ別勝敗</option>
-                <option value="killer" data-i18n="v_killer">テラー別勝敗</option><option value="roundTypeRate" data-i18n="v_round_r">ラウンド出現率</option>
-                <option value="mapRate" data-i18n="v_map_r">マップ出現率</option><option value="killerRate" data-i18n="v_killer_r">テラー出現率</option>
+                <option value="dailyTrend" data-i18n="v_trend">日別勝率推移</option>
+                <option value="timeOfDay" data-i18n="v_time">時間帯別勝率</option>
+                <option value="overall" data-i18n="v_overall">全体勝率</option>
+                <option value="roundType" data-i18n="v_round">ラウンド別勝敗</option>
+                <option value="map" data-i18n="v_map">マップ別勝敗</option>
+                <option value="killer" data-i18n="v_killer">テラー別勝敗</option>
+                <option value="roundTypeRate" data-i18n="v_round_r">ラウンド出現率</option>
+                <option value="mapRate" data-i18n="v_map_r">マップ出現率</option>
+                <option value="killerRate" data-i18n="v_killer_r">テラー出現率</option>
             </select>
         </div>
         <div id="nemesisBox" style="display:none; background:#1a237e; border-left:5px solid #5c6bc0; padding:15px; border-radius:8px; margin-bottom:15px; text-align:left;">
@@ -99,7 +104,7 @@
     <div id="tab-unbound" class="tab-content">
         <div style="text-align: left; background: rgba(186, 104, 200, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--unbound-accent); margin-bottom: 20px;">
             <strong style="color: var(--unbound-accent);" data-i18n="unbound_title">🌀 Unbound Discovery:</strong>
-            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">テラーの種類からセット番号を逆引き判定しています。</p>
+            <p style="font-size: 13px; margin: 5px 0 0 0;" data-i18n="unbound_desc">テラー名からアンバウンドのセット番号を自動判定した記録です。</p>
         </div>
         <div id="unboundDynamicList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
             <p style="color: #888; grid-column: 1/-1;" data-i18n="no_data_unbound">ログを読み込んでください。</p>
@@ -108,17 +113,15 @@
 
     <script>
         const i18n = {
-            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド図鑑", unbound_title: "🌀 アンバウンド図鑑", unbound_desc: "テラー名からアンバウンドのセット番号を自動判定した記録です。", no_data_unbound: "アンバウンドの記録は見つかりませんでした。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
-            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery", unbound_desc: "Identified Unbound sets based on terror names.", no_data_unbound: "No Unbound data found.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
+            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド図鑑", unbound_title: "🌀 アンバウンド図鑑", unbound_desc: "テラー名からアンバウンドのセット番号を自動判定した記録です。", no_data_unbound: "アンバウンドの記録は見つかりませんでした。", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_time: "時間帯別勝率", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", nem_title: "ネメシスプロファイル", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
+            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", unbound_title: "🌀 Unbound Discovery", unbound_desc: "Identified Unbound sets based on terror names.", no_data_unbound: "No Unbound data found.", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", nem_title: "Nemesis Profile", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
         };
 
-        // ★ Wiki情報を元に極限まで大増量したアンバウンド逆引きマスター
-// ★ Wikiの全84セット完全対応マスター（カンマ入り、重複、ミニオン名全て網羅）
         const UNBOUND_MASTER = {
             "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"],
             "2": ["Haket", "Blue Haket", "Red vs Blue"],
             "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"],
-            "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Gurdians", "Forest Guardians"], // 誤字対策
+            "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Gurdians", "Forest Guardians"],
             "5": ["Security", "The Swarm", "Prisoner", "Higher Beings"],
             "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M", "Quadruple Sponge"],
             "7": ["BFF", "Nameless", "Your Best Friends"],
@@ -138,7 +141,7 @@
             "21": ["Umbra", "Spiteful Eye", "Spiteful Shadows"],
             "22": ["Angry Munci", "Triple Munci"],
             "23": ["Karol_Corpse", "Daycare"],
-            "24": ["Huggy", "Huggy Wuggy", "Huggy Horde"], // ログ表記ゆれ対策
+            "24": ["Huggy", "Huggy Wuggy", "Huggy Horde"],
             "25": ["Arrival", "Infection"],
             "26": ["Hush", "Triple Hush"],
             "27": ["[CENSORED]"],
@@ -152,7 +155,7 @@
             "35": ["Legs", "Seekers"],
             "36": ["Convict(N)", "Nugget Squad"],
             "37": ["Saul", "Saul's goodmen"],
-            "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"], // カンマ対策
+            "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"],
             "39": ["Bigger Boot", "POV: Bug"],
             "40": ["Punishing Bird", "Punishing Birdemic"],
             "41": ["Chomper", "Chomper Trio"],
@@ -174,7 +177,7 @@
             "57": ["Scrapyard Taker", "Scrapyard Takers"],
             "58": ["Luigi Doll", "Luigi Dolls"],
             "59": ["Meteor", "Meteor Shower"],
-            "60": ["TBH", "TBH Spy", "Triple TBH"], // 派生も含む
+            "60": ["TBH", "TBH Spy", "Triple TBH"],
             "61": ["Lost Soul", "Lost Souls"],
             "62": ["Aku Ball", "Ballin"],
             "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket", "Reunion"],
@@ -225,7 +228,6 @@
                 const timestamp = (c[0]||"").trim();
                 const map = (c[1]||"").trim();
                 const roundType = (c[2]||"").trim();
-                // ★カンマ入りテラー名の防衛策
                 const result = (c[c.length - 1]||"").trim();
                 const killers = c.slice(3, c.length - 1).join(',').trim(); 
                 return { timestamp, map, roundType, killers, result };
@@ -316,13 +318,45 @@
         function updateChart() {
             const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d'); if(myChart) myChart.destroy();
             if(!filteredData.length) return;
+            
             if(mode === 'dailyTrend'){
                 const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; }); const l=Object.keys(s).sort();
                 myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
+            
+            } else if(mode === 'timeOfDay') { // ★ 時間帯別勝率の新規ロジック
+                const s = Array.from({length: 24}, () => ({w:0, t:0}));
+                filteredData.forEach(d => {
+                    if(!d.timestamp) return;
+                    const match = d.timestamp.match(/\s(\d{1,2}):/);
+                    if(match) { const h = parseInt(match[1], 10); s[h].t++; if(isWin(d.result)) s[h].w++; }
+                });
+                const labels = s.map((_, i) => `${i}時`);
+                const rates = s.map(x => x.t > 0 ? ((x.w/x.t)*100).toFixed(1) : 0);
+                const totals = s.map(x => x.t);
+
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { type: 'line', label: 'Win Rate (%)', data: rates, borderColor: '#4CAF50', backgroundColor: '#4CAF50', yAxisID: 'y' },
+                            { type: 'bar', label: 'Total Games', data: totals, backgroundColor: 'rgba(100, 181, 246, 0.5)', yAxisID: 'y1' }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            y: { type: 'linear', position: 'left', max: 100, beginAtZero: true, title: {display: true, text: 'Win Rate (%)'} },
+                            y1: { type: 'linear', position: 'right', beginAtZero: true, grid: {drawOnChartArea: false}, title: {display: true, text: 'Games Played'} }
+                        }
+                    }
+                });
+
             } else if(['roundType','map','killer'].includes(mode)){
                 const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?(d.killers||"").split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); });
                 const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
                 myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
+            
             } else {
                 const k=mode.replace('Rate',''), s={};
                 filteredData.forEach(d=>{ const items=k==='killer'?(d.killers||"").split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
@@ -340,4 +374,3 @@
     </script>
 </body>
 </html>
-
