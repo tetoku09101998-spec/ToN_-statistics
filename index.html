@@ -11,9 +11,7 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; margin: 0; padding: 20px; }
         .header-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 25px; }
-        .header-links { display: flex; gap: 10px; align-items: center; }
         .btn-link { text-decoration: none; font-size: 13px; border-radius: 20px; padding: 6px 16px; transition: 0.2s; font-weight: bold; border: 1px solid transparent; }
-        .btn-readme { color: var(--sub-accent); border-color: var(--sub-accent); }
         .btn-github { color: var(--accent-color); border-color: var(--accent-color); }
         .lang-select { background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; }
         
@@ -31,9 +29,10 @@
         .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .tab-content.active { display: block; }
         
+        /* ういの診断パネル（アイコン対応） */
         .ui-diagnosis-panel { background: #2d2d3a; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--sub-accent); text-align: left; display: flex; align-items: center; gap: 15px; }
-        .ui-avatar { width: 60px; height: 60px; border-radius: 50%; background: #444; border: 2px solid var(--sub-accent); display: flex; align-items: center; justify-content: center; font-size: 30px; flex-shrink: 0; }
-        .ui-text { font-size: 14px; line-height: 1.4; color: #ddd; }
+        .ui-avatar { width: 70px; height: 70px; border-radius: 50%; background: #444; border: 2px solid var(--sub-accent); object-fit: cover; flex-shrink: 0; }
+        .ui-text { font-size: 14px; line-height: 1.5; color: #ddd; }
 
         .stat-card { background: #2a2a2a; padding: 20px; border-radius: 10px; border-left: 5px solid var(--accent-color); }
         .streak-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-left: 10px; }
@@ -58,17 +57,16 @@
 </head>
 <body>
     <div class="header-container">
-        <h2 data-i18n="title">ToN Statistics Viewer Ultimate</h2>
+        <h2>ToN Statistics Viewer Ultimate</h2>
         <div class="header-links">
-            <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank" class="btn-link btn-readme" data-i18n="btn_readme">📖 取扱説明書</a>
-            <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank" class="btn-link btn-github" data-i18n="btn_github">📥 Download (GitHub)</a>
+            <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank" class="btn-link btn-github">📥 GitHub</a>
             <select id="langSelect" class="lang-select"><option value="ja">日本語</option><option value="en">English</option></select>
         </div>
     </div>
 
     <div style="padding: 0 20px; width: 95%; max-width: 1100px; margin: 0 auto;">
         <div class="ui-diagnosis-panel" id="uiDiagnosisPanel" style="display:none;">
-            <div class="ui-avatar">🎧</div>
+            <img id="uiAvatarImg" class="ui-avatar" src="ui_normal.png" alt="Ui" onerror="this.style.backgroundColor='#111';">
             <div style="flex-grow: 1;">
                 <span style="font-weight:bold; color:var(--sub-accent); display:block; margin-bottom:4px;">うい (Ui)</span>
                 <span class="ui-text" id="uiMessage">ログを読み込みな。話はそれからだよ。</span>
@@ -78,43 +76,41 @@
 
     <div class="controls">
         <div class="control-group">
-            <strong data-i18n="label_load">📁 データ読込:</strong>
-            <div class="file-input-wrapper"><button class="btn-upload" data-i18n="btn_browse">ファイル選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
-            <span id="fileNameDisplay" data-i18n="no_file">未選択</span>
+            <strong>📁 データ読込:</strong>
+            <div class="file-input-wrapper"><button class="btn-upload">ファイル選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
+            <span id="fileNameDisplay">未選択</span>
         </div>
         <div class="control-group">
-            <strong data-i18n="label_date">📅 期間:</strong>
             <input type="date" id="startDateFilter"> ～ <input type="date" id="endDateFilter">
-            <label style="cursor:pointer; color:#ffeb3b; margin-left:10px;"><input type="checkbox" id="excludeClassicCheckbox"> <span data-i18n="check_exclude">クラシック除外</span></label>
+            <label style="cursor:pointer; color:#ffeb3b; margin-left:10px;"><input type="checkbox" id="excludeClassicCheckbox"> クラシック除外</label>
         </div>
-        <button class="btn-clear" id="clearDataBtn" data-i18n="btn_clear">🗑️ 消去</button>
+        <button class="btn-clear" id="clearDataBtn">🗑️ 消去</button>
         <div class="control-group" style="width: 100%;">
-            <strong data-i18n="label_filter">🔍 フィルタ:</strong>
-            <select id="roundFilter"><option value="all" data-i18n="opt_all_round">全ラウンド</option></select>
-            <select id="mapFilter"><option value="all" data-i18n="opt_all_map">全マップ</option></select>
-            <select id="killerFilter"><option value="all" data-i18n="opt_all_killer">全テラー</option></select>
+            <select id="roundFilter"><option value="all">全ラウンド</option></select>
+            <select id="mapFilter"><option value="all">全マップ</option></select>
+            <select id="killerFilter"><option value="all">全テラー</option></select>
         </div>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-dashboard')" data-i18n="tab_dash">📊 Dashboard</button>
-        <button class="tab-btn" onclick="switchTab('tab-analytics')" data-i18n="tab_chart">📈 Analytics</button>
-        <button class="tab-btn" onclick="switchTab('tab-history')" data-i18n="tab_history">📝 History</button>
-        <button class="tab-btn" onclick="switchTab('tab-unbound')" data-i18n="tab_unbound">🌀 Unbound</button>
+        <button class="tab-btn active" onclick="switchTab('tab-dashboard')">📊 Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('tab-analytics')">📈 Analytics</button>
+        <button class="tab-btn" onclick="switchTab('tab-history')">📝 History</button>
+        <button class="tab-btn" onclick="switchTab('tab-unbound')">🌀 Unbound</button>
     </div>
 
     <div id="tab-dashboard" class="tab-content active">
         <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; text-align:left;">
             <div class="stat-card">
                 <p style="font-size:22px; font-weight:bold; color:var(--accent-color); margin:0 0 10px 0;">
-                    <span data-i18n="stat_total">総試合</span>: <span id="totalGames">0</span> | <span data-i18n="stat_rate">勝率</span>: <span id="winRate">0</span>%
+                    総試合: <span id="totalGames">0</span> | 勝率: <span id="winRate">0</span>%
                     <span id="streakBadge" class="streak-badge" style="display:none;"></span>
                 </p>
                 <div class="analysis-grid">
-                    <div class="analysis-item"><span class="analysis-label" data-i18n="nemesis">天敵 (Nemesis)</span><span class="analysis-value" id="statNemesis" style="color:#ff5252;">-</span></div>
-                    <div class="analysis-item"><span class="analysis-label" data-i18n="prey">カモ (Prey)</span><span class="analysis-value" id="statPrey" style="color:#4CAF50;">-</span></div>
-                    <div class="analysis-item"><span class="analysis-label" data-i18n="max_win">最大連勝</span><span class="analysis-value" id="statMaxWinStreak">0</span></div>
-                    <div class="analysis-item"><span class="analysis-label" data-i18n="max_lost">最大連敗</span><span class="analysis-value" id="statMaxLostStreak">0</span></div>
+                    <div class="analysis-item"><span class="analysis-label">天敵 (Nemesis)</span><span class="analysis-value" id="statNemesis" style="color:#ff5252;">-</span></div>
+                    <div class="analysis-item"><span class="analysis-label">カモ (Prey)</span><span class="analysis-value" id="statPrey" style="color:#4CAF50;">-</span></div>
+                    <div class="analysis-item"><span class="analysis-label">最大連勝</span><span class="analysis-value" id="statMaxWinStreak">0</span></div>
+                    <div class="analysis-item"><span class="analysis-label">最大連敗</span><span class="analysis-value" id="statMaxLostStreak">0</span></div>
                 </div>
             </div>
             <div style="background:#2a2a2a; border-radius:10px; padding:15px;"><canvas id="radarChartCanvas"></canvas></div>
@@ -124,27 +120,24 @@
 
     <div id="tab-analytics" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <div>
-                <strong data-i18n="label_view">表示切替:</strong>
-                <select id="viewSelector" disabled style="background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 14px;">
-                    <option value="overall" data-i18n="v_overall">全体勝率</option>
-                    <option value="dailyTrend" data-i18n="v_trend">日別勝率推移</option>
-                    <option value="timeOfDay" data-i18n="v_time">時間帯別勝率</option>
-                    <option value="roundType" data-i18n="v_round">ラウンド別勝敗</option>
-                    <option value="map" data-i18n="v_map">マップ別勝敗</option>
-                    <option value="killer" data-i18n="v_killer">テラー別勝敗</option>
-                    <option value="roundTypeRate" data-i18n="v_round_r">ラウンド出現率</option>
-                    <option value="mapRate" data-i18n="v_map_r">マップ出現率</option>
-                    <option value="killerRate" data-i18n="v_killer_r">テラー出現率</option>
-                </select>
-            </div>
-            <button onclick="downloadChartImage('resultChart', 'ToN_Analytics')" class="btn-dl" data-i18n="btn_dl_chart">画像保存</button>
+            <select id="viewSelector" disabled style="background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 14px;">
+                <option value="overall">全体勝率</option>
+                <option value="dailyTrend">日別勝率推移</option>
+                <option value="timeOfDay">時間帯別勝率</option>
+                <option value="roundType">ラウンド別勝敗</option>
+                <option value="map">マップ別勝敗</option>
+                <option value="killer">テラー別勝敗</option>
+                <option value="roundTypeRate">ラウンド出現率</option>
+                <option value="mapRate">マップ出現率</option>
+                <option value="killerRate">テラー出現率</option>
+            </select>
+            <button onclick="downloadChartImage('resultChart', 'ToN_Analytics')" style="background: var(--control-bg); border: 1px solid var(--sub-accent); color: var(--sub-accent); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">画像保存</button>
         </div>
         <div class="chart-container"><canvas id="resultChart"></canvas></div>
     </div>
 
     <div id="tab-history" class="tab-content">
-        <table><thead><tr><th data-i18n="th_date">日時</th><th data-i18n="th_map">マップ</th><th data-i18n="th_type">種類</th><th data-i18n="th_killer">テラー</th><th data-i18n="th_res">結果</th></tr></thead><tbody id="historyTableBody"></tbody></table>
+        <table><thead><tr><th>日時</th><th>マップ</th><th>種類</th><th>テラー</th><th>結果</th></tr></thead><tbody id="historyTableBody"></tbody></table>
         <div style="margin-top:20px;"><button id="prevBtn" onclick="changePage(-1)" disabled>◀</button> <span id="pageInfo">Page 1 / 1</span> <button id="nextBtn" onclick="changePage(1)" disabled>▶</button></div>
     </div>
 
@@ -153,11 +146,6 @@
     </div>
 
     <script>
-        const i18n = {
-            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイル選択", no_file: "未選択", label_load: "📁 データ読込:", btn_clear: "🗑️ 消去", label_date: "📅 期間:", check_exclude: "クラシック除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "総試合", stat_rate: "勝率", nemesis: "天敵 (Nemesis)", prey: "カモ (Prey)", max_win: "最大連勝", max_lost: "最大連敗", label_view: "表示切替:", v_trend: "日別勝率推移", v_time: "時間帯別勝率", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", btn_dl_chart: "画像保存", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'] },
-            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear", label_date: "📅 Date:", check_exclude: "Exclude Classic", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "Total", stat_rate: "Win Rate", nemesis: "Nemesis", prey: "Prey", max_win: "Max Win Streak", max_lost: "Max Lost Streak", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", btn_dl_chart: "Save Image", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'] }
-        };
-
         const UNBOUND_MASTER = {
             "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"], "2": ["Haket", "Blue Haket", "Red vs Blue"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Guardians"], "5": ["Security", "The Swarm", "Prisoner", "Higher Beings"], "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M", "Quadruple Sponge"], "7": ["BFF", "Nameless", "Your Best Friends"], "8": ["Seek", "Rush", "Eyes", "Hotel Monsters"], "9": ["Squibbs (Dev Bytes)", "Convict(D)", "Squibb Squad"], "10": ["Convict Squad", "Kimera", "Search and Destroy", "Garden Rejects"], "11": ["WhiteNight", "Paradise Bird", "Judgement Day"], "12": ["Roblander", "Inverted Roblander", "Me and My Shadow"], "13": ["An Arbiter", "The Red Mist", "Meltdown"], "14": ["Slender", "Slendy", "Hungry Home Invader", "Faceless Mafia"], "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10", "Mansion Monsters"], "16": ["MX", "Luigi", "Wario Apparition", "Copyright Infringement"], "17": ["Purple Guy", "Purple Bros"], "18": ["Scavenger", "Scavengers"], "19": ["The LifeBringer", "Scrapyard Machine", "Life & Death"], "20": ["Unknown Witch", "Labyrinth"], "21": ["Umbra", "Spiteful Eye", "Spiteful Shadows"], "22": ["Angry Munci", "Triple Munci"], "23": ["Karol_Corpse", "Daycare"], "24": ["Huggy", "Huggy Wuggy", "Huggy Horde"], "25": ["Arrival", "Infection"], "26": ["Hush", "Triple Hush"], "27": ["[CENSORED]"], "28": ["Dev Bytes", "Vana", "Duke", "Byte Horde"], "29": ["Sawrunner", "SawMarathon"], "30": ["Little Witch", "War", "Convict(N)", "TAKE THE NAMI CHALLENGE"], "31": ["Lightning", "Thunderstorm"], "32": ["Joy", "END OF THE WORLD"], "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER", "Fragmented Memories"], "34": ["Mona", "Mona & The Mountain", "Mona & Mona & Mona & Mona"], "35": ["Legs", "Seekers"], "36": ["Convict(N)", "Nugget Squad"], "37": ["Saul", "Saul's goodmen"], "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"], "39": ["Bigger Boot", "POV: Bug"], "40": ["Punishing Bird", "Punishing Birdemic"], "41": ["Chomper", "Chomper Trio"], "42": ["With Many Voices", "Too Many Voices"], "43": ["Miros Bird", "Memory Crypts"], "44": ["Jumbo Josh", "Zumbo Sauce"], "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann", "Freaks"], "46": ["Lunatic Cultist", "Lunatic Cult"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio & The Drifter", "Transportation Trio", "The Drifter"], "48": ["Purple Guy", "Voidwalker", "Father Son Bonding"], "49": ["HER", "WHITEFACE", "WHAT IS MY NAME"], "50": ["Dapper Enphoso", "Pyromatic Enphoso", "Glaggleland Cremators"], "51": ["Signus", "Triple Signus"], "52": ["Akumii-Kari", "Triple Akumii Kari"], "53": ["Big Bird", "Paradise Bird", "Black & White"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue gaper", "Blue Flies", "Blue Monsters"], "56": ["Drone", "Drones"], "57": ["Scrapyard Taker", "Scrapyard Takers"], "58": ["Luigi Doll", "Luigi Dolls"], "59": ["Meteor", "Meteor Shower"], "60": ["TBH", "TBH Spy", "Triple TBH"], "61": ["Lost Soul", "Lost Souls"], "62": ["Aku Ball", "Ballin"], "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket", "Reunion"], "64": ["Roblander", "Bliss", "Ancient Monarch", "Angels"], "65": ["Apocalypse Bird", "Immortal Snail", "Ordinary Apocalypse Bird"], "66": ["Wild Yet Curious Creature", "Pack of Wild Yet Curious Creatures"], "67": ["Beyond", "Manti", "ToN X SlashCo Collab"], "68": ["Yolm", "Pack of Yolm"], "69": ["Peepy", "Threepy"], "70": ["Ghost Girl", "??"], "71": ["Deleted", "Akumii-Kari", "Delete Me"], "72": ["Spamton", "Spamton Spam"], "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser", "Death From Above"], "74": ["Mirror", "Red Bus", "Terror of Nowhere", "It Came From Bus To Nowhere"], "75": ["SCP-049-B", "Zombie Apocalypse"], "76": ["Mountain of Smiling Bodies", "Eating Contest"], "77": ["Clockey", "Triple Clockey"], "78": ["Killer Fish", "Triple Killer Fish"], "79": ["MR.MEGA", "DoomBox", "Lethal League"], "80": ["Comedy", "Tragedy", "Trollage"], "81": ["MopeMope", "Mopemopemopemopemopemope"], "82": ["Sonic", "Rewrite", "Atrached", "Triple Trouble"], "83": ["Living Shadow", "Triple Living Shadow"], "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)", "Beyond's Masks"]
         };
@@ -167,27 +155,18 @@
         const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_ultimate_i18n');
+            const saved = localStorage.getItem('ton_ultimate_faces');
             if (saved) { parsedData = JSON.parse(saved); initFilters(); updateAll(); }
-            updateUI();
         });
-
-        function updateUI() { 
-            document.querySelectorAll('[data-i18n]').forEach(el => { 
-                const k = el.getAttribute('data-i18n'); 
-                if(i18n[currentLang][k]) el.innerHTML = i18n[currentLang][k]; 
-            }); 
-            if(parsedData.length > 0) { initFilters(); updateAll(); }
-        }
 
         document.getElementById('csvFileInput').addEventListener('change', e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader();
-            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_i18n', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
+            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_faces', JSON.stringify(parsedData)); initFilters(); updateAll(); };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_i18n'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_faces'); location.reload(); } });
 
         function parseCSV(t) {
             parsedData = t.trim().split('\n').slice(1).map(l => {
@@ -199,8 +178,8 @@
         function initFilters() {
             const r = new Set(), m = new Set(), k = new Set();
             parsedData.forEach(d => { r.add(d.roundType); m.add(d.map); if(d.killers && d.killers !== 'None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
-            const fill = (id, set, key) => { const el = document.getElementById(id); const val = el.value; el.innerHTML = `<option value="all">${i18n[currentLang][key]}</option>`; Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}" ${v===val?'selected':''}>${v}</option>`); };
-            fill('roundFilter', r, 'opt_all_round'); fill('mapFilter', m, 'opt_all_map'); fill('killerFilter', k, 'opt_all_killer');
+            const fill = (id, set) => { const el = document.getElementById(id); const val = el.value; el.innerHTML = `<option value="all">全件</option>`; Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}" ${v===val?'selected':''}>${v}</option>`); };
+            fill('roundFilter', r); fill('mapFilter', m); fill('killerFilter', k);
             document.getElementById('viewSelector').disabled = false;
         }
 
@@ -219,24 +198,46 @@
             if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
+        // ★ 顔アイコンとテキストの連動ロジック
         function updateUiDiagnosis() {
             const panel = document.getElementById('uiDiagnosisPanel');
             const msg = document.getElementById('uiMessage');
+            const avatar = document.getElementById('uiAvatarImg');
+            
             if (filteredData.length === 0) { panel.style.display = 'none'; return; }
             panel.style.display = 'flex';
+            
             const w = filteredData.filter(d => isWin(d.result)).length;
             const rate = (w / filteredData.length) * 100;
             
             if (currentLang === 'ja') {
-                if (rate >= 80) msg.textContent = "勝率80%超え？ 嘘でしょ、あんた。……まぁ、よく頑張ったのは認めてあげるわ。";
-                else if (rate >= 50) msg.textContent = "勝率半分以上。及第点ね。でも、もっと上を目指せるはずでしょ？";
-                else if (rate >= 30) msg.textContent = "勝率30%台……。平凡すぎて欠伸が出るわ。もっと真面目にやりなさい。";
-                else msg.textContent = "勝率30%未満。ねえ、画面見てる？ 病院か、算数からやり直したら？";
+                if (rate >= 80) {
+                    msg.textContent = "勝率80%超え？ 嘘でしょ、あんた。……まぁ、よく頑張ったのは認めてあげるわ。";
+                    avatar.src = "ui_smile.png";
+                } else if (rate >= 50) {
+                    msg.textContent = "勝率半分以上。及第点ね。でも、もっと上を目指せるはずでしょ？";
+                    avatar.src = "ui_normal.png";
+                } else if (rate >= 30) {
+                    msg.textContent = "勝率30%台……。平凡すぎて欠伸が出るわ。もっと真面目にやりなさい。";
+                    avatar.src = "ui_sigh.png";
+                } else {
+                    msg.textContent = "勝率30%未満。ねえ、画面見てる？ 病院か、算数からやり直したら？";
+                    avatar.src = "ui_glare.png";
+                }
             } else {
-                if (rate >= 80) msg.textContent = "Over 80%? Are you kidding me... Well, I'll admit you did a good job.";
-                else if (rate >= 50) msg.textContent = "Over 50%. A passing grade. But you can aim higher, right?";
-                else if (rate >= 30) msg.textContent = "In the 30s... So painfully average it makes me yawn. Play more seriously.";
-                else msg.textContent = "Under 30%? Are you even looking at the screen? Go to a hospital, or back to elementary math.";
+                if (rate >= 80) {
+                    msg.textContent = "Over 80%? Are you kidding me... Well, I'll admit you did a good job.";
+                    avatar.src = "ui_smile.png";
+                } else if (rate >= 50) {
+                    msg.textContent = "Over 50%. A passing grade. But you can aim higher, right?";
+                    avatar.src = "ui_normal.png";
+                } else if (rate >= 30) {
+                    msg.textContent = "In the 30s... So painfully average it makes me yawn. Play more seriously.";
+                    avatar.src = "ui_sigh.png";
+                } else {
+                    msg.textContent = "Under 30%? Are you even looking at the screen? Go to a hospital, or back to elementary math.";
+                    avatar.src = "ui_glare.png";
+                }
             }
         }
 
@@ -334,7 +335,7 @@
             let s={aW:0,aT:0,cW:0,cT:0,sW:0,sT:0,siW:0,siT:0,muW:0,muT:0};
             filteredData.forEach(d => { const w=isWin(d.result); s.aT++; if(w) s.aW++; if(d.roundType.includes('クラシック')||d.roundType.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;} if(d.killers.includes('/')){s.muT++; if(w)s.muW++;} else if(d.killers !== 'None' && d.killers !== ""){s.siT++; if(w)s.siW++;} });
             const r = (w,t) => t>0?Math.round((w/t)*100):0;
-            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,ticks:{display:false},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
+            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: ['全体', 'クラシック', '特殊', '単体', '複数'], datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,ticks:{display:false},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
 
         function updateUnboundList() {
