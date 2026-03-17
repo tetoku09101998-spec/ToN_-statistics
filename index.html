@@ -6,254 +6,169 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #1a1a1a;
-            --panel-bg: #222;
-            --control-bg: #333;
-            --accent-color: #4CAF50;
-            --sub-accent: #64B5F6;
-            --unbound-accent: #ba68c8;
-            --text-color: #eee;
-            --border-color: #444;
+            --bg-color: #1a1a1a; --panel-bg: #222; --control-bg: #333; --accent-color: #4CAF50;
+            --sub-accent: #64B5F6; --unbound-accent: #ba68c8; --text-color: #eee; --border-color: #444;
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; margin: 0; padding: 20px; }
         .header-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 25px; }
-        .header-links { display: flex; gap: 10px; align-items: center; }
         .btn-link { text-decoration: none; font-size: 13px; border-radius: 20px; padding: 6px 16px; transition: 0.2s; font-weight: bold; border: 1px solid transparent; }
-        .btn-readme { color: var(--sub-accent); border-color: var(--sub-accent); }
         .btn-github { color: var(--accent-color); border-color: var(--accent-color); }
         .lang-select { background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; }
+        
         .controls { background: var(--panel-bg); padding: 20px; border-radius: 12px; margin: 0 auto 25px auto; max-width: 1100px; text-align: left; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; border: 1px solid var(--border-color); }
         .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
         .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
         .btn-upload { background: var(--control-bg); border: 1px solid #555; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .btn-clear { background: #333; border: 1px solid #555; color: #888; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: auto; transition: 0.2s; }
+        .btn-clear { background: #333; border: 1px solid #555; color: #888; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: auto; }
         .btn-clear:hover { background: #d32f2f; color: #fff; border-color: #f44336; }
-        .btn-dl { background: var(--control-bg); border: 1px solid var(--sub-accent); color: var(--sub-accent); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        select, input[type="date"] { background: var(--control-bg); color: #fff; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; font-size: 14px; }
+        
         .tabs { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); max-width: 1100px; margin: 0 auto 20px auto; }
         .tab-btn { background: transparent; border: none; color: #777; padding: 12px 25px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: var(--panel-bg); color: var(--accent-color); border-bottom: 3px solid var(--accent-color); }
+        
         .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .tab-content.active { display: block; }
+        
+        /* ういの診断パネル */
+        .ui-diagnosis-panel { background: #2d2d3a; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--sub-accent); text-align: left; position: relative; display: flex; align-items: center; gap: 15px; }
+        .ui-avatar { width: 60px; height: 60px; border-radius: 50%; background: #444; border: 2px solid var(--sub-accent); display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        .ui-text { font-size: 14px; line-height: 1.4; color: #ddd; }
+
+        .stat-card { background: #2a2a2a; padding: 20px; border-radius: 10px; border-left: 5px solid var(--accent-color); }
+        .streak-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .win-streak { background: #1b5e20; color: #81c784; }
+        .lost-streak { background: #b71c1c; color: #e57373; }
+        
+        .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .analysis-item { background: #333; padding: 12px; border-radius: 8px; text-align: center; }
+        .analysis-label { font-size: 12px; color: #888; display: block; margin-bottom: 5px; }
+        .analysis-value { font-size: 18px; font-weight: bold; color: #fff; }
+
         .chart-container { width: 100%; height: 450px; position: relative; margin: 20px auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
         .win-text { color: var(--accent-color); font-weight: bold; }
         .lost-text { color: #F44336; font-weight: bold; }
         
-        /* アンバウンド図鑑カード */
         .unbound-card { background: #2a2a2a; padding: 15px; border-radius: 8px; border-top: 3px solid var(--unbound-accent); text-align: left; }
-        .unbound-set-id { color: #888; font-size: 11px; font-weight: bold; }
         .unbound-set-name { color: var(--unbound-accent); font-weight: bold; display: block; margin: 2px 0 10px 0; font-size: 18px; border-bottom: 1px solid #444; padding-bottom: 5px; }
         .unbound-killer-tag { display: inline-block; margin: 2px 4px 2px 0; padding: 4px 10px; border-radius: 4px; font-size: 12px; color: #eee; background: #333; border: 1px solid #444; }
-        
-        .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     </style>
 </head>
 <body>
     <div class="header-container">
-        <h2 data-i18n="title">ToN 統計ビュアー Ultimate</h2>
+        <h2>ToN Statistics Viewer Ultimate</h2>
         <div class="header-links">
-            <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank" class="btn-link btn-readme" data-i18n="btn_readme">📖 取扱説明書</a>
-            <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank" class="btn-link btn-github" data-i18n="btn_github">📥 Download (GitHub)</a>
+            <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank" class="btn-link btn-github">📥 GitHub</a>
             <select id="langSelect" class="lang-select"><option value="ja">日本語</option><option value="en">English</option></select>
+        </div>
+    </div>
+
+    <div class="tab-content active" style="background: transparent; box-shadow: none; padding: 0 20px; width: 95%; max-width: 1100px; margin: 0 auto;">
+        <div class="ui-diagnosis-panel" id="uiDiagnosisPanel" style="display:none;">
+            <div class="ui-avatar">🎧</div>
+            <div class="ui-message-box">
+                <span style="font-weight:bold; color:var(--sub-accent); display:block;">うい (Ui)</span>
+                <span class="ui-text" id="uiMessage">ログを読み込みな。話はそれからだよ。</span>
+            </div>
         </div>
     </div>
 
     <div class="controls">
         <div class="control-group">
             <strong data-i18n="label_load">📁 データ読込:</strong>
-            <div class="file-input-wrapper"><button class="btn-upload" data-i18n="btn_browse">ファイルを選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
-            <span id="fileNameDisplay" data-i18n="no_file">未選択</span>
+            <div class="file-input-wrapper"><button class="btn-upload">ファイル選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
+            <span id="fileNameDisplay">未選択</span>
         </div>
         <div class="control-group">
-            <strong data-i18n="label_date">📅 期間:</strong>
             <input type="date" id="startDateFilter"> ～ <input type="date" id="endDateFilter">
+            <label style="cursor:pointer; color:#ffeb3b; margin-left:10px;"><input type="checkbox" id="excludeClassicCheckbox"> クラシック除外</label>
         </div>
-        <div class="control-group">
-            <label style="cursor:pointer; color:#ffeb3b;"><input type="checkbox" id="excludeClassicCheckbox"> <span data-i18n="check_exclude">「クラシック」を除外</span></label>
-        </div>
-        <button class="btn-clear" id="clearDataBtn" data-i18n="btn_clear">🗑️ 保存データを消去</button>
+        <button class="btn-clear" id="clearDataBtn">🗑️ 消去</button>
         <div class="control-group" style="width: 100%;">
-            <strong data-i18n="label_filter">🔍 フィルタ:</strong>
-            <select id="roundFilter"><option value="all" data-i18n="opt_all_round">全ラウンド</option></select>
-            <select id="mapFilter"><option value="all" data-i18n="opt_all_map">全マップ</option></select>
-            <select id="killerFilter"><option value="all" data-i18n="opt_all_killer">全テラー</option></select>
+            <select id="roundFilter"><option value="all">全ラウンド</option></select>
+            <select id="mapFilter"><option value="all">全マップ</option></select>
+            <select id="killerFilter"><option value="all">全テラー</option></select>
         </div>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-dashboard')" data-i18n="tab_dash">📊 ダッシュボード</button>
-        <button class="tab-btn" onclick="switchTab('tab-analytics')" data-i18n="tab_chart">📈 チャート分析</button>
-        <button class="tab-btn" onclick="switchTab('tab-history')" data-i18n="tab_history">📝 対戦履歴</button>
-        <button class="tab-btn" onclick="switchTab('tab-unbound')" data-i18n="tab_unbound">🌀 アンバウンド図鑑</button>
+        <button class="tab-btn active" onclick="switchTab('tab-dashboard')">📊 Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('tab-analytics')">📈 Analytics</button>
+        <button class="tab-btn" onclick="switchTab('tab-history')">📝 History</button>
+        <button class="tab-btn" onclick="switchTab('tab-unbound')">🌀 Unbound</button>
     </div>
 
     <div id="tab-dashboard" class="tab-content active">
         <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; text-align:left;">
-            <div id="summaryBox" style="padding:25px; background:#2a2a2a; border-radius:10px; border-left:5px solid var(--accent-color);">
-                <p style="font-size:22px; font-weight:bold; color:var(--accent-color); margin:0 0 10px 0;"><span data-i18n="stat_total">総試合</span>: <span id="totalGames">0</span> | <span data-i18n="stat_win">勝利</span>: <span id="totalWins">0</span> | <span data-i18n="stat_lost">敗北</span>: <span id="totalLost">0</span></p>
-                <p><span data-i18n="stat_rate">🏆 全体勝率</span>: <strong style="color:var(--accent-color); font-size:24px;"><span id="winRate">0</span>%</strong></p>
-                <hr style="border-color:var(--border-color); margin:15px 0;">
-                <p><span data-i18n="date_first">🎮 記録開始</span>: <span id="firstPlayDate">-</span></p>
-                <p><span data-i18n="date_last">🔄 最終プレイ</span>: <span id="lastPlayDate">-</span></p>
+            <div class="stat-card">
+                <p style="font-size:22px; font-weight:bold; color:var(--accent-color); margin:0 0 10px 0;">
+                    総試合: <span id="totalGames">0</span> | 勝率: <span id="winRate">0</span>%
+                    <span id="streakBadge" class="streak-badge" style="display:none;"></span>
+                </p>
+                <div class="analysis-grid">
+                    <div class="analysis-item"><span class="analysis-label">天敵 (Nemesis)</span><span class="analysis-value" id="statNemesis" style="color:#ff5252;">-</span></div>
+                    <div class="analysis-item"><span class="analysis-label">カモ (Prey)</span><span class="analysis-value" id="statPrey" style="color:#4CAF50;">-</span></div>
+                    <div class="analysis-item"><span class="analysis-label">最大連勝</span><span class="analysis-value" id="statMaxWinStreak">0</span></div>
+                    <div class="analysis-item"><span class="analysis-label">最大連敗</span><span class="analysis-value" id="statMaxLostStreak">0</span></div>
+                </div>
             </div>
-            <div style="background:#2a2a2a; border-radius:10px; padding:15px; position:relative;">
-                <canvas id="radarChartCanvas"></canvas>
-            </div>
+            <div style="background:#2a2a2a; border-radius:10px; padding:15px;"><canvas id="radarChartCanvas"></canvas></div>
         </div>
         <div id="appearanceRates" style="display:flex; justify-content:space-between; margin-top:25px; gap:15px;"></div>
     </div>
 
     <div id="tab-analytics" class="tab-content">
         <div class="flex-between">
-            <div>
-                <strong data-i18n="label_view">表示切替:</strong>
-                <select id="viewSelector" disabled>
-                    <option value="overall" data-i18n="v_overall">全体勝率</option>
-                    <option value="dailyTrend" data-i18n="v_trend">日別勝率推移</option>
-                    <option value="timeOfDay" data-i18n="v_time">時間帯別勝率</option>
-                    <option value="roundType" data-i18n="v_round">ラウンド別勝敗</option>
-                    <option value="map" data-i18n="v_map">マップ別勝敗</option>
-                    <option value="killer" data-i18n="v_killer">テラー別勝敗</option>
-                    <option value="roundTypeRate" data-i18n="v_round_r">ラウンド出現率</option>
-                    <option value="mapRate" data-i18n="v_map_r">マップ出現率</option>
-                    <option value="killerRate" data-i18n="v_killer_r">テラー出現率</option>
-                </select>
-            </div>
+            <select id="viewSelector" disabled>
+                <option value="overall">全体勝率</option>
+                <option value="dailyTrend">日別勝率推移</option>
+                <option value="timeOfDay">時間帯別勝率</option>
+                <option value="roundType">ラウンド別勝敗</option>
+                <option value="map">マップ別勝敗</option>
+                <option value="killer">テラー別勝敗</option>
+                <option value="roundTypeRate">ラウンド出現率</option>
+                <option value="mapRate">マップ出現率</option>
+                <option value="killerRate">テラー出現率</option>
+            </select>
             <button class="btn-dl" onclick="downloadChartImage('resultChart', 'ToN_Analytics')">画像保存</button>
-        </div>
-        <div id="nemesisBox" style="display:none; background:#1a237e; padding:15px; border-radius:8px; margin-bottom:15px; text-align:left; border-left:5px solid #5c6bc0;">
-            <h3 style="margin:0 0 10px 0;">👿 ネメシス: <span id="nemName" style="color:#ffeb3b;">-</span></h3><div id="nemDetails"></div>
         </div>
         <div class="chart-container"><canvas id="resultChart"></canvas></div>
     </div>
 
     <div id="tab-history" class="tab-content">
-        <table><thead><tr><th data-i18n="th_date">日時</th><th data-i18n="th_map">マップ</th><th data-i18n="th_type">種類</th><th data-i18n="th_killer">テラー</th><th data-i18n="th_res">結果</th></tr></thead><tbody id="historyTableBody"></tbody></table>
+        <table><thead><tr><th>日時</th><th>マップ</th><th>種類</th><th>テラー</th><th>結果</th></tr></thead><tbody id="historyTableBody"></tbody></table>
         <div style="margin-top:20px;"><button id="prevBtn" onclick="changePage(-1)" disabled>◀</button> <span id="pageInfo">Page 1 / 1</span> <button id="nextBtn" onclick="changePage(1)" disabled>▶</button></div>
     </div>
 
     <div id="tab-unbound" class="tab-content">
-        <div style="text-align: left; background: rgba(186, 104, 200, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--unbound-accent); margin-bottom: 20px;">
-            <strong style="color: var(--unbound-accent);">🌀 アンバウンド図鑑</strong>
-            <p style="font-size: 13px; margin: 5px 0 0 0;">発見したセットの構成テラーとセット名称をリスト化します。</p>
-        </div>
         <div id="unboundDynamicList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px;"></div>
     </div>
 
     <script>
-        const i18n = {
-            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイルを選択", no_file: "未選択", label_load: "📁 データ読込:", btn_clear: "🗑️ 保存データを消去", label_date: "📅 期間:", check_exclude: "「クラシック」を除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 ダッシュボード", tab_chart: "📈 チャート分析", tab_history: "📝 対戦履歴", tab_unbound: "🌀 アンバウンド図鑑", stat_total: "総試合", stat_win: "勝利", stat_lost: "敗北", stat_rate: "🏆 全体勝率", date_first: "🎮 記録開始", date_last: "🔄 最終プレイ", label_view: "表示切替:", v_trend: "日別勝率推移", v_time: "時間帯別勝率", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'], radar_title: "適性" },
-            en: { title: "ToN Stats Viewer", btn_readme: "📖 Manual", btn_github: "📥 Download", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear Data", label_date: "📅 Date:", check_exclude: "Exclude 'Classic'", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound Discovery", stat_total: "Total", stat_win: "Wins", stat_lost: "Lost", stat_rate: "🏆 Win Rate", date_first: "🎮 First Play", date_last: "🔄 Last Play", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'], radar_title: "Aptitude" }
-        };
-
         const UNBOUND_MASTER = {
-            "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"],
-            "2": ["Haket", "Blue Haket", "Red vs Blue"],
-            "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"],
-            "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Guardians"],
-            "5": ["Security", "The Swarm", "Prisoner", "Higher Beings"],
-            "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M", "Quadruple Sponge"],
-            "7": ["BFF", "Nameless", "Your Best Friends"],
-            "8": ["Seek", "Rush", "Eyes", "Hotel Monsters"],
-            "9": ["Squibbs (Dev Bytes)", "Convict(D)", "Squibb Squad"],
-            "10": ["Convict Squad", "Kimera", "Search and Destroy", "Garden Rejects"],
-            "11": ["WhiteNight", "Paradise Bird", "Judgement Day"],
-            "12": ["Roblander", "Inverted Roblander", "Me and My Shadow"],
-            "13": ["An Arbiter", "The Red Mist", "Meltdown"],
-            "14": ["Slender", "Slendy", "Hungry Home Invader", "Faceless Mafia"],
-            "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10", "Mansion Monsters"],
-            "16": ["MX", "Luigi", "Wario Apparition", "Copyright Infringement"],
-            "17": ["Purple Guy", "Purple Bros"],
-            "18": ["Scavenger", "Scavengers"],
-            "19": ["The LifeBringer", "Scrapyard Machine", "Life & Death"],
-            "20": ["Unknown Witch", "Labyrinth"],
-            "21": ["Umbra", "Spiteful Eye", "Spiteful Shadows"],
-            "22": ["Angry Munci", "Triple Munci"],
-            "23": ["Karol_Corpse", "Daycare"],
-            "24": ["Huggy", "Huggy Wuggy", "Huggy Horde"],
-            "25": ["Arrival", "Infection"],
-            "26": ["Hush", "Triple Hush"],
-            "27": ["[CENSORED]"],
-            "28": ["Dev Bytes", "Vana", "Duke", "Byte Horde"],
-            "29": ["Sawrunner", "SawMarathon"],
-            "30": ["Little Witch", "War", "Convict(N)", "TAKE THE NAMI CHALLENGE"],
-            "31": ["Lightning", "Thunderstorm"],
-            "32": ["Joy", "END OF THE WORLD"],
-            "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER", "Fragmented Memories"],
-            "34": ["Mona", "Mona & The Mountain", "Mona & Mona & Mona & Mona"],
-            "35": ["Legs", "Seekers"],
-            "36": ["Convict(N)", "Nugget Squad"],
-            "37": ["Saul", "Saul's goodmen"],
-            "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"],
-            "39": ["Bigger Boot", "POV: Bug"],
-            "40": ["Punishing Bird", "Punishing Birdemic"],
-            "41": ["Chomper", "Chomper Trio"],
-            "42": ["With Many Voices", "Too Many Voices"],
-            "43": ["Miros Bird", "Memory Crypts"],
-            "44": ["Jumbo Josh", "Zumbo Sauce"],
-            "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann", "Freaks"],
-            "46": ["Lunatic Cultist", "Lunatic Cult"],
-            "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio & The Drifter", "Transportation Trio", "The Drifter"],
-            "48": ["Purple Guy", "Voidwalker", "Father Son Bonding"],
-            "49": ["HER", "WHITEFACE", "WHAT IS MY NAME"],
-            "50": ["Dapper Enphoso", "Pyromatic Enphoso", "Glaggleland Cremators"],
-            "51": ["Signus", "Triple Signus"],
-            "52": ["Akumii-Kari", "Triple Akumii Kari"],
-            "53": ["Big Bird", "Paradise Bird", "Black & White"],
-            "54": ["LESSER CENSORED", "[LESSER CENSORED]"],
-            "55": ["Blue gaper", "Blue Flies", "Blue Monsters"],
-            "56": ["Drone", "Drones"],
-            "57": ["Scrapyard Taker", "Scrapyard Takers"],
-            "58": ["Luigi Doll", "Luigi Dolls"],
-            "59": ["Meteor", "Meteor Shower"],
-            "60": ["TBH", "TBH Spy", "Triple TBH"],
-            "61": ["Lost Soul", "Lost Souls"],
-            "62": ["Aku Ball", "Ballin"],
-            "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket", "Reunion"],
-            "64": ["Roblander", "Bliss", "Ancient Monarch", "Angels"],
-            "65": ["Apocalypse Bird", "Immortal Snail", "Ordinary Apocalypse Bird"],
-            "66": ["Wild Yet Curious Creature", "Pack of Wild Yet Curious Creatures"],
-            "67": ["Beyond", "Manti", "ToN X SlashCo Collab"],
-            "68": ["Yolm", "Pack of Yolm"],
-            "69": ["Peepy", "Threepy"],
-            "70": ["Ghost Girl", "??"],
-            "71": ["Deleted", "Akumii-Kari", "Delete Me"],
-            "72": ["Spamton", "Spamton Spam"],
-            "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser", "Death From Above"],
-            "74": ["Mirror", "Red Bus", "Terror of Nowhere", "It Came From Bus To Nowhere"],
-            "75": ["SCP-049-B", "Zombie Apocalypse"],
-            "76": ["Mountain of Smiling Bodies", "Eating Contest"],
-            "77": ["Clockey", "Triple Clockey"],
-            "78": ["Killer Fish", "Triple Killer Fish"],
-            "79": ["MR.MEGA", "DoomBox", "Lethal League"],
-            "80": ["Comedy", "Tragedy", "Trollage"],
-            "81": ["MopeMope", "Mopemopemopemopemopemope"],
-            "82": ["Sonic", "Rewrite", "Atrached", "Triple Trouble"],
-            "83": ["Living Shadow", "Triple Living Shadow"],
-            "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)", "Beyond's Masks"]
+            "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"], "2": ["Haket", "Blue Haket", "Red vs Blue"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Guardians"], "5": ["Security", "The Swarm", "Prisoner", "Higher Beings"], "6": ["Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M", "Quadruple Sponge"], "7": ["BFF", "Nameless", "Your Best Friends"], "8": ["Seek", "Rush", "Eyes", "Hotel Monsters"], "9": ["Squibbs (Dev Bytes)", "Convict(D)", "Squibb Squad"], "10": ["Convict Squad", "Kimera", "Search and Destroy", "Garden Rejects"], "11": ["WhiteNight", "Paradise Bird", "Judgement Day"], "12": ["Roblander", "Inverted Roblander", "Me and My Shadow"], "13": ["An Arbiter", "The Red Mist", "Meltdown"], "14": ["Slender", "Slendy", "Hungry Home Invader", "Faceless Mafia"], "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10", "Mansion Monsters"], "16": ["MX", "Luigi", "Wario Apparition", "Copyright Infringement"], "17": ["Purple Guy", "Purple Bros"], "18": ["Scavenger", "Scavengers"], "19": ["The LifeBringer", "Scrapyard Machine", "Life & Death"], "20": ["Unknown Witch", "Labyrinth"], "21": ["Umbra", "Spiteful Eye", "Spiteful Shadows"], "22": ["Angry Munci", "Triple Munci"], "23": ["Karol_Corpse", "Daycare"], "24": ["Huggy", "Huggy Wuggy", "Huggy Horde"], "25": ["Arrival", "Infection"], "26": ["Hush", "Triple Hush"], "27": ["[CENSORED]"], "28": ["Dev Bytes", "Vana", "Duke", "Byte Horde"], "29": ["Sawrunner", "SawMarathon"], "30": ["Little Witch", "War", "Convict(N)", "TAKE THE NAMI CHALLENGE"], "31": ["Lightning", "Thunderstorm"], "32": ["Joy", "END OF THE WORLD"], "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER", "Fragmented Memories"], "34": ["Mona", "Mona & The Mountain", "Mona & Mona & Mona & Mona"], "35": ["Legs", "Seekers"], "36": ["Convict(N)", "Nugget Squad"], "37": ["Saul", "Saul's goodmen"], "38": ["Security", "Ancient Security", "Something Old, Something New", "Something Old", "Something New"], "39": ["Bigger Boot", "POV: Bug"], "40": ["Punishing Bird", "Punishing Birdemic"], "41": ["Chomper", "Chomper Trio"], "42": ["With Many Voices", "Too Many Voices"], "43": ["Miros Bird", "Memory Crypts"], "44": ["Jumbo Josh", "Zumbo Sauce"], "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann", "Freaks"], "46": ["Lunatic Cultist", "Lunatic Cult"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio & The Drifter", "Transportation Trio", "The Drifter"], "48": ["Purple Guy", "Voidwalker", "Father Son Bonding"], "49": ["HER", "WHITEFACE", "WHAT IS MY NAME"], "50": ["Dapper Enphoso", "Pyromatic Enphoso", "Glaggleland Cremators"], "51": ["Signus", "Triple Signus"], "52": ["Akumii-Kari", "Triple Akumii Kari"], "53": ["Big Bird", "Paradise Bird", "Black & White"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue gaper", "Blue Flies", "Blue Monsters"], "56": ["Drone", "Drones"], "57": ["Scrapyard Taker", "Scrapyard Takers"], "58": ["Luigi Doll", "Luigi Dolls"], "59": ["Meteor", "Meteor Shower"], "60": ["TBH", "TBH Spy", "Triple TBH"], "61": ["Lost Soul", "Lost Souls"], "62": ["Aku Ball", "Ballin"], "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket", "Reunion"], "64": ["Roblander", "Bliss", "Ancient Monarch", "Angels"], "65": ["Apocalypse Bird", "Immortal Snail", "Ordinary Apocalypse Bird"], "66": ["Wild Yet Curious Creature", "Pack of Wild Yet Curious Creatures"], "67": ["Beyond", "Manti", "ToN X SlashCo Collab"], "68": ["Yolm", "Pack of Yolm"], "69": ["Peepy", "Threepy"], "70": ["Ghost Girl", "??"], "71": ["Deleted", "Akumii-Kari", "Delete Me"], "72": ["Spamton", "Spamton Spam"], "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser", "Death From Above"], "74": ["Mirror", "Red Bus", "Terror of Nowhere", "It Came From Bus To Nowhere"], "75": ["SCP-049-B", "Zombie Apocalypse"], "76": ["Mountain of Smiling Bodies", "Eating Contest"], "77": ["Clockey", "Triple Clockey"], "78": ["Killer Fish", "Triple Killer Fish"], "79": ["MR.MEGA", "DoomBox", "Lethal League"], "80": ["Comedy", "Tragedy", "Trollage"], "81": ["MopeMope", "Mopemopemopemopemopemope"], "82": ["Sonic", "Rewrite", "Atrached", "Triple Trouble"], "83": ["Living Shadow", "Triple Living Shadow"], "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)", "Beyond's Masks"]
         };
 
         let currentLang = 'ja', myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1;
         const rowsPerPage = 50, isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
+        
+        // ★ 格闘系の「???」や「??」をテラー分析から排除する判定用
+        const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_v6');
+            const saved = localStorage.getItem('ton_v_ultimate_filtered');
             if (saved) { parsedData = JSON.parse(saved); initFilters(); updateAll(); }
-            updateUI();
         });
-
-        function updateUI() { document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); el.textContent = i18n[currentLang][k] || k; }); }
 
         document.getElementById('csvFileInput').addEventListener('change', e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader();
-            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_v6', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
+            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_v_ultimate_filtered', JSON.stringify(parsedData)); initFilters(); updateAll(); };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("保存されたデータを全て消去しますか？")) { localStorage.removeItem('ton_v6'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_v_ultimate_filtered'); location.reload(); } });
 
         function parseCSV(t) {
             parsedData = t.trim().split('\n').slice(1).map(l => {
@@ -265,8 +180,8 @@
         function initFilters() {
             const r = new Set(), m = new Set(), k = new Set();
             parsedData.forEach(d => { r.add(d.roundType); m.add(d.map); if(d.killers && d.killers !== 'None') d.killers.split('/').forEach(i=>k.add(i.trim())); });
-            const fill = (id, set, key) => { const el = document.getElementById(id); const val = el.value; el.innerHTML = `<option value="all">${i18n[currentLang][key]}</option>`; Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}" ${v===val?'selected':''}>${v}</option>`); };
-            fill('roundFilter', r, 'opt_all_round'); fill('mapFilter', m, 'opt_all_map'); fill('killerFilter', k, 'opt_all_killer');
+            const fill = (id, set) => { const el = document.getElementById(id); const val = el.value; el.innerHTML = `<option value="all">全件</option>`; Array.from(set).sort().forEach(v => el.innerHTML += `<option value="${v}" ${v===val?'selected':''}>${v}</option>`); };
+            fill('roundFilter', r); fill('mapFilter', m); fill('killerFilter', k);
             document.getElementById('viewSelector').disabled = false;
         }
 
@@ -280,45 +195,70 @@
                 const classicMatch = !(exc && (d.roundType.includes('クラシック')||d.roundType.includes('Classic')));
                 return dateMatch && filterMatch && classicMatch;
             });
-            updateDashboard(); updateRadar(); renderTable(); updateUnboundList();
+            updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiDiagnosis();
             if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
-        // ★ ダッシュボード更新ロジックを復元（出現率リスト追加）
+        // ういの診断ロジック（母数は全体のfilteredDataを使用）
+        function updateUiDiagnosis() {
+            const panel = document.getElementById('uiDiagnosisPanel');
+            const msg = document.getElementById('uiMessage');
+            if (filteredData.length === 0) { panel.style.display = 'none'; return; }
+            panel.style.display = 'flex';
+            const w = filteredData.filter(d => isWin(d.result)).length;
+            const rate = (w / filteredData.length) * 100;
+            if (rate >= 80) msg.textContent = "勝率80%超え？ 嘘でしょ、あんた。……まぁ、よく頑張ったのは認めてあげるわ。";
+            else if (rate >= 50) msg.textContent = "勝率半分以上。及第点ね。でも、もっと上を目指せるはずでしょ？";
+            else if (rate >= 30) msg.textContent = "勝率30%台……。平凡すぎて欠伸が出るわ。もっと真面目にやりなさい。";
+            else msg.textContent = "勝率30%未満。ねえ、画面見てる？ 病院か、算数からやり直したら？";
+        }
+
         function updateDashboard() {
-            let w=0, l=0; const rC={}, mC={}, kC={};
-            filteredData.forEach(d => {
+            let w=0, l=0; const kS = {}, rC={}, mC={}, kC={};
+            let curStr = 0, isWStr = false, maxW = 0, maxL = 0, tW = 0, tL = 0;
+
+            filteredData.forEach((d, i) => {
                 const win = isWin(d.result); win?w++:l++;
+                if(win) { tW++; maxL = Math.max(maxL, tL); tL = 0; }
+                else { tL++; maxW = Math.max(maxW, tW); tW = 0; }
+                if(i === filteredData.length - 1) { maxW = Math.max(maxW, tW); maxL = Math.max(maxL, tL); curStr = win ? tW : tL; isWStr = win; }
+                
                 if(d.roundType) rC[d.roundType] = (rC[d.roundType]||0)+1;
                 if(d.map) mC[d.map] = (mC[d.map]||0)+1;
-                if(d.killers && d.killers !== 'None') d.killers.split('/').forEach(k => { const v=k.trim(); kC[v]=(kC[v]||0)+1; });
+                
+                if(d.killers && d.killers !== 'None') {
+                    d.killers.split('/').forEach(k => {
+                        const v=k.trim();
+                        if(isExcludedKiller(v)) return; // ★ ダッシュボードのテラーリストからは除外
+                        kS[v] = kS[v] || {w:0, t:0}; kS[v].t++; if(win) kS[v].w++;
+                        kC[v] = (kC[v]||0)+1;
+                    });
+                }
             });
+
             document.getElementById('totalGames').textContent = w+l;
-            document.getElementById('totalWins').textContent = w;
-            document.getElementById('totalLost').textContent = l;
             document.getElementById('winRate').textContent = (w+l)>0 ? ((w/(w+l))*100).toFixed(1) : 0;
-            if(filteredData.length) {
-                document.getElementById('firstPlayDate').textContent = filteredData[0].timestamp;
-                document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp;
-            } else {
-                document.getElementById('firstPlayDate').textContent = "-"; document.getElementById('lastPlayDate').textContent = "-";
-            }
+            const sB = document.getElementById('streakBadge');
+            if(filteredData.length > 0) { sB.style.display = 'inline'; sB.className = 'streak-badge ' + (isWStr ? 'win-streak' : 'lost-streak'); sB.textContent = curStr + (isWStr ? ' 連勝中' : ' 連敗中'); }
+            document.getElementById('statMaxWinStreak').textContent = maxW;
+            document.getElementById('statMaxLostStreak').textContent = maxL;
+
+            let nem = "-", prey = "-", minR = 101, maxR = -1;
+            Object.entries(kS).forEach(([name, s]) => { if(s.t >= 3) { const r = (s.w / s.t) * 100; if(r < minR) { minR = r; nem = name; } if(r > maxR) { maxR = r; prey = name; } } });
+            document.getElementById('statNemesis').textContent = nem + (nem!=="-" ? ` (${minR.toFixed(0)}%)` : "");
+            document.getElementById('statPrey').textContent = prey + (prey!=="-" ? ` (${maxR.toFixed(0)}%)` : "");
 
             const render = (counts, total, color, label) => {
                 let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${color}; display:block; margin-bottom:10px;">${label}</strong>`;
-                Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> {
-                    h += `<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px;">${n}: ${((v/total)*100).toFixed(1)}% (${v})</span>`;
-                });
+                Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> { h += `<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px;">${n}: ${((v/total)*100).toFixed(1)}% (${v})</span>`; });
                 return h + '</div>';
             };
-            const totalKillers = Object.values(kC).reduce((a,b)=>a+b,0) || 1;
-            document.getElementById('appearanceRates').innerHTML = (filteredData.length > 0) ?
-                render(rC, filteredData.length, '#4CAF50', 'Round Type') + render(mC, filteredData.length, '#2196F3', 'Map') + render(kC, totalKillers, '#F44336', 'Terror') : '';
+            const tK = Object.values(kC).reduce((a,b)=>a+b,0) || 1;
+            document.getElementById('appearanceRates').innerHTML = (filteredData.length > 0) ? render(rC, filteredData.length, '#4CAF50', 'Round') + render(mC, filteredData.length, '#2196F3', 'Map') + render(kC, tK, '#F44336', 'Terror') : '';
         }
 
         function updateChart() {
-            const mode = document.getElementById('viewSelector').value;
-            const ctx = document.getElementById('resultChart').getContext('2d');
+            const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d');
             if(myChart) { myChart.destroy(); myChart = null; }
             if(!filteredData.length) return;
 
@@ -329,26 +269,22 @@
                 const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; });
                 const labels=Object.keys(s).sort();
                 myChart = new Chart(ctx, { type:'line', data:{labels, datasets:[{label:'Win %', data:labels.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
-            } else if(mode === 'timeOfDay') {
-                const s = Array.from({length: 24}, () => ({w:0, t:0}));
-                filteredData.forEach(d => { try { const h = parseInt(d.timestamp.split(' ')[1].split(':')[0]); s[h].t++; if(isWin(d.result)) s[h].w++; } catch(e){} });
-                myChart = new Chart(ctx, { type:'bar', data:{ labels: s.map((_,i)=>`${i}時`), datasets:[{type:'line', label:'Win %', data:s.map(x=>x.t>0?((x.w/x.t)*100).toFixed(1):0), borderColor:'#4CAF50', yAxisID:'y'},{type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.5)', yAxisID:'y1'}] }, options:{responsive:true, maintainAspectRatio:false, scales:{y:{max:100,position:'left'},y1:{position:'right',grid:{drawOnChartArea:false}}}} });
             } else if(['roundType','map','killer'].includes(mode)){
-                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?(d.killers||"").split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); });
+                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?(d.killers||"").split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); 
+                    if(!v||v==='None'||(mode==='killer' && isExcludedKiller(v))) return; // ★ テラー別グラフからは排除
+                    if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; 
+                }); });
                 const labels = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
                 myChart = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'Win',data:labels.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:labels.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
             } else {
-                // Rate (Pie Chart) - ★ ロジック復元
                 const k = mode.replace('Rate', ''); const s = {};
-                filteredData.forEach(d => { const items = k === 'killer' ? (d.killers || "").split('/') : [d[k]]; items.forEach(i => { const v = i.trim(); if (v && v !== 'None') s[v] = (s[v] || 0) + 1; }); });
+                filteredData.forEach(d => { const items = k === 'killer' ? (d.killers || "").split('/') : [d[k]]; items.forEach(i => { const v = i.trim(); 
+                    if (v && v !== 'None' && !(k==='killer' && isExcludedKiller(v))) s[v] = (s[v] || 0) + 1; // ★ テラー出現率からも排除
+                }); });
                 const sorted = Object.entries(s).sort((a, b) => b[1] - a[1]);
                 let labels = [], counts = [], cum = 0; const total = sorted.reduce((a, b) => a + b[1], 0);
-
-                if (k === 'map') { // マップは全件出す
-                    labels = sorted.map(x => x[0]); counts = sorted.map(x => x[1]);
-                } else { // 他は50% + Others
-                    sorted.forEach(([n, c]) => { if ((cum / total < 0.5 || labels.length < 10) && labels.length < 50) { labels.push(n); counts.push(c); cum += c; } else { if(!labels.includes("Others")) { labels.push("Others"); counts.push(0); } counts[labels.length-1] += c; } });
-                }
+                if (k === 'map') { labels = sorted.map(x => x[0]); counts = sorted.map(x => x[1]); }
+                else { sorted.forEach(([n, c]) => { if ((cum / total < 0.5 || labels.length < 10) && labels.length < 50) { labels.push(n); counts.push(c); cum += c; } else { if(!labels.includes("Others")) { labels.push("Others"); counts.push(0); } counts[labels.length-1] += c; } }); }
                 myChart = new Chart(ctx, { type: 'pie', data: { labels, datasets: [{ data: counts, backgroundColor: labels.map((_, i) => `hsl(${(i * 360) / labels.length},70%,50%)`) }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#ccc', font: { size: 10 } } } } } });
             }
         }
@@ -367,7 +303,7 @@
             let s={aW:0,aT:0,cW:0,cT:0,sW:0,sT:0,siW:0,siT:0,muW:0,muT:0};
             filteredData.forEach(d => { const w=isWin(d.result); s.aT++; if(w) s.aW++; if(d.roundType.includes('クラシック')||d.roundType.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;} if(d.killers.includes('/')){s.muT++; if(w)s.muW++;} else if(d.killers !== 'None' && d.killers !== ""){s.siT++; if(w)s.siW++;} });
             const r = (w,t) => t>0?Math.round((w/t)*100):0;
-            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,ticks:{display:false}}}, plugins:{legend:{display:false}} } });
+            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: ['全体', 'クラシック', '特殊', '単体', '複数'], datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,ticks:{display:false},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
 
         function updateUnboundList() {
@@ -386,7 +322,6 @@
         document.getElementById('viewSelector').addEventListener('change', updateChart);
         document.getElementById('startDateFilter').addEventListener('change', updateAll);
         document.getElementById('endDateFilter').addEventListener('change', updateAll);
-        document.getElementById('langSelect').addEventListener('change', e => { currentLang = e.target.value; updateUI(); updateAll(); });
     </script>
 </body>
 </html>
