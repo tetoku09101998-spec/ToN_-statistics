@@ -24,14 +24,13 @@
         .btn-clear { background: #333; border: 1px solid #555; color: #888; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: auto; transition: 0.2s; }
         .btn-clear:hover { background: #d32f2f; color: #fff; border-color: #f44336; }
         
-        .tabs { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); max-width: 1100px; margin: 0 auto 20px auto; }
-        .tab-btn { background: transparent; border: none; color: #777; padding: 12px 25px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .tabs { display: flex; justify-content: center; border-bottom: 2px solid var(--border-color); max-width: 1100px; margin: 0 auto 20px auto; flex-wrap: wrap; gap: 5px; }
+        .tab-btn { background: transparent; border: none; color: #777; padding: 12px 20px; font-size: 15px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: var(--panel-bg); color: var(--accent-color); border-bottom: 3px solid var(--accent-color); }
         
         .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .tab-content.active { display: block; }
         
-        /* ういの診断パネル */
         .ui-diagnosis-panel { background: #2d2d3a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border-left: 6px solid var(--sub-accent); text-align: left; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .ui-avatar { width: 100px; height: 100px; border-radius: 50%; background: #444; border: 3px solid var(--sub-accent); object-fit: cover; flex-shrink: 0; box-shadow: 0 0 10px rgba(100, 181, 246, 0.2); }
         .ui-name { font-weight: bold; color: var(--sub-accent); font-size: 16px; display: block; margin-bottom: 8px; }
@@ -56,6 +55,11 @@
         .unbound-card { background: #2a2a2a; padding: 15px; border-radius: 8px; border-top: 3px solid var(--unbound-accent); text-align: left; }
         .unbound-set-name { color: var(--unbound-accent); font-weight: bold; display: block; margin: 2px 0 10px 0; font-size: 18px; border-bottom: 1px solid #444; padding-bottom: 5px; }
         .unbound-killer-tag { display: inline-block; margin: 2px 4px 2px 0; padding: 4px 10px; border-radius: 4px; font-size: 12px; color: #eee; background: #333; border: 1px solid #444; }
+        
+        /* ランキングタブ用スクロール */
+        .ranking-scroll-box { max-height: 500px; overflow-y: auto; padding-right: 5px; }
+        .ranking-scroll-box::-webkit-scrollbar { width: 8px; }
+        .ranking-scroll-box::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -100,6 +104,7 @@
 
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tab-dashboard')" data-i18n="tab_dash">📊 Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('tab-ranking')" data-i18n="tab_ranking">👑 ランキング</button>
         <button class="tab-btn" onclick="switchTab('tab-analytics')" data-i18n="tab_chart">📈 Analytics</button>
         <button class="tab-btn" onclick="switchTab('tab-history')" data-i18n="tab_history">📝 History</button>
         <button class="tab-btn" onclick="switchTab('tab-unbound')" data-i18n="tab_unbound">🌀 Unbound</button>
@@ -122,6 +127,10 @@
             <div style="background:#2a2a2a; border-radius:10px; padding:15px;"><canvas id="radarChartCanvas"></canvas></div>
         </div>
         <div id="appearanceRates" style="display:flex; justify-content:space-between; margin-top:25px; gap:15px;"></div>
+    </div>
+
+    <div id="tab-ranking" class="tab-content">
+        <div id="fullRankingContainer" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;"></div>
     </div>
 
     <div id="tab-analytics" class="tab-content">
@@ -156,8 +165,8 @@
 
     <script>
         const i18n = {
-            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイル選択", no_file: "未選択", label_load: "📁 データ読込:", btn_clear: "🗑️ 消去", label_date: "📅 期間:", check_exclude: "クラシック除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "総試合", stat_rate: "勝率", nemesis: "天敵 (Nemesis)", prey: "カモ (Prey)", max_win: "最大連勝", max_lost: "最大連敗", label_view: "表示切替:", v_trend: "日別勝率推移", v_time: "時間帯別勝率", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", btn_dl_chart: "画像保存", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'] },
-            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear", label_date: "📅 Date:", check_exclude: "Exclude Classic", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "Total", stat_rate: "Win Rate", nemesis: "Nemesis", prey: "Prey", max_win: "Max Win Streak", max_lost: "Max Lost Streak", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", btn_dl_chart: "Save Image", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'] }
+            ja: { title: "ToN 統計ビュアー Ultimate", btn_readme: "📖 取扱説明書", btn_github: "📥 Download (GitHub)", btn_browse: "ファイル選択", no_file: "未選択", label_load: "📁 データ読込:", btn_clear: "🗑️ 消去", label_date: "📅 期間:", check_exclude: "クラシック除外", label_filter: "🔍 フィルタ:", opt_all_round: "全ラウンド", opt_all_map: "全マップ", opt_all_killer: "全テラー", tab_dash: "📊 Dashboard", tab_ranking: "👑 ランキング", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "総試合", stat_rate: "勝率", nemesis: "天敵 (Nemesis)", prey: "カモ (Prey)", max_win: "最大連勝", max_lost: "最大連敗", label_view: "表示切替:", v_trend: "日別勝率推移", v_time: "時間帯別勝率", v_overall: "全体勝率", v_round: "ラウンド別勝敗", v_map: "マップ別勝敗", v_killer: "テラー別勝敗", v_round_r: "ラウンド出現率", v_map_r: "マップ出現率", v_killer_r: "テラー出現率", btn_dl_chart: "画像保存", th_date: "日時", th_map: "マップ", th_type: "種類", th_killer: "テラー", th_res: "結果", radar_labels: ['全体', 'クラシック', '特殊', '単体', '複数'] },
+            en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear", label_date: "📅 Date:", check_exclude: "Exclude Classic", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_ranking: "👑 Ranking", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "Total", stat_rate: "Win Rate", nemesis: "Nemesis", prey: "Prey", max_win: "Max Win Streak", max_lost: "Max Lost Streak", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", btn_dl_chart: "Save Image", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'] }
         };
 
         const UNBOUND_MASTER = {
@@ -252,7 +261,7 @@
         const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_ultimate_final_tagfix');
+            const saved = localStorage.getItem('ton_ultimate_ranking_tab');
             if (saved) { parsedData = JSON.parse(saved); initFilters(); updateAll(); }
             updateUI();
         });
@@ -268,11 +277,11 @@
         document.getElementById('csvFileInput').addEventListener('change', e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader();
-            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_final_tagfix', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
+            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_ranking_tab', JSON.stringify(parsedData)); document.getElementById('fileNameDisplay').textContent = f.name; initFilters(); updateAll(); };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_final_tagfix'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_ranking_tab'); location.reload(); } });
 
         const decodeHTML = (html) => {
             const txt = document.createElement("textarea");
@@ -324,7 +333,7 @@
                 return dateMatch && filterMatch && classicMatch;
             });
             currentPage = 1;
-            updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiDiagnosis();
+            updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiDiagnosis(); updateRanking();
             if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
@@ -405,13 +414,48 @@
             document.getElementById('statNemesis').textContent = nem + (nem!=="-" ? ` (${minR.toFixed(0)}%)` : "");
             document.getElementById('statPrey').textContent = prey + (prey!=="-" ? ` (${maxR.toFixed(0)}%)` : "");
 
+            // TOP 10 のみ表示
             const render = (counts, total, color, label) => {
-                let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${color}; display:block; margin-bottom:10px;">${label}</strong>`;
-                Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> { h += `<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px;">${n}: ${((v/total)*100).toFixed(1)}% (${v})</span>`; });
+                let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${color}; display:block; margin-bottom:10px;">${label} (TOP 10)</strong>`;
+                Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([n,v])=> { h += `<span style="display:block; margin-bottom:5px; background:#333; padding:5px 10px; border-radius:4px; font-size:12px; display:flex; justify-content:space-between;"><span>${n}</span> <span>${((v/total)*100).toFixed(1)}% (${v})</span></span>`; });
                 return h + '</div>';
             };
             const tK = Object.values(kC).reduce((a,b)=>a+b,0) || 1;
-            document.getElementById('appearanceRates').innerHTML = (filteredData.length > 0) ? render(rC, filteredData.length, '#4CAF50', 'Round') + render(mC, filteredData.length, '#2196F3', 'Map') + render(kC, tK, '#F44336', 'Terror') : '';
+            document.getElementById('appearanceRates').innerHTML = (filteredData.length > 0) ? render(rC, filteredData.length, '#4CAF50', 'Round Type') + render(mC, filteredData.length, '#2196F3', 'Map') + render(kC, tK, '#F44336', 'Terror') : '';
+        }
+
+        // ★ 新機能：ランキングタブ（全データ）
+        function updateRanking() {
+            const container = document.getElementById('fullRankingContainer');
+            if(!filteredData.length) { container.innerHTML = ''; return; }
+
+            const rC={}, mC={}, kC={};
+            filteredData.forEach(d => {
+                if(d.roundType) rC[d.roundType] = (rC[d.roundType]||0)+1;
+                if(d.map) mC[d.map] = (mC[d.map]||0)+1;
+                if(d.killers && d.killers !== 'None') {
+                    d.killers.split('/').forEach(k => {
+                        const v=k.trim();
+                        if(isExcludedKiller(v)) return;
+                        kC[v] = (kC[v]||0)+1;
+                    });
+                }
+            });
+
+            const renderFull = (counts, total, color, label) => {
+                let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; text-align:left;"><strong style="color:${color}; display:block; margin-bottom:10px; font-size:16px; border-bottom:1px solid #444; padding-bottom:5px;">${label}</strong><div class="ranking-scroll-box">`;
+                let rank = 1;
+                Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([n,v])=> { 
+                    h += `<span style="display:block; margin-bottom:5px; background:#333; padding:6px 10px; border-radius:4px; font-size:13px; display:flex; justify-content:space-between;"><span><b style="color:#aaa;">${rank}.</b> ${n}</span> <span>${((v/total)*100).toFixed(1)}% (${v})</span></span>`;
+                    rank++;
+                });
+                return h + '</div></div>';
+            };
+
+            const tK = Object.values(kC).reduce((a,b)=>a+b,0) || 1;
+            container.innerHTML = renderFull(rC, filteredData.length, '#4CAF50', 'Round Type') + 
+                                  renderFull(mC, filteredData.length, '#2196F3', 'Map') + 
+                                  renderFull(kC, tK, '#F44336', 'Terror');
         }
 
         function updateChart() {
@@ -467,7 +511,6 @@
             myRadarChart = new Chart(ctx, { type:'radar', data:{ labels: i18n[currentLang].radar_labels, datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT),r(s.siW,s.siT),r(s.muW,s.muT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,ticks:{display:false},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
 
-        // ★ 最後の要素（セット名）をタグから除外する処理を復活
         function updateUnboundList() {
             const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const ds = new Set();
             filteredData.forEach(d => { if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) { const ks = d.killers.split('/').map(k => k.trim()); for (const [sId, list] of Object.entries(UNBOUND_MASTER)) { if (ks.some(k => list.includes(k))) { ds.add(sId); break; } } } });
@@ -475,7 +518,7 @@
                 const card = document.createElement('div'); card.className = 'unbound-card'; 
                 const m = UNBOUND_MASTER[id] || [];
                 const sn = m.length > 1 ? m[m.length - 1] : `Set #${id}`;
-                const mm = m.length > 1 ? m.slice(0, m.length - 1) : m; // ← ここでセット名をタグから取り除く
+                const mm = m.length > 1 ? m.slice(0, m.length - 1) : m;
                 card.innerHTML = `<span class="unbound-set-name">${sn}</span>${mm.map(k => `<span class="unbound-killer-tag">${k}</span>`).join('')}`;
                 listEl.appendChild(card);
             });
