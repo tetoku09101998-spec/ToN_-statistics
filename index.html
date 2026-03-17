@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Absolute Spec V9</title>
+    <title>ToN Stats Absolute V10</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -19,17 +19,16 @@
         #ui-box { display: flex; align-items: center; background: #252525; border-radius: 10px; padding: 12px; margin-bottom: 15px; border: 1px solid var(--sub); }
         #ui-face { width: 60px; height: 60px; border-radius: 50%; margin-right: 12px; border: 2px solid #555; flex-shrink: 0; object-fit: cover; }
         .card { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--acc); margin-bottom: 15px; text-align: left; }
-        .rank-section { margin-bottom: 25px; text-align: left; }
         .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 12px; }
-        .full-table-wrapper { overflow-x: auto; margin-top: 10px; border-radius: 8px; background: #1a1a1a; margin-bottom: 20px; }
+        .full-table-wrapper { overflow-x: auto; margin-top: 10px; border-radius: 8px; background: #1a1a1a; margin-bottom: 30px; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 450px; }
         th, td { padding: 10px 8px; border-bottom: 1px solid var(--brd); text-align: left; }
         .w { color: var(--acc); font-weight: bold; }
         .l { color: #f44336; font-weight: bold; }
         .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
         .unb-card { background: #2c2c2c; padding: 12px; border-radius: 8px; border-top: 4px solid var(--unb); font-size: 11px; text-align: left; }
-        .unb-tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-        .unb-tag { background: #444; padding: 2px 6px; border-radius: 4px; color: #eee; font-size: 9px; border: 1px solid #555; white-space: nowrap; }
+        .unb-k-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+        .unb-k-tag { background: #444; padding: 2px 6px; border-radius: 4px; color: #eee; font-size: 9px; border: 1px solid #555; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -52,20 +51,18 @@
         <div id="ui-box"><img id="ui-face" src="face_normal.png"><p id="ui-msg" style="font-size:12px; margin:0; text-align:left;"></p></div>
         <div class="card">
             <div style="font-size:20px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div>
-            <div style="color:var(--acc); font-size:14px;">Rate: <span id="wr">0</span>%</div>
+            <div style="color:var(--acc); font-size:14px;">Win Rate: <span id="wr">0</span>%</div>
         </div>
         <div style="background:#252525; border-radius:10px; padding:10px; margin-bottom:15px;"><canvas id="radar" height="220"></canvas></div>
-        <div class="rank-section">
-            <h4 style="color:var(--sub); border-bottom:1px solid #444;">Top 10 Killers</h4><div id="dashK"></div>
-            <h4 style="color:var(--acc); border-bottom:1px solid #444; margin-top:20px;">Top 10 Maps</h4><div id="dashM"></div>
-            <h4 style="color:#ffeb3b; border-bottom:1px solid #444; margin-top:20px;">Top 10 Rounds</h4><div id="dashR"></div>
-        </div>
+        <h4 style="color:var(--sub); border-bottom:1px solid #444;">Top 10 Killers</h4><div id="dashK"></div>
+        <h4 style="color:var(--acc); border-bottom:1px solid #444; margin-top:20px;">Top 10 Maps</h4><div id="dashM"></div>
+        <h4 style="color:#ffeb3b; border-bottom:1px solid #444; margin-top:20px;">Top 10 Rounds</h4><div id="dashR"></div>
     </div>
 
     <div id="t-chart" class="tab-content">
         <select id="vMode" style="width:100%; margin-bottom:10px;">
-            <option value="trend">勝率推移</option><option value="time">時間帯別 (2軸)</option>
-            <option value="killer">テラー別</option><option value="map">マップ別</option>
+            <option value="trend">日別勝率推移</option><option value="time">時間帯別分析 (2軸)</option>
+            <option value="killer">テラー別勝敗</option><option value="map">マップ別勝敗</option>
             <option value="p_round">出現: ラウンド</option><option value="p_map">出現: マップ</option>
         </select>
         <div style="height:350px;"><canvas id="mainChart"></canvas></div>
@@ -82,28 +79,28 @@
 
     <div id="t-list" class="tab-content">
         <div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div>
-        <div style="margin-top:15px; display:flex; justify-content:space-between;"><button onclick="pg(-1)">◀</button><span id="pgInf">1/1</span><button onclick="pg(1)">▶</button></div>
+        <div style="margin-top:15px; display:flex; justify-content:space-between;"><button onclick="pg(-1)">◀ Prev</button><span id="pgInf">1/1</span><button onclick="pg(1)">Next ▶</button></div>
     </div>
 
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
 
     <script>
         const MASTER = {
-            "1":["The Guidance","BooBooBabies"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell"],"4":["Big Bird","Judgement Bird","Punishing Bird","Forest Guardians"],"5":["Security","The Swarm","Prisoner"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge"],"10":["Garden Rejects","Convict Squad","Kimera"],"11":["WhiteNight","Paradise Bird","Judgement Day"],"13":["An Arbiter","The Red Mist","Meltdown"],"14":["Slender","Slendy"],"22":["Angry Munci","Triple Munci"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","TAKE THE NAMI CHALLENGE"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","Fragmented Memories"],"38":["Something Old, Something New","Ancient Security"],"47":["Red Bus","Blue Bus","Yellow Bus","Drifter","Transportation Trio"],"52":["Akumii-Kari","Triple Akumii Kari"],"63":["Reunion","Toren's Shadow","Mona","Karol_Corpse"],"64":["Angels","Roblander","Bliss"],"65":["Apocalypse Bird","Immortal Snail","Ordinary Apocalypse Bird"],"73":["Solstice Eye","Bigger Boot","Nabnab","Giant Laser"],"84":["Beyond","Convict[E]","Byte[E]","Paint(Beyond)"]
-        }; // ★Wiki全てのセットを網羅的に定義(省略なしで出力)
+            "1":["The Guidance","BooBooBabies","Guidance & The Booboo's"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell","Third Trumpet"],"4":["Big Bird","Judgement Bird","Punishing Bird","Forest Guardians"],"5":["Security","The Swarm","Prisoner","Higher Beings"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M","Quadruple Sponge"],"7":["BFF","Nameless","Your Best Friends"],"8":["Seek","Rush","Eyes","Hotel Monsters"],"9":["Squibbs","Convict(D)","Squibb Squad"],"10":["Garden Rejects","Convict Squad","Kimera","Search and Destroy"],"11":["WhiteNight","Paradise Bird","Judgement Day"],"12":["Roblander","Inverted Roblander","Me and My Shadow"],"13":["An Arbiter","The Red Mist","Meltdown"],"14":["Slender","Slendy","Faceless Mafia"],"15":["Specimen 2","Specimen 5","Specimen 8","Specimen 10","Mansion Monsters"],"16":["MX","Luigi","Wario Apparition","Copyright Infringement"],"17":["Purple Guy","Purple Bros"],"18":["Scavenger","Scavengers"],"19":["The LifeBringer","Scrapyard Machine","Life & Death"],"20":["Unknown Witch","Labyrinth"],"21":["Umbra","Spiteful Eye","Spiteful Shadows"],"22":["Angry Munci","Triple Munci"],"23":["Karol_Corpse","Daycare"],"24":["Huggy","Huggy Wuggy","Huggy Horde"],"25":["Arrival","Infection"],"26":["Hush","Triple Hush"],"27":["[CENSORED]"],"28":["Dev Bytes","Vana","Duke","Byte Horde"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","Convict(N)"],"31":["Lightning","Thunderstorm"],"32":["Joy","END OF THE WORLD"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER","Fragmented Memories"],"34":["Mona","Mona & Mona & Mona & Mona"],"35":["Legs","Seekers"],"36":["Convict(N)","Nugget Squad"],"37":["Saul","Saul's goodmen"],"38":["Something Old, Something New","Security","Ancient Security"],"39":["Bigger Boot","POV: Bug"],"40":["Punishing Bird","Punishing Birdemic"],"41":["Chomper","Chomper Trio"],"42":["With Many Voices","Too Many Voices"],"43":["Miros Bird","Memory Crypts"],"44":["Jumbo Josh","Zumbo Sauce"],"45":["Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann","Freaks"],"46":["Lunatic Cultist","Lunatic Cult"],"47":["Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter","Transportation Trio"],"48":["Father Son Bonding","Purple Guy","Voidwalker"],"49":["HER","WHITEFACE","WHAT IS MY NAME"],"50":["Dapper Enphoso","Pyromatic Enphoso","Glaggleland Cremators"],"51":["Signus","Triple Signus"],"52":["Akumii-Kari","Triple Akumii Kari"],"53":["Black & White","Big Bird","Paradise Bird"],"54":["[LESSER CENSORED]","LESSER CENSORED"],"55":["Blue Monsters","Blue gaper","Blue Flies"],"56":["Drones","Drone"],"57":["Scrapyard Takers","Scrapyard Taker"],"58":["Luigi Dolls","Luigi Doll"],"59":["Meteor Shower","Meteor"],"60":["Triple TBH","TBH","TBH Spy"],"61":["Lost Souls","Lost Soul"],"62":["Ballin","Aku Ball"],"63":["Reunion","Toren's Shadow","Mona","Karol_Corpse","Haket"],"64":["Angels","Roblander","Bliss","Ancient Monarch"],"65":["Ordinary Apocalypse Bird","Apocalypse Bird","Immortal Snail"],"66":["Wild Yet Curious Creature","Pack of Wild Yet Curious Creatures"],"67":["Beyond","Manti","ToN X SlashCo Collab"],"68":["Yolm","Pack of Yolm"],"69":["Threepy","Peepy"],"70":["Ghost Girl"],"71":["Delete Me","Deleted","Akumii-Kari"],"72":["Spamton Spam","Spamton"],"73":["Death From Above","Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser"],"74":["Mirror","Red Bus","Terror of Nowhere"],"75":["Zombie Apocalypse","SCP-049-B"],"76":["Mountain of Smiling Bodies","Eating Contest"],"77":["Triple Clockey","Clockey"],"78":["Triple Killer Fish","Killer Fish"],"79":["Lethal League","MR.MEGA","DoomBox"],"80":["Trollage","Comedy","Tragedy"],"81":["Mopemopemopemopemopemope","MopeMope"],"82":["Triple Trouble","Sonic","Rewrite","Atrached"],"83":["Triple Living Shadow","Living Shadow"],"84":["Beyond's Masks","Beyond","Convict[E]","Byte[E]"]
+        };
 
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
 
         window.onload = () => {
-            const saved = localStorage.getItem('ton_v9_genesis');
+            const saved = localStorage.getItem('ton_v10_ultimate');
             if(saved) { parseCSV(saved); initF(); upd(); }
         };
 
         document.getElementById('csvFile').onchange = e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
-                localStorage.setItem('ton_v9_genesis', ev.target.result);
+                localStorage.setItem('ton_v10_ultimate', ev.target.result);
                 parseCSV(ev.target.result); initF(); upd();
             }; r.readAsText(f);
         };
@@ -111,7 +108,8 @@
         function parseCSV(t) {
             raw = t.trim().split('\n').slice(1).map(l => {
                 const c = l.split(','); if (c.length < 5) return null;
-                return { t: c[0].trim(), m: c[1].trim(), r: c[2].trim(), k: c.slice(3,-1).join(',').trim(), res: c[c.length-1].trim() };
+                const killers = c.slice(3, -1).join(',').trim(); 
+                return { t: c[0].trim(), m: c[1].trim(), r: c[2].trim(), k: killers, res: c[c.length-1].trim() };
             }).filter(x => x);
         }
 
@@ -185,7 +183,7 @@
                 ks.forEach(k => { if(k.length > 2 && k !== 'None') s[id].add(k); });
             });
             Object.keys(s).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
-                let tags = ''; Array.from(s[id]).forEach(k => tags += `<span class="unb-tag">${k}</span>`);
+                let tags = ''; Array.from(s[id]).forEach(k => tags += `<span class="unb-k-tag">${k}</span>`);
                 l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">Set #${id}</strong><div class="unb-tag-list">${tags}</div></div>`;
             });
         }
@@ -225,7 +223,7 @@
                 work: { f: "face_angry.png", t: [`日中に ${d} 回の記録。……今、仕事中じゃないの？`, `就業時間中にツールを弄るな。業務を優先しなさい。`] },
                 high: { f: "face_tsundere.png", t: [`勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。`, `へぇ、悪くないじゃない。別に褒めてないわよ。`] },
                 low: { f: "face_sigh.png", t: [`勝率 ${r.toFixed(1)}%……。泥沼ね。休息しなさい。`, `あまりに非論理的な敗北。大人しくログアウトしなさい。`] },
-                normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。次。`] }
+                normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。`] }
             };
             let c = "normal"; const rnd = Math.random();
             if(n>0 && rnd > 0.3) c = "night"; else if(d>0 && rnd > 0.4) c = "work"; else if(r>=70) c = "high"; else if(r<30 && filtered.length > 5) c = "low";
