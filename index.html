@@ -31,7 +31,6 @@
         .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .tab-content.active { display: block; }
         
-        /* ういの診断パネル */
         .ui-diagnosis-panel { background: #2d2d3a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border-left: 6px solid var(--sub-accent); text-align: left; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .ui-avatar { width: 100px; height: 100px; border-radius: 50%; background: #444; border: 3px solid var(--sub-accent); object-fit: cover; flex-shrink: 0; box-shadow: 0 0 10px rgba(100, 181, 246, 0.2); }
         .ui-name { font-weight: bold; color: var(--sub-accent); font-size: 16px; display: block; margin-bottom: 8px; }
@@ -160,7 +159,6 @@
             en: { title: "ToN Stats Viewer Global", btn_readme: "📖 Manual", btn_github: "📥 Download (GitHub)", btn_browse: "Choose File", no_file: "No file", label_load: "📁 Load CSV:", btn_clear: "🗑️ Clear", label_date: "📅 Date:", check_exclude: "Exclude Classic", label_filter: "🔍 Filters:", opt_all_round: "All Rounds", opt_all_map: "All Maps", opt_all_killer: "All Terrors", tab_dash: "📊 Dashboard", tab_chart: "📈 Analytics", tab_history: "📝 History", tab_unbound: "🌀 Unbound", stat_total: "Total", stat_rate: "Win Rate", nemesis: "Nemesis", prey: "Prey", max_win: "Max Win Streak", max_lost: "Max Lost Streak", label_view: "View Mode:", v_trend: "Daily Trend", v_time: "By Time of Day", v_overall: "Overall Rate", v_round: "By Round Type", v_map: "By Map", v_killer: "By Terror", v_round_r: "Round Freq.", v_map_r: "Map Freq.", v_killer_r: "Terror Freq.", btn_dl_chart: "Save Image", th_date: "Date", th_map: "Map", th_type: "Type", th_killer: "Terror", th_res: "Result", radar_labels: ['Overall', 'Classic', 'Special', 'Single', 'Multi'] }
         };
 
-        // ★ Set 38, 47 などの配列順を「構成テラー」→「セット名」に完全修正
         const UNBOUND_MASTER = {
             "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"],
             "2": ["Haket", "Blue Haket", "Red vs Blue"],
@@ -198,7 +196,7 @@
             "34": ["Mona", "Mona & The Mountain", "Mona & Mona & Mona & Mona"],
             "35": ["Legs", "Seekers"],
             "36": ["Convict(N)", "Nugget Squad"],
-            "37": ["Saul", "Saul's goodmen"],
+            "37": ["Saul", "Saul's Goodmen"],
             "38": ["Security", "Ancient Security", "Something Old", "Something New", "Something Old, Something New"],
             "39": ["Bigger Boot", "POV: Bug"],
             "40": ["Punishing Bird", "Punishing Birdemic"],
@@ -474,7 +472,6 @@
             Array.from(ds).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => {
                 const card = document.createElement('div'); card.className = 'unbound-card'; const m = UNBOUND_MASTER[id] || [];
                 const sn = m.length > 1 ? m[m.length - 1] : `Set #${id}`;
-                // セット名をタグから除外する処理を復活
                 const mm = m.length > 1 ? m.slice(0, m.length - 1) : m;
                 card.innerHTML = `<span class="unbound-set-name">${sn}</span>${mm.map(k => `<span class="unbound-killer-tag">${k}</span>`).join('')}`;
                 listEl.appendChild(card);
