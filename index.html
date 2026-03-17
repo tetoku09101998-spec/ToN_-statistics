@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats Perfect V12</title>
+    <title>ToN Stats V13 Perfect</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -11,10 +11,10 @@
         
         .controls { background: var(--panel); padding: 12px; border-radius: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
-        select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; box-sizing: border-box; cursor: pointer; }
         
         .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
-        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; }
+        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
         .tab-btn.active { color: var(--acc); border-bottom: 3px solid var(--acc); }
         
         .tab-content { display: none; background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid var(--brd); max-width: 1200px; margin: 0 auto; }
@@ -35,7 +35,6 @@
         .w { color: var(--acc); font-weight: bold; }
         .l { color: #f44336; font-weight: bold; }
         
-        /* ★ アンバウンド図鑑の完全分離デザイン */
         .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
         .unb-card { background: #2c2c2c; padding: 15px; border-radius: 8px; border-top: 4px solid var(--unb); font-size: 12px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .unb-title { font-size: 14px; font-weight: bold; color: var(--unb); margin-bottom: 8px; border-bottom: 1px dashed #555; padding-bottom: 4px; }
@@ -49,7 +48,10 @@
         <select id="fDate"><option value="all">全期間</option></select>
         <select id="fRound"><option value="all">全Round</option></select>
         <select id="fKiller" class="full"><option value="all">全Terror</option></select>
-        <div class="full" style="font-size:12px; color:#ffeb3b;"><label><input type="checkbox" id="exClassic"> クラシック除外</label></div>
+        <div class="full" style="font-size:13px; color:#ffeb3b; display:flex; align-items:center;">
+            <input type="checkbox" id="exClassic" style="width:auto; margin-right:8px; transform:scale(1.2);"> 
+            <label for="exClassic">クラシック除外</label>
+        </div>
     </div>
 
     <div class="tabs">
@@ -104,7 +106,6 @@
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
 
     <script>
-        // ★ 配列の[0]がタイトル、[1]以降がテラー名のリスト
         const MASTER = {
             "1": ["Guidance & The Booboo's", "The Guidance", "BooBooBabies"],
             "2": ["Red vs Blue", "Haket", "Blue Haket"],
@@ -194,21 +195,23 @@
 
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
+        // ★ クラシック判定用ヘルパー（英語・日本語両対応）
+        const isClassic = (r) => /classic|クラシック/i.test(r);
 
         window.onload = () => {
-            const saved = localStorage.getItem('ton_v12_perfect');
+            const saved = localStorage.getItem('ton_v13_perfect');
             if(saved) { parseCSV(saved); initF(); upd(); }
         };
 
         document.getElementById('csvFile').onchange = e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
-                localStorage.setItem('ton_v12_perfect', ev.target.result);
+                localStorage.setItem('ton_v13_perfect', ev.target.result);
                 parseCSV(ev.target.result); initF(); upd();
             }; r.readAsText(f);
         };
 
-        // ★ CSVパーサー（カンマを含むラウンド名の列ズレを完璧に防ぐ）
+        // カンマ入りラウンド名を保護する正規CSVパーサー
         function parseCSV(t) {
             raw = t.trim().split('\n').slice(1).map(line => {
                 let cols = []; let inQ = false; let cur = '';
@@ -224,7 +227,7 @@
                 const time = cols.shift();
                 const map = cols.shift();
                 const round = cols.shift();
-                const killers = cols.join(', '); // 残りは全てテラー
+                const killers = cols.join(', ');
                 return { t: time, m: map, r: round, k: killers, res: res };
             }).filter(x => x);
         }
@@ -243,11 +246,25 @@
             f('fDate', dS, true); f('fRound', rS); f('fKiller', kS);
         }
 
-        document.querySelectorAll('select, input[type=checkbox]').forEach(el => el.onchange = upd);
+        // ★ イベントリスナーをID指定で確実にバインド
+        ['fDate', 'fRound', 'fKiller', 'exClassic', 'vMode'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.onchange = upd;
+        });
 
         function upd() {
-            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, exc = document.getElementById('exClassic')?.checked || false;
-            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && !(exc && x.r.includes('Classic')));
+            const df = document.getElementById('fDate').value;
+            const rf = document.getElementById('fRound').value;
+            const kf = document.getElementById('fKiller').value;
+            const exc = document.getElementById('exClassic').checked;
+            
+            // ★ クラシック除外ロジック（日本語名にも対応）
+            filtered = raw.filter(x => 
+                (df === 'all' || x.t.includes(df)) && 
+                (rf === 'all' || x.r === rf) && 
+                (kf === 'all' || x.k.includes(kf)) && 
+                !(exc && isClassic(x.r))
+            );
             page = 1; render();
         }
 
@@ -275,7 +292,7 @@
                 const win = isW(x.res);
                 x.k.split(/[\/,]+/).forEach(k => { 
                     const n=k.trim(); 
-                    if(n && n!=='None' && !n.includes('???')) { // ★「???」を除外
+                    if(n && n!=='None' && !n.includes('???')) { 
                         kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; 
                     }
                 });
@@ -296,7 +313,6 @@
             fillFull('fRankK', kM); fillFull('fRankM', mM); fillFull('fRankR', rM);
         }
 
-        // ★ アンバウンドの完全マスター展開ロジック
         function updUnb() {
             const l = document.getElementById('unbL'); l.innerHTML = '';
             const enc = new Set();
@@ -312,39 +328,28 @@
                         foundId = sid; break; 
                     }
                 }
-                
-                if (foundId) {
-                    enc.add(foundId);
-                } else {
-                    x.k.split(/[\/,]+/).forEach(k => { if(k.trim() && k.trim() !== 'None') unk.add(k.trim()); });
-                }
+                if (foundId) { enc.add(foundId); } 
+                else { x.k.split(/[\/,]+/).forEach(k => { if(k.trim() && k.trim() !== 'None') unk.add(k.trim()); }); }
             });
             
             Array.from(enc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => {
                 const title = MASTER[id][0];
                 const terrors = MASTER[id].slice(1);
-                let tags = ''; 
-                terrors.forEach(k => tags += `<span class="unb-tag">${k}</span>`);
-                l.innerHTML += `<div class="unb-card">
-                    <div class="unb-title">Set #${id}: ${title}</div>
-                    <div class="unb-tag-list">${tags}</div>
-                </div>`;
+                let tags = ''; terrors.forEach(k => tags += `<span class="unb-tag">${k}</span>`);
+                l.innerHTML += `<div class="unb-card"><div class="unb-title">Set #${id}: ${title}</div><div class="unb-tag-list">${tags}</div></div>`;
             });
 
             if (unk.size > 0) {
-                let tags = '';
-                Array.from(unk).forEach(k => tags += `<span class="unb-tag" style="border-color:#f44336; color:#f44336;">${k}</span>`);
-                l.innerHTML += `<div class="unb-card" style="border-top-color:#f44336;">
-                    <div class="unb-title" style="color:#f44336; border-bottom-color:#f44336;">Unknown Sets (解析不能)</div>
-                    <div class="unb-tag-list">${tags}</div>
-                </div>`;
+                let tags = ''; Array.from(unk).forEach(k => tags += `<span class="unb-tag" style="border-color:#f44336; color:#f44336;">${k}</span>`);
+                l.innerHTML += `<div class="unb-card" style="border-top-color:#f44336;"><div class="unb-title" style="color:#f44336; border-bottom-color:#f44336;">Unknown Sets (解析不能)</div><div class="unb-tag-list">${tags}</div></div>`;
             }
         }
 
         function renderC() {
             const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
             let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0;
-            filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(x.r.includes('Classic')) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
+            // ★ Radarチャートの判定も修正
+            filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(isClassic(x.r)) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
             charts.r = new Chart(rc, { type:'radar', data:{ labels:['Overall','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50', borderWidth: 2}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc', font:{size:13}}}}, plugins:{legend:{display:false}} } });
             
             if(document.getElementById('t-chart').classList.contains('active')) {
