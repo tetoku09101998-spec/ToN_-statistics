@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats Ultimate V3</title>
+    <title>ToN Stats Viewer Absolute</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 10px; font-size: 14px; -webkit-text-size-adjust: 100%; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 10px; font-size: 14px; }
         .controls { background: var(--panel); padding: 10px; border-radius: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
         select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 8px; border-radius: 6px; font-size: 12px; }
@@ -18,9 +18,9 @@
         .tab-content.active { display: block; }
         #ui-box { display: flex; align-items: center; background: #252525; border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--sub); }
         #ui-face { width: 55px; height: 55px; border-radius: 50%; margin-right: 10px; border: 1px solid #555; flex-shrink: 0; object-fit: cover; }
-        .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-        .unb-card { background: #2c2c2c; padding: 10px; border-radius: 8px; border-top: 3px solid var(--unb); font-size: 10px; text-align: left; line-height: 1.4; }
-        .unb-killer { display: block; background: #333; padding: 2px 6px; border-radius: 4px; margin-top: 2px; color: #fff; font-size: 9px; }
+        .unb-card { background: #2c2c2c; padding: 10px; border-radius: 8px; border-top: 3px solid var(--unb); font-size: 10px; text-align: left; }
+        .unb-k { display: block; background: #333; padding: 2px 6px; border-radius: 4px; margin-top: 2px; color: #eee; font-size: 9px; }
+        .chart-container { width: 100%; height: 300px; position: relative; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
         th, td { padding: 8px 4px; border-bottom: 1px solid var(--brd); text-align: left; }
         .w { color: var(--acc); font-weight: bold; }
@@ -38,72 +38,89 @@
 
     <div class="tabs">
         <button class="tab-btn active" onclick="tab('t-dash')">📊 Summary</button>
-        <button class="tab-btn" onclick="tab('t-chart')">📈 Analytics</button>
+        <button class="tab-btn" onclick="tab('t-chart')">📈 Chart</button>
         <button class="tab-btn" onclick="tab('t-list')">📝 History</button>
         <button class="tab-btn" onclick="tab('t-unb')">🌀 Unbound</button>
     </div>
 
     <div id="t-dash" class="tab-content active">
         <div id="ui-box"><img id="ui-face" src="face_normal.png"><p id="ui-msg" style="font-size:12px; margin:0; text-align:left;"></p></div>
-        <div style="background:#252525; padding:10px; border-radius:8px; border-left:4px solid var(--acc); text-align:left;">
-            <div style="font-size:16px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div>
-            <div style="color:var(--acc); font-size:13px;">Rate: <span id="wr">0</span>%</div>
+        <div style="background:#252525; padding:15px; border-radius:8px; border-left:4px solid var(--acc); text-align:left;">
+            <div style="font-size:18px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div>
+            <div style="color:var(--acc); font-size:14px;">Win Rate: <span id="wr">0</span>%</div>
+            <div style="font-size:11px; color:#888; margin-top:5px;">Last Play: <span id="lDate">-</span></div>
         </div>
-        <div style="margin-top:10px; background:#252525; border-radius:8px;"><canvas id="radar" height="200"></canvas></div>
+        <div style="margin-top:10px; background:#252525; border-radius:8px; padding:10px;"><canvas id="radar" height="200"></canvas></div>
     </div>
 
     <div id="t-chart" class="tab-content">
-        <select id="vMode" style="margin-bottom:10px;"><option value="trend">推移</option><option value="time">時間</option><option value="killer">テラー</option></select>
-        <div style="height:280px;"><canvas id="mainChart"></canvas></div>
+        <select id="vMode" style="width:100%; margin-bottom:10px;">
+            <option value="trend">日別勝率推移</option>
+            <option value="time">時間帯別分析</option>
+            <option value="killer">テラー別勝敗</option>
+            <option value="map">マップ別勝敗</option>
+            <option value="rate_k">テラー出現率</option>
+            <option value="rate_m">マップ出現率</option>
+        </select>
+        <div class="chart-container"><canvas id="mainChart"></canvas></div>
     </div>
 
     <div id="t-list" class="tab-content">
-        <div style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>Type</th><th>Terror</th><th>R</th></tr></thead><tbody id="hBody"></tbody></table></div>
-        <div style="margin-top:10px;"><button onclick="pg(-1)">◀</button> <span id="pgInf">1/1</span> <button onclick="pg(1)">▶</button></div>
+        <div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Type</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div>
+        <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+            <button onclick="pg(-1)">◀ Prev</button><span id="pgInf">1/1</span><button onclick="pg(1)">Next ▶</button>
+        </div>
     </div>
 
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
 
     <script>
-        // ★ Wiki全84セット：構成要素を1つも漏らさず完全復旧
         const MASTER = {
-            "1":["The Guidance","BooBooBabies","Guidance & The Booboo's"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell","Third Trumpet"],"4":["Big Bird","Judgement Bird","Punishing Bird","Forest Guardians"],"5":["Security","The Swarm","Prisoner","Higher Beings"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M","Quadruple Sponge"],"7":["BFF","Nameless","Your Best Friends"],"8":["Seek","Rush","Eyes","Hotel Monsters"],"9":["Squibbs (Dev Bytes)","Convict(D)","Squibb Squad"],"10":["Convict Squad","Kimera","Search and Destroy","Garden Rejects"],"11":["WhiteNight","Paradise Bird","Judgement Day"],"12":["Roblander","Inverted Roblander","Me and My Shadow"],"13":["An Arbiter","The Red Mist","Meltdown"],"14":["Slender","Slendy","Hungry Home Invader","Faceless Mafia"],"15":["Specimen 2","Specimen 5","Specimen 8","Specimen 10","Mansion Monsters"],"16":["MX","Luigi","Wario Apparition","Copyright Infringement"],"17":["Purple Guy","Purple Bros"],"18":["Scavenger","Scavengers"],"19":["The LifeBringer","Scrapyard Machine","Life & Death"],"20":["Unknown Witch","Labyrinth"],"21":["Umbra","Spiteful Eye","Spiteful Shadows"],"22":["Angry Munci","Triple Munci"],"23":["Karol_Corpse","Daycare"],"24":["Huggy","Huggy Wuggy","Huggy Horde"],"25":["Arrival","Infection"],"26":["Hush","Triple Hush"],"27":["[CENSORED]"],"28":["Dev Bytes","Vana","Duke","Byte Horde"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","Convict(N)","TAKE THE NAMI CHALLENGE"],"31":["Lightning","Thunderstorm"],"32":["Joy","END OF THE WORLD"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER","Fragmented Memories"],"34":["Mona","Mona & The Mountain","Mona & Mona & Mona & Mona"],"35":["Legs","Seekers"],"36":["Convict(N)","Nugget Squad"],"37":["Saul","Saul's goodmen"],"38":["Security","Ancient Security","Something Old, Something New"],"39":["Bigger Boot","POV: Bug"],"40":["Punishing Bird","Punishing Birdemic"],"41":["Chomper","Chomper Trio"],"42":["With Many Voices","Too Many Voices"],"43":["Miros Bird","Memory Crypts"],"44":["Jumbo Josh","Zumbo Sauce"],"45":["Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann","Freaks"],"46":["Lunatic Cultist","Lunatic Cult"],"47":["Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter","Transportation Trio"],"48":["Purple Guy","Voidwalker","Father Son Bonding"],"49":["HER","WHITEFACE","WHAT IS MY NAME"],"50":["Dapper Enphoso","Pyromatic Enphoso","Glaggleland Cremators"],"51":["Signus","Triple Signus"],"52":["Akumii-Kari","Triple Akumii Kari"],"53":["Big Bird","Paradise Bird","Black & White"],"54":["LESSER CENSORED","[LESSER CENSORED]"],"55":["Blue gaper","Blue Flies","Blue Monsters"],"56":["Drone","Drones"],"57":["Scrapyard Taker","Scrapyard Takers"],"58":["Luigi Doll","Luigi Dolls"],"59":["Meteor","Meteor Shower"],"60":["TBH","TBH Spy","Triple TBH"],"61":["Lost Soul","Lost Souls"],"62":["Aku Ball","Ballin"],"63":["Toren's Shadow","Mona","Karol_Corpse","Haket","Reunion"],"64":["Roblander","Bliss","Ancient Monarch","Angels"],"65":["Apocalypse Bird","Immortal Snail","Ordinary Apocalypse Bird"],"66":["Wild Yet Curious Creature","Pack of Wild Yet Curious Creatures"],"67":["Beyond","Manti","ToN X SlashCo Collab"],"68":["Yolm","Pack of Yolm"],"69":["Peepy","Threepy"],"70":["Ghost Girl"],"71":["Deleted","Akumii-Kari","Delete Me"],"72":["Spamton","Spamton Spam"],"73":["Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser","Death From Above"],"74":["Mirror","Red Bus","Terror of Nowhere","It Came From Bus To Nowhere"],"75":["SCP-049-B","Zombie Apocalypse"],"76":["Mountain of Smiling Bodies","Eating Contest"],"77":["Clockey","Triple Clockey"],"78":["Killer Fish","Triple Killer Fish"],"79":["MR.MEGA","DoomBox","Lethal League"],"80":["Comedy","Tragedy","Trollage"],"81":["MopeMope","Mopemopemopemopemopemope"],"82":["Sonic","Rewrite","Atrached","Triple Trouble"],"83":["Living Shadow","Triple Living Shadow"],"84":["Beyond","Convict[E]","Byte[E]","Wild Yet Curious Creature","Toren's Shadow","Paint(Beyond)","Beyond's Masks"]
+            "1":["The Guidance","BooBooBabies","Guidance & The Booboo's"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell","Third Trumpet"],"4":["Big Bird","Judgement Bird","Punishing Bird","Forest Guardians"],"5":["Security","The Swarm","Prisoner","Higher Beings"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M"],"7":["BFF","Nameless","Your Best Friends"],"8":["Seek","Rush","Eyes","Hotel Monsters"],"9":["Squibbs","Convict(D)","Squibb Squad"],"10":["Garden Rejects","Convict Squad","Kimera","Search and Destroy"],"11":["WhiteNight","Paradise Bird","Judgement Day"],"12":["Roblander","Inverted Roblander","Me and My Shadow"],"13":["An Arbiter","The Red Mist","Meltdown"],"14":["Slender","Slendy","Faceless Mafia"],"15":["Specimen 2","Specimen 5","Specimen 8","Specimen 10","Mansion Monsters"],"16":["MX","Luigi","Wario Apparition","Copyright Infringement"],"17":["Purple Guy","Purple Bros"],"18":["Scavenger","Scavengers"],"19":["The LifeBringer","Scrapyard Machine","Life & Death"],"20":["Unknown Witch","Labyrinth"],"21":["Umbra","Spiteful Eye","Spiteful Shadows"],"22":["Angry Munci","Triple Munci"],"23":["Karol_Corpse","Daycare"],"24":["Huggy","Huggy Wuggy","Huggy Horde"],"25":["Arrival","Infection"],"26":["Hush","Triple Hush"],"27":["[CENSORED]"],"28":["Dev Bytes","Vana","Duke","Byte Horde"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","Convict(N)"],"31":["Lightning","Thunderstorm"],"32":["Joy","END OF THE WORLD"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER"],"34":["Mona","Mona & Mona & Mona & Mona"],"35":["Legs","Seekers"],"36":["Convict(N)","Nugget Squad"],"37":["Saul","Saul's goodmen"],"38":["Something Old, Something New","Security","Ancient Security"],"39":["Bigger Boot","POV: Bug"],"40":["Punishing Bird","Punishing Birdemic"],"41":["Chomper","Chomper Trio"],"42":["With Many Voices","Too Many Voices"],"43":["Miros Bird","Memory Crypts"],"44":["Jumbo Josh","Zumbo Sauce"],"45":["Christian Brutal Sniper","HoovyDundy","Freaks"],"46":["Lunatic Cultist","Lunatic Cult"],"47":["Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter","Transportation Trio"],"48":["Father Son Bonding","Purple Guy","Voidwalker"],"49":["WHAT IS MY NAME","HER","WHITEFACE"],"50":["Dapper Enphoso","Pyromatic Enphoso","Glaggleland Cremators"],"51":["Signus","Triple Signus"],"52":["Akumii-Kari","Triple Akumii Kari"],"53":["Black & White","Big Bird","Paradise Bird"],"54":["[LESSER CENSORED]","LESSER CENSORED"],"55":["Blue Monsters","Blue gaper","Blue Flies"],"56":["Drones","Drone"],"57":["Scrapyard Takers","Scrapyard Taker"],"58":["Luigi Dolls","Luigi Doll"],"59":["Meteor Shower","Meteor"],"60":["Triple TBH","TBH","TBH Spy"],"61":["Lost Souls","Lost Soul"],"62":["Ballin","Aku Ball"],"63":["Reunion","Toren's Shadow","Mona","Karol_Corpse","Haket"],"64":["Angels","Roblander","Bliss","Ancient Monarch"],"65":["Ordinary Apocalypse Bird","Apocalypse Bird","Immortal Snail"],"66":["Wild Yet Curious Creature","Pack of Wild Yet Curious Creatures"],"67":["Beyond","Manti","ToN X SlashCo Collab"],"68":["Yolm","Pack of Yolm"],"69":["Threepy","Peepy"],"70":["Ghost Girl"],"71":["Delete Me","Deleted","Akumii-Kari"],"72":["Spamton Spam","Spamton"],"73":["Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser"],"74":["Mirror","Red Bus","Terror of Nowhere"],"75":["Zombie Apocalypse","SCP-049-B"],"76":["Mountain of Smiling Bodies","Eating Contest"],"77":["Triple Clockey","Clockey"],"78":["Triple Killer Fish","Killer Fish"],"79":["Lethal League","MR.MEGA","DoomBox"],"80":["Trollage","Comedy","Tragedy"],"81":["Mopemopemopemopemopemope","MopeMope"],"82":["Triple Trouble","Sonic","Rewrite","Atrached"],"83":["Triple Living Shadow","Living Shadow"],"84":["Beyond's Masks","Beyond","Convict[E]","Byte[E]"]
         };
 
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
 
+        window.onload = () => {
+            const saved = localStorage.getItem('ton_data');
+            if(saved) { parseCSV(saved); initF(); upd(); }
+        };
+
         document.getElementById('csvFile').onchange = e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
-                raw = ev.target.result.trim().split('\n').slice(1).map(l => {
-                    const c = l.split(','); if (c.length < 5) return null;
-                    const timestamp = c[0].trim();
-                    const map = c[1].trim();
-                    const result = c[c.length - 1].trim();
-                    const content = c.slice(2, -1).join(',').trim(); 
-                    return { t: timestamp, m: map, content, res: result };
-                }).filter(x => x);
-                initF(); upd();
+                const text = ev.target.result;
+                localStorage.setItem('ton_data', text);
+                parseCSV(text); initF(); upd();
             }; r.readAsText(f);
         };
 
+        function parseCSV(t) {
+            raw = t.trim().split('\n').slice(1).map(l => {
+                const c = l.split(','); if (c.length < 5) return null;
+                const result = c[c.length - 1].trim();
+                const killers = c.slice(3, -1).join(',').trim();
+                return { t: c[0].trim(), m: c[1].trim(), r: c[2].trim(), k: killers, res: result };
+            }).filter(x => x);
+        }
+
         function initF() {
-            const dS = new Set(), rS = new Set();
-            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.content.split(',')[0]); });
+            const dS = new Set(), rS = new Set(), kS = new Set();
+            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); if(x.k!=='None') x.k.split('/').forEach(i=>kS.add(i.trim())); });
             const f = (id, s, rev=false) => { 
                 const el = document.getElementById(id); el.innerHTML = '<option value="all">全て</option>'; 
                 let a = Array.from(s).sort(); if(rev) a.reverse();
                 a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
             };
-            f('fDate', dS, true); f('fRound', rS);
+            f('fDate', dS, true); f('fRound', rS); f('fKiller', kS);
         }
 
         document.querySelectorAll('select, input[type=checkbox]').forEach(el => el.onchange = upd);
 
         function upd() {
-            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, exc = document.getElementById('exClassic').checked;
-            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.content.includes(rf)) && !(exc && x.content.includes('Classic')));
+            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, exc = document.getElementById('exClassic').checked;
+            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && !(exc && x.r.includes('Classic')));
             page = 1; render();
         }
 
@@ -114,9 +131,11 @@
             document.getElementById('tg').innerText = filtered.length;
             document.getElementById('tw').innerText = w;
             document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0;
+            if(filtered.length) document.getElementById('lDate').innerText = filtered[filtered.length-1].t;
+            
             const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/30)||1;
             tb.innerHTML = ''; rev.slice((page-1)*30, page*30).forEach(x => {
-                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.content.slice(0,12)}</td><td>-</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`;
+                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r.slice(0,5)}</td><td>${x.k.slice(0,10)}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`;
             });
             document.getElementById('pgInf').innerText = `${page}/${tp}`;
             updUnb(); updUi(); renderC();
@@ -127,39 +146,26 @@
         function updUnb() {
             const l = document.getElementById('unbL'), s = {}; l.innerHTML = '';
             filtered.forEach(x => {
-                const isUnbound = x.content.includes('Unbound') || x.content.includes('アンバウンド');
-                if (!isUnbound) return;
-
-                let id = "Unknown";
-                const parts = x.content.split(',').map(p => p.trim());
-                // 1番目はラウンド名、2番目以降がテラー
-                const killers = parts.slice(1); 
-                
-                // セットIDの特定ロジック（強化版）
-                for (const [sid, masterList] of Object.entries(MASTER)) {
-                    // 全テラー名と全マスターリストを総当たりで部分一致確認
-                    if (killers.some(k => masterList.some(m => k.toLowerCase().includes(m.toLowerCase()))) || 
-                        masterList.some(m => parts[0].toLowerCase().includes(m.toLowerCase()))) {
-                        id = sid; break;
-                    }
+                if (!x.r.includes('Unbound') && !x.r.includes('アンバウンド')) return;
+                let id = "Unknown", ks = x.k.split('/').map(k => k.trim());
+                for (const [sid, master] of Object.entries(MASTER)) {
+                    if (ks.some(k => master.some(m => k.toLowerCase().includes(m.toLowerCase()))) || master.some(m => x.r.toLowerCase().includes(m.toLowerCase()))) { id = sid; break; }
                 }
-                
                 if (!s[id]) s[id] = new Set();
-                killers.forEach(k => { if(k.length > 2) s[id].add(k); });
+                ks.forEach(k => { if(k.length > 2) s[id].add(k); });
             });
-            
             Object.keys(s).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
-                let killerHtml = '';
-                Array.from(s[id]).forEach(k => { killerHtml += `<span class="unb-killer">${k}</span>`; });
-                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">Set #${id}</strong><div style="margin-top:4px;">${killerHtml}</div></div>`;
+                let ks = ''; Array.from(s[id]).forEach(k => ks += `<span class="unb-k">${k}</span>`);
+                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">#${id}</strong>${ks}</div>`;
             });
         }
 
         function renderC() {
             const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
             let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0;
-            filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(x.content.includes('Classic')) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
-            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Total','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'}}}, plugins:{legend:{display:false}} } });
+            filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(x.r.includes('Classic')) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
+            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Total','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
+            
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
                 if(mode==='trend'){
@@ -167,7 +173,15 @@
                     charts.m = new Chart(mc, { type:'line', data:{labels:l, datasets:[{label:'Win%', data:l.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
                 } else if(mode==='time'){
                     const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; });
-                    charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50'}, {type:'bar', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)'}]}, options:{maintainAspectRatio:false} });
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options:{maintainAspectRatio:false, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}}} });
+                } else if(['killer','map'].includes(mode)){
+                    const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split('/'):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); });
+                    const l=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0,10);
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:l, datasets:[{label:'W',data:l.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'L',data:l.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
+                } else {
+                    const k=mode.replace('rate_',''), s={}; filtered.forEach(x=>{ const items=k==='k'?x.k.split('/'):[x.m]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
+                    const l=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,10);
+                    charts.m = new Chart(mc, { type:'pie', data:{labels:l.map(x=>x[0]), datasets:[{data:l.map(x=>x[1]), backgroundColor:l.map((_,i)=>`hsl(${i*36},70%,50%)`)}]}, options:{maintainAspectRatio:false} });
                 }
             }
         }
