@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats Absolute Spec V5</title>
+    <title>ToN Stats Absolute Spec V6</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 10px; font-size: 14px; -webkit-text-size-adjust: 100%; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 10px; font-size: 13px; -webkit-text-size-adjust: 100%; }
         
-        /* 共通UIパーツ */
         .controls { background: var(--panel); padding: 12px; border-radius: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
         select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; box-sizing: border-box; }
@@ -21,28 +20,23 @@
         .tab-content { display: none; background: var(--panel); padding: 15px; border-radius: 12px; border: 1px solid var(--brd); max-width: 1000px; margin: 0 auto; }
         .tab-content.active { display: block; }
         
-        /* Dashboard & UI */
         #ui-box { display: flex; align-items: center; background: #252525; border-radius: 10px; padding: 12px; margin-bottom: 15px; border: 1px solid var(--sub); }
         #ui-face { width: 60px; height: 60px; border-radius: 50%; margin-right: 12px; border: 2px solid #555; flex-shrink: 0; object-fit: cover; }
         .card { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--acc); margin-bottom: 15px; text-align: left; }
-        .radar-box { background:#252525; border-radius:10px; padding:10px; margin-bottom: 15px; }
-
-        /* ランキング/テーブル */
-        .rank-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        @media (min-width: 768px) { .rank-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .rank-section { margin-bottom: 25px; text-align: left; }
         .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 12px; }
         
-        .full-table-wrapper { overflow-x: auto; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        th, td { padding: 10px 5px; border-bottom: 1px solid var(--brd); text-align: left; }
+        .full-table-wrapper { overflow-x: auto; margin-top: 10px; border-radius: 8px; background: #1a1a1a; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 400px; }
+        th, td { padding: 10px 8px; border-bottom: 1px solid var(--brd); text-align: left; }
         .w { color: var(--acc); font-weight: bold; }
         .l { color: #f44336; font-weight: bold; }
         
-        /* アンバウンド図鑑 */
-        .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
         .unb-card { background: #2c2c2c; padding: 12px; border-radius: 8px; border-top: 4px solid var(--unb); font-size: 11px; text-align: left; }
-        .unb-k-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-        .unb-k-tag { background: #3d3d3d; padding: 2px 6px; border-radius: 4px; color: #eee; font-size: 9px; white-space: nowrap; }
+        .unb-tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+        .unb-tag { background: #444; padding: 2px 6px; border-radius: 4px; color: #eee; font-size: 9px; white-space: nowrap; border: 1px solid #555; }
     </style>
 </head>
 <body>
@@ -51,7 +45,6 @@
         <select id="fDate"><option value="all">全期間</option></select>
         <select id="fRound"><option value="all">全Round</option></select>
         <select id="fKiller" class="full"><option value="all">全Terror</option></select>
-        <div class="full" style="font-size:11px; color:#ffeb3b;"><label><input type="checkbox" id="exClassic"> クラシック除外</label></div>
     </div>
 
     <div class="tabs">
@@ -67,13 +60,13 @@
         <div class="card">
             <div style="font-size:20px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div>
             <div style="color:var(--acc); font-size:14px;">Win Rate: <span id="wr">0</span>%</div>
-            <div style="font-size:10px; color:#888; margin-top:5px;">Last: <span id="lDt">-</span></div>
+            <div style="font-size:10px; color:#888; margin-top:5px;">Latest: <span id="lDt">-</span></div>
         </div>
-        <div class="radar-box"><canvas id="radar" height="220"></canvas></div>
-        
-        <div class="rank-grid">
-            <div><h4 style="color:var(--sub); border-bottom:1px solid #444; margin:10px 0;">Top 10 Killers</h4><div id="dashK"></div></div>
-            <div><h4 style="color:var(--acc); border-bottom:1px solid #444; margin:10px 0;">Top 10 Maps</h4><div id="dashM"></div></div>
+        <div style="background:#252525; border-radius:10px; padding:10px; margin-bottom:15px;"><canvas id="radar" height="220"></canvas></div>
+        <div class="rank-section">
+            <h4 style="color:var(--sub); border-bottom:1px solid #444;">Top 10 Killers</h4><div id="dashK"></div>
+            <h4 style="color:var(--acc); border-bottom:1px solid #444; margin-top:20px;">Top 10 Maps</h4><div id="dashM"></div>
+            <h4 style="color:#ffeb3b; border-bottom:1px solid #444; margin-top:20px;">Top 10 Rounds</h4><div id="dashR"></div>
         </div>
     </div>
 
@@ -81,8 +74,8 @@
         <select id="vMode" style="margin-bottom:10px;">
             <option value="trend">日別勝率推移</option>
             <option value="time">時間帯別分析 (2軸)</option>
-            <option value="killer">テラー別勝敗 (Stacked)</option>
-            <option value="map">マップ別勝敗 (Stacked)</option>
+            <option value="killer">テラー別勝敗</option>
+            <option value="map">マップ別勝敗</option>
             <option value="p_round">出現率: ラウンド</option>
             <option value="p_map">出現率: マップ</option>
         </select>
@@ -90,19 +83,19 @@
     </div>
 
     <div id="t-rank" class="tab-content">
-        <h4 style="color:var(--sub); margin:0 0 10px 0;">Full Killer Ranking</h4>
-        <div class="full-table-wrapper">
-            <table id="fullRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table>
-        </div>
-        <h4 style="color:var(--acc); margin:20px 0 10px 0;">Full Map Ranking</h4>
-        <div class="full-table-wrapper">
-            <table id="fullRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table>
+        <div class="rank-section">
+            <h4 style="color:var(--sub);">Full Killer Ranking</h4>
+            <div class="full-table-wrapper"><table id="fRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
+            <h4 style="color:var(--acc); margin-top:25px;">Full Map Ranking</h4>
+            <div class="full-table-wrapper"><table id="fRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
+            <h4 style="color:#ffeb3b; margin-top:25px;">Full Round Ranking</h4>
+            <div class="full-table-wrapper"><table id="fRankR"><thead><tr><th>Round</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div>
         </div>
     </div>
 
     <div id="t-list" class="tab-content">
         <div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div>
-        <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
             <button onclick="pg(-1)">◀ Prev</button><span id="pgInf">1/1</span><button onclick="pg(1)">Next ▶</button>
         </div>
     </div>
@@ -111,21 +104,21 @@
 
     <script>
         const MASTER = {
-            "1":["The Guidance","BooBooBabies","Guidance & The Booboo's"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell","Third Trumpet"],"4":["Big Bird","Judgement Bird","Punishing Bird","Forest Guardians"],"5":["Security","The Swarm","Prisoner","Higher Beings"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M"],"7":["BFF","Nameless","Your Best Friends"],"8":["Seek","Rush","Eyes","Hotel Monsters"],"9":["Squibbs","Convict(D)","Squibb Squad"],"10":["Garden Rejects","Convict Squad","Kimera","Search and Destroy"],"11":["WhiteNight","Paradise Bird","Judgement Day"],"12":["Roblander","Inverted Roblander","Me and My Shadow"],"13":["An Arbiter","The Red Mist","Meltdown"],"14":["Slender","Slendy","Faceless Mafia"],"15":["Specimen 2","Specimen 5","Specimen 8","Specimen 10","Mansion Monsters"],"16":["MX","Luigi","Wario Apparition","Copyright Infringement"],"17":["Purple Guy","Purple Bros"],"18":["Scavenger","Scavengers"],"19":["The LifeBringer","Scrapyard Machine","Life & Death"],"20":["Unknown Witch","Labyrinth"],"21":["Umbra","Spiteful Eye","Spiteful Shadows"],"22":["Angry Munci","Triple Munci"],"23":["Karol_Corpse","Daycare"],"24":["Huggy","Huggy Wuggy","Huggy Horde"],"25":["Arrival","Infection"],"26":["Hush","Triple Hush"],"27":["[CENSORED]"],"28":["Dev Bytes","Vana","Duke","Byte Horde"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","Convict(N)"],"31":["Lightning","Thunderstorm"],"32":["Joy","END OF THE WORLD"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER","Fragmented Memories"],"34":["Mona","Mona & Mona & Mona & Mona"],"35":["Legs","Seekers"],"36":["Convict(N)","Nugget Squad"],"37":["Saul","Saul's goodmen"],"38":["Something Old, Something New","Security","Ancient Security"],"39":["Bigger Boot","POV: Bug"],"40":["Punishing Bird","Punishing Birdemic"],"41":["Chomper","Chomper Trio"],"42":["With Many Voices","Too Many Voices"],"43":["Miros Bird","Memory Crypts"],"44":["Jumbo Josh","Zumbo Sauce"],"45":["Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann"],"46":["Lunatic Cultist","Lunatic Cult"],"47":["Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter"],"48":["Father Son Bonding","Purple Guy","Voidwalker"],"49":["WHAT IS MY NAME","HER","WHITEFACE"],"50":["Glaggleland Cremators","Dapper Enphoso","Pyromatic Enphoso"],"51":["Signus","Triple Signus"],"52":["Akumii-Kari","Triple Akumii Kari"],"53":["Black & White","Big Bird","Paradise Bird"],"54":["[LESSER CENSORED]","LESSER CENSORED"],"55":["Blue Monsters","Blue gaper","Blue Flies"],"56":["Drones","Drone"],"57":["Scrapyard Takers","Scrapyard Taker"],"58":["Luigi Dolls","Luigi Doll"],"59":["Meteor Shower","Meteor"],"60":["Triple TBH","TBH","TBH Spy"],"61":["Lost Souls","Lost Soul"],"62":["Ballin","Aku Ball"],"63":["Reunion","Toren's Shadow","Mona","Karol_Corpse","Haket"],"64":["Angels","Roblander","Bliss","Ancient Monarch"],"65":["Ordinary Apocalypse Bird","Apocalypse Bird","Immortal Snail"],"66":["Wild Yet Curious Creature"],"67":["Beyond","Manti","ToN X SlashCo Collab"],"68":["Yolm"],"69":["Peepy"],"70":["Ghost Girl"],"71":["Delete Me","Deleted","Akumii-Kari"],"72":["Spamton Spam","Spamton"],"73":["Death From Above","Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser"],"74":["Mirror","Red Bus","Terror of Nowhere"],"75":["Zombie Apocalypse","SCP-049-B"],"76":["Mountain of Smiling Bodies","Eating Contest"],"77":["Triple Clockey","Clockey"],"78":["Triple Killer Fish","Killer Fish"],"79":["Lethal League","MR.MEGA","DoomBox"],"80":["Trollage","Comedy","Tragedy"],"81":["Mopemopemopemopemopemope","MopeMope"],"82":["Triple Trouble","Sonic","Rewrite","Atrached"],"83":["Triple Living Shadow","Living Shadow"],"84":["Beyond's Masks","Beyond","Convict[E]","Byte[E]"]
+            "1":["The Guidance","BooBooBabies","Guidance & The Booboo's"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell","Third Trumpet"],"4":["Big Bird","Judgement Bird","Punishing Bird","Forest Guardians"],"5":["Security","The Swarm","Prisoner","Higher Beings"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M","Quadruple Sponge"],"7":["BFF","Nameless","Your Best Friends"],"8":["Seek","Rush","Eyes","Hotel Monsters"],"9":["Squibbs","Convict(D)","Squibb Squad"],"10":["Garden Rejects","Convict Squad","Kimera","Search and Destroy"],"11":["WhiteNight","Paradise Bird","Judgement Day"],"12":["Roblander","Inverted Roblander","Me and My Shadow"],"13":["An Arbiter","The Red Mist","Meltdown"],"14":["Slender","Slendy","Faceless Mafia"],"15":["Specimen 2","Specimen 5","Specimen 8","Specimen 10","Mansion Monsters"],"16":["MX","Luigi","Wario Apparition","Copyright Infringement"],"17":["Purple Guy","Purple Bros"],"18":["Scavenger","Scavengers"],"19":["The LifeBringer","Scrapyard Machine","Life & Death"],"20":["Unknown Witch","Labyrinth"],"21":["Umbra","Spiteful Eye","Spiteful Shadows"],"22":["Angry Munci","Triple Munci"],"23":["Karol_Corpse","Daycare"],"24":["Huggy","Huggy Wuggy","Huggy Horde"],"25":["Arrival","Infection"],"26":["Hush","Triple Hush"],"27":["[CENSORED]"],"28":["Dev Bytes","Vana","Duke","Byte Horde"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","Convict(N)","TAKE THE NAMI CHALLENGE"],"31":["Lightning","Thunderstorm"],"32":["Joy","END OF THE WORLD"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER","Fragmented Memories"],"34":["Mona","Mona & The Mountain","Mona & Mona & Mona & Mona"],"35":["Legs","Seekers"],"36":["Convict(N)","Nugget Squad"],"37":["Saul","Saul's goodmen"],"38":["Something Old, Something New","Security","Ancient Security"],"39":["Bigger Boot","POV: Bug"],"40":["Punishing Bird","Punishing Birdemic"],"41":["Chomper","Chomper Trio"],"42":["With Many Voices","Too Many Voices"],"43":["Miros Bird","Memory Crypts"],"44":["Jumbo Josh","Zumbo Sauce"],"45":["Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann","Freaks"],"46":["Lunatic Cultist","Lunatic Cult"],"47":["Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter"],"48":["Purple Guy","Voidwalker","Father Son Bonding"],"49":["HER","WHITEFACE","WHAT IS MY NAME"],"50":["Dapper Enphoso","Pyromatic Enphoso","Glaggleland Cremators"],"51":["Signus","Triple Signus"],"52":["Akumii-Kari","Triple Akumii Kari"],"53":["Black & White","Big Bird","Paradise Bird"],"54":["[LESSER CENSORED]","LESSER CENSORED"],"55":["Blue Monsters","Blue gaper","Blue Flies"],"56":["Drones","Drone"],"57":["Scrapyard Takers","Scrapyard Taker"],"58":["Luigi Dolls","Luigi Doll"],"59":["Meteor Shower","Meteor"],"60":["Triple TBH","TBH","TBH Spy"],"61":["Lost Souls","Lost Soul"],"62":["Ballin","Aku Ball"],"63":["Reunion","Toren's Shadow","Mona","Karol_Corpse","Haket"],"64":["Angels","Roblander","Bliss","Ancient Monarch"],"65":["Ordinary Apocalypse Bird","Apocalypse Bird","Immortal Snail"],"66":["Wild Yet Curious Creature"],"67":["Beyond","Manti","ToN X SlashCo Collab"],"68":["Yolm"],"69":["Peepy"],"70":["Ghost Girl"],"71":["Delete Me","Deleted","Akumii-Kari"],"72":["Spamton Spam","Spamton"],"73":["Death From Above","Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser"],"74":["Mirror","Red Bus","Terror of Nowhere"],"75":["Zombie Apocalypse","SCP-049-B"],"76":["Mountain of Smiling Bodies","Eating Contest"],"77":["Triple Clockey","Clockey"],"78":["Triple Killer Fish","Killer Fish"],"79":["Lethal League","MR.MEGA","DoomBox"],"80":["Trollage","Comedy","Tragedy"],"81":["Mopemopemopemopemopemope","MopeMope"],"82":["Triple Trouble","Sonic","Rewrite","Atrached"],"83":["Triple Living Shadow","Living Shadow"],"84":["Beyond's Masks","Beyond","Convict[E]","Byte[E]"]
         };
 
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
 
         window.onload = () => {
-            const saved = localStorage.getItem('ton_final_v5');
+            const saved = localStorage.getItem('ton_absolute_v6');
             if(saved) { parseCSV(saved); initF(); upd(); }
         };
 
         document.getElementById('csvFile').onchange = e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
-                localStorage.setItem('ton_final_v5', ev.target.result);
+                localStorage.setItem('ton_absolute_v6', ev.target.result);
                 parseCSV(ev.target.result); initF(); upd();
             }; r.readAsText(f);
         };
@@ -133,19 +126,14 @@
         function parseCSV(t) {
             raw = t.trim().split('\n').slice(1).map(l => {
                 const c = l.split(','); if (c.length < 5) return null;
-                const result = c[c.length - 1].trim();
-                const round = c[2].trim();
                 const killers = c.slice(3, -1).join(',').trim(); 
-                return { t: c[0].trim(), m: c[1].trim(), r: round, k: killers, res: result };
+                return { t: c[0].trim(), m: c[1].trim(), r: c[2].trim(), k: killers, res: c[c.length-1].trim() };
             }).filter(x => x);
         }
 
         function initF() {
             const dS = new Set(), rS = new Set(), kS = new Set();
-            raw.forEach(x => { 
-                dS.add(x.t.split(' ')[0]); rS.add(x.r);
-                if(x.k!=='None') x.k.split('/').forEach(i=>kS.add(i.trim()));
-            });
+            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); if(x.k!=='None') x.k.split('/').forEach(i=>kS.add(i.trim())); });
             const f = (id, s, rev=false) => { 
                 const el = document.getElementById(id); el.innerHTML = '<option value="all">全て</option>'; 
                 let a = Array.from(s).sort(); if(rev) a.reverse();
@@ -157,7 +145,7 @@
         document.querySelectorAll('select, input[type=checkbox]').forEach(el => el.onchange = upd);
 
         function upd() {
-            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, exc = document.getElementById('exClassic').checked;
+            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, exc = document.getElementById('excludeClassicCheckbox')?.checked || false;
             filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && !(exc && x.r.includes('Classic')));
             page = 1; render();
         }
@@ -181,24 +169,23 @@
         function pg(v) { page += v; render(); }
 
         function updRankings() {
-            const kM = {}, mM = {};
+            const kM = {}, mM = {}, rM = {};
             filtered.forEach(x => {
                 const win = isW(x.res);
                 x.k.split('/').forEach(k => { const n=k.trim(); if(n&&n!=='None'){ kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; } });
                 mM[x.m]=(mM[x.m]||{t:0,w:0}); mM[x.m].t++; if(win) mM[x.m].w++;
+                rM[x.r]=(rM[x.r]||{t:0,w:0}); rM[x.r].t++; if(win) rM[x.r].w++;
             });
             
-            // Dashboard (Top 10)
-            const dK = document.getElementById('dashK'), dM = document.getElementById('dashM');
-            dK.innerHTML = ''; dM.innerHTML = '';
-            Object.entries(kM).sort((a,b)=>b[1].t - a[1].t).slice(0,10).forEach(([n,s]) => dK.innerHTML += `<div class="rank-item"><span>${n} (${s.t})</span><span style="color:var(--sub)">${(s.w/s.t*100).toFixed(0)}%</span></div>`);
-            Object.entries(mM).sort((a,b)=>b[1].t - a[1].t).slice(0,10).forEach(([n,s]) => dM.innerHTML += `<div class="rank-item"><span>${n} (${s.t})</span><span style="color:var(--acc)">${(s.w/s.t*100).toFixed(0)}%</span></div>`);
+            const dashK = document.getElementById('dashK'), dashM = document.getElementById('dashM'), dashR = document.getElementById('dashR');
+            dashK.innerHTML = ''; dashM.innerHTML = ''; dashR.innerHTML = '';
+            const fillDash = (el, m, col) => Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => el.innerHTML += `<div class="rank-item"><span>${n} (${s.t})</span><span style="color:${col}">${(s.w/s.t*100).toFixed(0)}%</span></div>`);
+            fillDash(dashK, kM, 'var(--sub)'); fillDash(dashM, mM, 'var(--acc)'); fillDash(dashR, rM, '#ffeb3b');
 
-            // Ranking Tab (Full List)
-            const fK = document.querySelector('#fullRankK tbody'), fM = document.querySelector('#fullRankM tbody');
-            fK.innerHTML = ''; fM.innerHTML = '';
-            Object.entries(kM).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => fK.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td>${s.w}</td><td>${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`);
-            Object.entries(mM).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => fM.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td>${s.w}</td><td>${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`);
+            const fK = document.querySelector('#fRankK tbody'), fM = document.querySelector('#fRankM tbody'), fR = document.querySelector('#fRankR tbody');
+            fK.innerHTML = ''; fM.innerHTML = ''; fR.innerHTML = '';
+            const fillFull = (el, m) => Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => el.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td>${s.w}</td><td>${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`);
+            fillFull(fK, kM); fillFull(fM, mM); fillFull(fR, rM);
         }
 
         function updUnb() {
@@ -206,15 +193,15 @@
             filtered.forEach(x => {
                 if (!x.r.includes('Unbound') && !x.r.includes('アンバウンド')) return;
                 let id = "Unknown", ks = x.k.split('/').map(k => k.trim());
-                for (const [sid, master] of Object.entries(MASTER)) {
-                    if (master.some(m => x.k.toLowerCase().includes(m.toLowerCase()) || x.r.toLowerCase().includes(m.toLowerCase()))) { id = sid; break; }
+                for (const [sid, list] of Object.entries(MASTER)) {
+                    if (list.some(m => x.k.toLowerCase().includes(m.toLowerCase()) || x.r.toLowerCase().includes(m.toLowerCase()))) { id = sid; break; }
                 }
                 if (!s[id]) s[id] = new Set();
                 ks.forEach(k => { if(k.length > 2) s[id].add(k); });
             });
             Object.keys(s).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
-                let tags = ''; Array.from(s[id]).forEach(k => tags += `<span class="unb-k-tag">${k}</span>`);
-                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">Set #${id}</strong><div class="unb-k-list">${tags}</div></div>`;
+                let tags = ''; Array.from(s[id]).forEach(k => tags += `<span class="unb-tag">${k}</span>`);
+                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">Set #${id}</strong><div class="unb-tag-list">${tags}</div></div>`;
             });
         }
 
@@ -237,7 +224,7 @@
                     const l=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0,10);
                     charts.m = new Chart(mc, { type:'bar', data:{labels:l, datasets:[{label:'W',data:l.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'L',data:l.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
                 } else {
-                    const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items=k==='killer'?x.k.split('/'):[x.r]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
+                    const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items=k==='round'?x.r.split('/'):[x.m]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
                     const l=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,10);
                     charts.m = new Chart(mc, { type:'pie', data:{labels:l.map(x=>x[0]), datasets:[{data:l.map(x=>x[1]), backgroundColor:l.map((_,i)=>`hsl(${i*36},70%,50%)`)}]}, options:{maintainAspectRatio:false} });
                 }
