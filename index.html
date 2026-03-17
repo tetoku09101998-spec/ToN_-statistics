@@ -30,7 +30,7 @@
         .tab-content.active { display: block; }
         
         /* ういの診断パネル */
-        .ui-diagnosis-panel { background: #2d2d3a; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--sub-accent); text-align: left; position: relative; display: flex; align-items: center; gap: 15px; }
+        .ui-diagnosis-panel { background: #2d2d3a; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--sub-accent); text-align: left; display: flex; align-items: center; gap: 15px; }
         .ui-avatar { width: 60px; height: 60px; border-radius: 50%; background: #444; border: 2px solid var(--sub-accent); display: flex; align-items: center; justify-content: center; font-size: 30px; }
         .ui-text { font-size: 14px; line-height: 1.4; color: #ddd; }
 
@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <div class="tab-content active" style="background: transparent; box-shadow: none; padding: 0 20px; width: 95%; max-width: 1100px; margin: 0 auto;">
+    <div style="padding: 0 20px; width: 95%; max-width: 1100px; margin: 0 auto;">
         <div class="ui-diagnosis-panel" id="uiDiagnosisPanel" style="display:none;">
             <div class="ui-avatar">🎧</div>
             <div class="ui-message-box">
@@ -153,7 +153,6 @@
         let currentLang = 'ja', myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1;
         const rowsPerPage = 50, isWin = (res) => res && res.toString().trim().toLowerCase() === 'win';
         
-        // ★ 格闘系の「???」や「??」をテラー分析から排除する判定用
         const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -199,7 +198,6 @@
             if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
-        // ういの診断ロジック（母数は全体のfilteredDataを使用）
         function updateUiDiagnosis() {
             const panel = document.getElementById('uiDiagnosisPanel');
             const msg = document.getElementById('uiMessage');
@@ -229,7 +227,7 @@
                 if(d.killers && d.killers !== 'None') {
                     d.killers.split('/').forEach(k => {
                         const v=k.trim();
-                        if(isExcludedKiller(v)) return; // ★ ダッシュボードのテラーリストからは除外
+                        if(isExcludedKiller(v)) return;
                         kS[v] = kS[v] || {w:0, t:0}; kS[v].t++; if(win) kS[v].w++;
                         kC[v] = (kC[v]||0)+1;
                     });
@@ -271,7 +269,7 @@
                 myChart = new Chart(ctx, { type:'line', data:{labels, datasets:[{label:'Win %', data:labels.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
             } else if(['roundType','map','killer'].includes(mode)){
                 const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?(d.killers||"").split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); 
-                    if(!v||v==='None'||(mode==='killer' && isExcludedKiller(v))) return; // ★ テラー別グラフからは排除
+                    if(!v||v==='None'||(mode==='killer' && isExcludedKiller(v))) return;
                     if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; 
                 }); });
                 const labels = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 20);
@@ -279,7 +277,7 @@
             } else {
                 const k = mode.replace('Rate', ''); const s = {};
                 filteredData.forEach(d => { const items = k === 'killer' ? (d.killers || "").split('/') : [d[k]]; items.forEach(i => { const v = i.trim(); 
-                    if (v && v !== 'None' && !(k==='killer' && isExcludedKiller(v))) s[v] = (s[v] || 0) + 1; // ★ テラー出現率からも排除
+                    if (v && v !== 'None' && !(k==='killer' && isExcludedKiller(v))) s[v] = (s[v] || 0) + 1;
                 }); });
                 const sorted = Object.entries(s).sort((a, b) => b[1] - a[1]);
                 let labels = [], counts = [], cum = 0; const total = sorted.reduce((a, b) => a + b[1], 0);
@@ -312,7 +310,7 @@
             Array.from(ds).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => {
                 const card = document.createElement('div'); card.className = 'unbound-card'; const m = UNBOUND_MASTER[id] || [];
                 const sn = m.length > 1 ? m[m.length - 1] : `Set #${id}`; const mm = m.length > 1 ? m.slice(0, m.length - 1) : m;
-                card.innerHTML = `<span class="unbound-set-id">Set #${id}</span><span class="unbound-set-name">${sn}</span>${mm.map(k => `<span class="unbound-killer-tag">${k}</span>`).join('')}`;
+                card.innerHTML = `<span class="unbound-set-name">${sn}</span>${mm.map(k => `<span class="unbound-killer-tag">${k}</span>`).join('')}`;
                 listEl.appendChild(card);
             });
         }
