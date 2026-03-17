@@ -29,7 +29,7 @@
 </head>
 <body>
     <div class="header-container">
-        <h2>ToN 統計ビュアー Ultimate</h2>
+        <h2>ToN 統計ビュアー Ultimate Spec</h2>
     </div>
 
     <div class="controls">
@@ -57,7 +57,7 @@
             <img id="ui-face" src="face_normal.png" alt="うい" style="width: 80px; height: 80px; border-radius: 50%; margin-right: 15px; border: 2px solid #555; object-fit: cover; background: #1a1a1a;">
             <div style="text-align: left;">
                 <strong style="color: #64B5F6; font-size: 16px;">うい:</strong>
-                <p id="ui-message" style="margin: 5px 0 0 0; font-size: 14px; line-height: 1.5; color: #ccc;">データを読み込みなさい。論理的に評価してあげるわ。</p>
+                <p id="ui-message" style="margin: 5px 0 0 0; font-size: 14px; line-height: 1.5; color: #ccc;">論理的な評価が欲しければ、さっさとCSVファイルを読み込みなさい。</p>
             </div>
         </div>
 
@@ -108,9 +108,9 @@
     </div>
 
     <script>
+        // ★ Wiki全84セット反映版
         const UNBOUND_MASTER = {
-            "1": ["The Guidance", "BooBooBabies", "Guidance & The Booboo's"], "2": ["Haket", "Blue Haket", "Red vs Blue"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell", "Third Trumpet"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird", "Forest Guardians"], "10": ["Garden Rejects", "Kimera", "Convict Squad"], "22": ["Angry Munci", "Triple Munci"], "29": ["Sawrunner", "SawMarathon"], "38": ["Something Old, Something New"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio"], "64": ["Roblander", "Bliss", "Angels"], "84": ["Beyond", "Convict[E]"]
-            // (他、提供された全84セットのデータをここに含める)
+            "1": ["The Guidance", "BooBooBabies"], "2": ["Haket", "Blue Haket"], "3": ["CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird"], "4": ["Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Security", "The Swarm"], "6": ["Demented Spongebob", "Spongefly Swarm"], "7": ["BFF", "Nameless"], "8": ["Seek", "Rush", "Eyes"], "9": ["Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Garden Rejects", "Kimera", "Convict Squad"], "11": ["WhiteNight", "Paradise Bird"], "12": ["Roblander", "Inverted Roblander"], "13": ["An Arbiter", "The Red Mist"], "14": ["Slender", "Slendy"], "15": ["Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["MX", "Luigi", "Wario Apparition"], "17": ["Purple Guy"], "18": ["Scavenger"], "19": ["The LifeBringer", "Scrapyard Machine"], "20": ["Unknown Witch"], "21": ["Umbra", "Spiteful Eye"], "22": ["Angry Munci"], "23": ["Karol_Corpse"], "24": ["Huggy"], "25": ["Arrival"], "26": ["Hush"], "27": ["[CENSORED]"], "28": ["Dev Bytes", "Vana", "Duke"], "29": ["Sawrunner"], "30": ["Little Witch", "War", "Convict(N)"], "31": ["Lightning"], "32": ["Joy"], "33": ["TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona"], "35": ["Legs"], "36": ["Convict(N)"], "37": ["Saul"], "38": ["Security", "Ancient Security"], "39": ["Bigger Boot"], "40": ["Punishing Bird"], "41": ["Chomper"], "42": ["With Many Voices"], "43": ["Miros Bird"], "44": ["Jumbo Josh"], "45": ["Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cultist"], "47": ["Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "Transportation Trio"], "48": ["Purple Guy", "Voidwalker"], "49": ["HER", "WHITEFACE"], "50": ["Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Signus"], "52": ["Akumii-Kari"], "53": ["Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED"], "55": ["Blue gaper", "Blue Flies"], "56": ["Drone"], "57": ["Scrapyard Taker"], "58": ["Luigi Doll"], "59": ["Meteor"], "60": ["TBH"], "61": ["Lost Soul"], "62": ["Aku Ball"], "63": ["Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Roblander", "Bliss", "Ancient Monarch"], "65": ["Apocalypse Bird", "Immortal Snail"], "66": ["Wild Yet Curious Creature"], "67": ["Beyond", "Manti"], "68": ["Yolm"], "69": ["Peepy"], "70": ["Ghost Girl"], "71": ["Deleted", "Akumii-Kari"], "72": ["Spamton"], "73": ["Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["Mirror", "Red Bus", "Terror of Nowhere"], "75": ["SCP-049-B"], "76": ["Mountain of Smiling Bodies"], "77": ["Clockey"], "78": ["Killer Fish"], "79": ["MR.MEGA", "DoomBox"], "80": ["Comedy", "Tragedy"], "81": ["MopeMope"], "82": ["Sonic", "Rewrite", "Atrached"], "83": ["Living Shadow"], "84": ["Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]
         };
 
         let myChart = null, myRadarChart = null, parsedData = [], filteredData = [], currentPage = 1; const rowsPerPage = 50;
@@ -120,6 +120,11 @@
             const f = e.target.files[0]; if(!f) return; document.getElementById('fileNameDisplay').textContent = f.name; 
             const r = new FileReader(); r.onload = ev => { parseCSV(ev.target.result); initFilters(); updateAll(); }; r.readAsText(f); 
         });
+        document.getElementById('viewSelector').addEventListener('change', () => { document.getElementById('nemesisBox').style.display='none'; updateChart(); });
+        document.getElementById('excludeClassicCheckbox').addEventListener('change', updateAll);
+        document.getElementById('roundFilter').addEventListener('change', updateAll);
+        document.getElementById('mapFilter').addEventListener('change', updateAll);
+        document.getElementById('killerFilter').addEventListener('change', updateAll);
 
         function switchTab(t) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="switchTab('${t}')"]`).classList.add('active'); if (t === 'tab-analytics' && filteredData.length) updateChart(); }
 
@@ -142,59 +147,92 @@
         function updateAll() {
             const rf = document.getElementById('roundFilter').value, mf = document.getElementById('mapFilter').value, kf = document.getElementById('killerFilter').value, exc = document.getElementById('excludeClassicCheckbox').checked;
             filteredData = parsedData.filter(d => (rf==='all'||d.roundType===rf) && (mf==='all'||d.map===mf) && (kf==='all'||(d.killers && d.killers.includes(kf))) && !(exc && d.roundType.includes('Classic')));
-            updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiComment(); if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
+            currentPage = 1; updateDashboard(); updateRadar(); renderTable(); updateUnboundList(); updateUiComment(); if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
         function updateDashboard() {
-            let w=0, l=0; filteredData.forEach(d => isWin(d.result)?w++:l++);
+            let w=0, l=0, rC={}, mC={}, kC={}; filteredData.forEach(d => {
+                isWin(d.result)?w++:l++;
+                rC[d.roundType]=(rC[d.roundType]||0)+1; mC[d.map]=(mC[d.map]||0)+1;
+                if(d.killers !== 'None') d.killers.split('/').forEach(k => kC[k.trim()]=(kC[k.trim()]||0)+1);
+            });
             document.getElementById('totalGames').textContent = w+l; document.getElementById('totalWins').textContent = w; document.getElementById('totalLost').textContent = l;
             document.getElementById('winRate').textContent = (w+l)>0 ? ((w/(w+l))*100).toFixed(1) : 0;
             if(filteredData.length) { document.getElementById('firstPlayDate').textContent = filteredData[0].timestamp; document.getElementById('lastPlayDate').textContent = filteredData[filteredData.length-1].timestamp; }
+            const render = (c, t, col, lbl) => {
+                let h = `<div style="background:#2a2a2a; padding:15px; border-radius:8px; flex:1; text-align:left;"><strong style="color:${col};">${lbl}</strong>`;
+                Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([n,v])=> h+=`<div style="font-size:11px; margin-top:5px;">${n}: ${v}</div>`);
+                return h + '</div>';
+            };
+            document.getElementById('appearanceRates').innerHTML = render(rC,1,'#4CAF50','Round') + render(mC,1,'#2196F3','Map') + render(kC,1,'#F44336','Terror');
         }
 
         function renderTable() {
-            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(); tb.innerHTML = '';
+            const tb = document.getElementById('historyTableBody'), rev = filteredData.slice().reverse(), tp = Math.ceil(rev.length/rowsPerPage)||1; tb.innerHTML = '';
             rev.slice((currentPage-1)*rowsPerPage, currentPage*rowsPerPage).forEach(d => {
                 tb.innerHTML += `<tr><td>${d.timestamp}</td><td>${d.map}</td><td>${d.roundType}</td><td>${d.killers}</td><td class="${isWin(d.result)?'win-text':'lost-text'}">${d.result}</td></tr>`;
             });
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} / ${tp}`;
+            document.getElementById('prevBtn').disabled = currentPage===1; document.getElementById('nextBtn').disabled = currentPage===tp;
         }
+        function changePage(d) { currentPage+=d; renderTable(); }
 
         function updateRadar() {
             const ctx = document.getElementById('radarChartCanvas').getContext('2d'); if(myRadarChart) myRadarChart.destroy();
             let s={aW:0,aT:0,cW:0,cT:0,sW:0,sT:0}; filteredData.forEach(d => { const w=isWin(d.result); s.aT++; if(w) s.aW++; if(d.roundType.includes('Classic')){s.cT++; if(w)s.cW++;} else {s.sT++; if(w)s.sW++;} });
             const r = (w,t) => t>0?Math.round((w/t)*100):0;
-            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels:['Overall', 'Classic', 'Special'], datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT)], borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true}}, plugins:{legend:{display:false}} } });
+            myRadarChart = new Chart(ctx, { type:'radar', data:{ labels:['Overall', 'Classic', 'Special'], datasets:[{data:[r(s.aW,s.aT),r(s.cW,s.cT),r(s.sW,s.sT)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
         }
 
         function updateUnboundList() {
             const listEl = document.getElementById('unboundDynamicList'); listEl.innerHTML = ''; const sets = {};
             filteredData.forEach(d => {
-                if (d.roundType.includes('Unbound')) {
+                if (d.roundType.includes('Unbound') || d.roundType.includes('アンバウンド')) {
                     let id = "Unknown"; const ks = d.killers.split('/').map(k => k.trim());
                     for (const [sid, l] of Object.entries(UNBOUND_MASTER)) { if (ks.some(k => l.includes(k))) { id = sid; break; } }
                     if (!sets[id]) sets[id] = new Set(); ks.forEach(k => sets[id].add(k));
                 }
             });
-            Object.keys(sets).sort().forEach(id => {
-                listEl.innerHTML += `<div class="unbound-card"><strong>Set #${id}</strong><br>${Array.from(sets[id]).join(', ')}</div>`;
+            Object.keys(sets).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
+                listEl.innerHTML += `<div class="unbound-card"><strong>Set #${id}</strong><div style="font-size:12px; margin-top:5px;">${Array.from(sets[id]).join(', ')}</div></div>`;
             });
+        }
+
+        function updateChart() {
+            const mode = document.getElementById('viewSelector').value, ctx = document.getElementById('resultChart').getContext('2d'); if(myChart) myChart.destroy();
+            if(mode === 'dailyTrend'){
+                const s={}; filteredData.forEach(d=>{ const dt=d.timestamp.split(' ')[0]; if(!s[dt])s[dt]={w:0,t:0}; s[dt].t++; if(isWin(d.result))s[dt].w++; }); const l=Object.keys(s).sort();
+                myChart = new Chart(ctx, { type:'line', data:{labels:l, datasets:[{label:'Win %', data:l.map(x=>((s[x].w/s[x].t)*100).toFixed(1)), borderColor:'#4CAF50', fill:true, backgroundColor:'rgba(76,175,80,0.1)'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{beginAtZero:true,max:100}}} });
+            } else if(mode === 'timeOfDay'){
+                const s = Array.from({length: 24}, () => ({w:0, t:0})); filteredData.forEach(d => { const match = d.timestamp.match(/\s(\d{1,2}):/); if(match) { const h = parseInt(match[1], 10); s[h].t++; if(isWin(d.result)) s[h].w++; } });
+                myChart = new Chart(ctx, { type: 'bar', data: { labels: s.map((_, i) => `${i}時`), datasets: [{ type: 'line', label: 'Win Rate (%)', data: s.map(x => x.t > 0 ? ((x.w/x.t)*100).toFixed(1) : 0), borderColor: '#4CAF50', yAxisID: 'y' }, { type: 'bar', label: 'Games', data: s.map(x => x.t), backgroundColor: 'rgba(100, 181, 246, 0.5)', yAxisID: 'y1' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { type: 'linear', position: 'left', max: 100 }, y1: { type: 'linear', position: 'right', grid: {drawOnChartArea: false} } } } });
+            } else if(['roundType','map','killer'].includes(mode)){
+                const s={}; filteredData.forEach(d=>{ const items=mode==='killer'?d.killers.split('/'):[d[mode]]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None')return; if(!s[v])s[v]={w:0,l:0}; isWin(d.result)?s[v].w++:s[v].l++; }); });
+                const sorted = Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0, 15);
+                myChart = new Chart(ctx, { type:'bar', data:{labels:sorted, datasets:[{label:'Win',data:sorted.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:sorted.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, onClick:(e,el)=>{if(el.length>0 && mode==='killer') showNemesis(myChart.data.labels[el[0].index]);}} });
+            } else {
+                const k=mode.replace('Rate',''), s={}; filteredData.forEach(d=>{ const items=k==='killer'?d.killers.split('/'):[d[k]]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
+                const sorted = Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,10);
+                myChart = new Chart(ctx, { type:'pie', data:{labels:sorted.map(x=>x[0]), datasets:[{data:sorted.map(x=>x[1]), backgroundColor:sorted.map((_,i)=>`hsl(${(i*360)/10},70%,50%)`)}]}, options:{responsive:true, maintainAspectRatio:false} });
+            }
+        }
+
+        function showNemesis(n) {
+            let w=0,l=0,t=0,m={}; filteredData.forEach(d=>{ if(d.killers.includes(n)){ t++; isWin(d.result)?w++:l++; m[d.map]=(m[d.map]||0)+1; } }); const sortedM = Object.entries(m).sort((a,b)=>b[1]-a[1]); const topM = sortedM[0] || ["-", 0];
+            document.getElementById('nemName').textContent = n; document.getElementById('nemDetails').innerHTML = `Encounters: ${t} | Win: ${w} | Lost: ${l} | Top Map: ${topM[0]} (${topM[1]})`; document.getElementById('nemesisBox').style.display = 'block';
         }
 
         function updateUiComment() {
             if (!filteredData.length) return;
             const faceImg = document.getElementById('ui-face'), msg = document.getElementById('ui-message');
             let w = 0, night = 0, work = 0;
-            filteredData.forEach(d => {
-                if (isWin(d.result)) w++;
-                const h = parseInt((d.timestamp.match(/\s(\d{1,2}):/)||[0,0])[1], 10);
-                if (h >= 0 && h <= 4) night++; if (h >= 10 && h <= 16) work++;
-            });
+            filteredData.forEach(d => { if (isWin(d.result)) w++; const match = d.timestamp.match(/\s(\d{1,2}):/); if (match) { const h = parseInt(match[1], 10); if (h >= 0 && h <= 4) night++; if (h >= 10 && h <= 16) work++; } });
             const rate = (w / filteredData.length) * 100;
-            if (night > 0) { faceImg.src = "face_tired.png"; msg.textContent = `深夜帯の記録が ${night} 件。論理的に考えて、睡眠不足は判断力を鈍らせる最大の要因よ。これ以上勝率を下げる前に、さっさと寝なさい。`; }
+            if (night > 0) { faceImg.src = "face_tired.png"; msg.textContent = `深夜帯の記録が ${night} 件。睡眠不足は判断力を鈍らせる最大の要因よ。これ以上勝率を下げる前に、さっさと寝なさい。`; }
             else if (work > 0) { faceImg.src = "face_angry.png"; msg.textContent = `平日の日中に ${work} 件も記録があるんだけど？ 休憩中であることを祈るけど、やるべきことを優先しなさい。`; }
-            else if (rate >= 70) { faceImg.src = "face_tsundere.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。ま、これくらい当然の結果なんじゃない？ 勘違いしないでよね、事実を述べてるだけなんだから。`; }
-            else if (rate < 30) { faceImg.src = "face_sigh.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。完全に泥沼ね。今のあんたに足りないのは戦術じゃなくて休息よ。大人しくログアウトしなさい。`; }
-            else { faceImg.src = "face_normal.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%。平均的なスタッツね。無理せず自分のペースで続けるのが一番論理的じゃない？ はい次。`; }
+            else if (rate >= 70) { faceImg.src = "face_tsundere.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。ま、当然の結果なんじゃない？ 勘違いしないでよね、事実を述べてるだけなんだから。`; }
+            else if (rate < 30) { faceImg.src = "face_sigh.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%……。完全に泥沼ね。今のあんたに足りないのは休息よ。大人しくログアウトしなさい。`; }
+            else { faceImg.src = "face_normal.png"; msg.textContent = `勝率 ${rate.toFixed(1)}%。平均的なスタッツね。自分のペースで続けるのが一番論理的じゃない？ はい次。`; }
         }
     </script>
 </body>
