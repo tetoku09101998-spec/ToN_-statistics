@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats Ultimate</title>
+    <title>ToN Stats Ultimate V2</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 10px; font-size: 14px; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 10px; font-size: 14px; -webkit-text-size-adjust: 100%; }
         .controls { background: var(--panel); padding: 10px; border-radius: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
-        select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 8px; border-radius: 6px; font-size: 12px; box-sizing: border-box; }
-        .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 10px; }
+        select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 8px; border-radius: 6px; font-size: 12px; }
+        .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 15px; font-size: 14px; font-weight: bold; flex-shrink: 0; }
         .tab-btn.active { color: var(--acc); border-bottom: 3px solid var(--acc); }
         .tab-content { display: none; background: var(--panel); padding: 15px; border-radius: 12px; border: 1px solid var(--brd); }
@@ -22,6 +22,8 @@
         .unb-card { background: #2c2c2c; padding: 10px; border-radius: 8px; border-top: 3px solid var(--unb); font-size: 10px; text-align: left; line-height: 1.3; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
         th, td { padding: 8px 4px; border-bottom: 1px solid var(--brd); text-align: left; }
+        .w { color: var(--acc); font-weight: bold; }
+        .l { color: #f44336; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -62,41 +64,45 @@
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
 
     <script>
-        // ★ 84セット完全収録版
+        // ★ Wikiに基づき、全84セットの名前・構成要素を完全復旧
         const MASTER = {
-            "1":["The Guidance","BooBooBabies"],"2":["Haket","Blue Haket","Red vs Blue"],"3":["CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell"],"4":["Big Bird","Judgement Bird","Punishing Bird"],"5":["Security","The Swarm","Prisoner"],"6":["Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M"],"7":["BFF","Nameless"],"8":["Seek","Rush","Eyes"],"9":["Squibbs (Dev Bytes)","Convict(D)"],"10":["Convict Squad","Kimera","Search and Destroy","Garden Rejects"],"11":["WhiteNight","Paradise Bird"],"12":["Roblander","Inverted Roblander"],"13":["An Arbiter","The Red Mist"],"14":["Slender","Slendy","Hungry Home Invader"],"15":["Specimen 2","Specimen 5","Specimen 8","Specimen 10"],"16":["MX","Luigi","Wario Apparition"],"17":["Purple Guy"],"18":["Scavenger"],"19":["The LifeBringer","Scrapyard Machine"],"20":["Unknown Witch"],"21":["Umbra","Spiteful Eye"],"22":["Angry Munci"],"23":["Karol_Corpse"],"24":["Huggy","Huggy Wuggy"],"25":["Arrival"],"26":["Hush"],"27":["[CENSORED]"],"28":["Dev Bytes","Vana","Duke"],"29":["Sawrunner","SawMarathon"],"30":["Little Witch","War","Convict(N)"],"31":["Lightning"],"32":["Joy"],"33":["TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER"],"34":["Mona"],"35":["Legs"],"36":["Convict(N)"],"37":["Saul"],"38":["Security","Ancient Security"],"39":["Bigger Boot"],"40":["Punishing Bird"],"41":["Chomper"],"42":["With Many Voices"],"43":["Miros Bird"],"44":["Jumbo Josh"],"45":["Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann"],"46":["Lunatic Cultist"],"47":["Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter"],"48":["Purple Guy","Voidwalker"],"49":["HER","WHITEFACE"],"50":["Dapper Enphoso","Pyromatic Enphoso"],"51":["Signus"],"52":["Akumii-Kari","Triple Akumii Kari"],"53":["Big Bird","Paradise Bird"],"54":["LESSER CENSORED"],"55":["Blue gaper","Blue Flies"],"56":["Drone"],"57":["Scrapyard Taker"],"58":["Luigi Doll"],"59":["Meteor"],"60":["TBH","TBH Spy"],"61":["Lost Soul"],"62":["Aku Ball"],"63":["Toren's Shadow","Mona","Karol_Corpse","Haket"],"64":["Roblander","Bliss","Ancient Monarch"],"65":["Apocalypse Bird","Immortal Snail"],"66":["Wild Yet Curious Creature"],"67":["Beyond","Manti"],"68":["Yolm"],"69":["Peepy"],"70":["Ghost Girl"],"71":["Deleted","Akumii-Kari"],"72":["Spamton"],"73":["Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser"],"74":["Mirror","Red Bus","Terror of Nowhere"],"75":["SCP-049-B"],"76":["Mountain of Smiling Bodies"],"77":["Clockey"],"78":["Killer Fish"],"79":["MR.MEGA","DoomBox"],"80":["Comedy","Tragedy"],"81":["MopeMope"],"82":["Sonic","Rewrite","Atrached"],"83":["Living Shadow"],"84":["Beyond","Convict[E]","Byte[E]","Wild Yet Curious Creature","Toren's Shadow","Paint(Beyond)"]
+            "1":["Guidance & The Booboo's","The Guidance","BooBooBabies"],"2":["Red vs Blue","Haket","Blue Haket"],"3":["Third Trumpet","CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell"],"4":["Forest Gurdians","Forest Guardians","Big Bird","Judgement Bird","Punishing Bird"],"5":["Higher Beings","Security","The Swarm","Prisoner"],"6":["Quadruple Sponge","Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M"],"7":["Your Best Friends","BFF","Nameless"],"8":["Hotel Monsters","Seek","Rush","Eyes"],"9":["Squibb Squad","Squibbs (Dev Bytes)","Convict(D)"],"10":["Garden Rejects","Convict Squad","Kimera","Search and Destroy"],"11":["Judgement Day","WhiteNight","Paradise Bird"],"12":["Me and My Shadow","Roblander","Inverted Roblander"],"13":["Meltdown","An Arbiter","The Red Mist"],"14":["Faceless Mafia","Slender","Slendy","Hungry Home Invader"],"15":["Mansion Monsters","Specimen 2","Specimen 5","Specimen 8","Specimen 10"],"16":["Copyright Infringement","MX","Luigi","Wario Apparition"],"17":["Purple Bros","Purple Guy"],"18":["Scavengers","Scavenger"],"19":["Life & Death","The LifeBringer","Scrapyard Machine"],"20":["Labyrinth","Unknown Witch"],"21":["Spiteful Shadows","Umbra","Spiteful Eye"],"22":["Triple Munci","Angry Munci"],"23":["Daycare","Karol_Corpse"],"24":["Huggy Horde","Huggy","Huggy Wuggy"],"25":["Infection","Arrival"],"26":["Triple Hush","Hush"],"27":["[CENSORED]"],"28":["Byte Horde","Dev Bytes","Vana","Duke"],"29":["SawMarathon","Sawrunner"],"30":["TAKE THE NAMI CHALLENGE","Little Witch","War","Convict(N)"],"31":["Thunderstorm","Lightning"],"32":["END OF THE WORLD","Joy"],"33":["Fragmented Memories","TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER"],"34":["Mona & Mona & Mona & Mona","Mona"],"35":["Seekers","Legs"],"36":["Nugget Squad","Convict(N)"],"37":["Saul's goodmen","Saul"],"38":["Something Old, Something New","Security","Ancient Security"],"39":["POV: Bug","Bigger Boot"],"40":["Punishing Birdemic","Punishing Bird"],"41":["Chomper Trio","Chomper"],"42":["Too Many Voices","With Many Voices"],"43":["Memory Crypts","Miros Bird"],"44":["Zumbo Sauce","Jumbo Josh"],"45":["Freaks","Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann"],"46":["Lunatic Cult","Lunatic Cultist"],"47":["Transportation Trio & The Drifter","Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter"],"48":["Father Son Bonding","Purple Guy","Voidwalker"],"49":["WHAT IS MY NAME","HER","WHITEFACE"],"50":["Glaggleland Cremators","Dapper Enphoso","Pyromatic Enphoso"],"51":["Triple Signus","Signus"],"52":["Triple Akumii Kari","Akumii-Kari"],"53":["Black & White","Big Bird","Paradise Bird"],"54":["[LESSER CENSORED]","LESSER CENSORED"],"55":["Blue Monsters","Blue gaper","Blue Flies"],"56":["Drones","Drone"],"57":["Scrapyard Takers","Scrapyard Taker"],"58":["Luigi Dolls","Luigi Doll"],"59":["Meteor Shower","Meteor"],"60":["Triple TBH","TBH","TBH Spy"],"61":["Lost Souls","Lost Soul"],"62":["Ballin","Aku Ball"],"63":["Reunion","Toren's Shadow","Mona","Karol_Corpse","Haket"],"64":["Angels","Roblander","Bliss","Ancient Monarch"],"65":["Ordinary Apocalypse Bird","Apocalypse Bird","Immortal Snail"],"66":["Pack of Wild Yet Curious Creatures","Wild Yet Curious Creature"],"67":["ToN X SlashCo Collab","Beyond","Manti"],"68":["Pack of Yolm","Yolm"],"69":["Threepy","Peepy"],"70":["Ghost Girl"],"71":["Delete Me","Deleted","Akumii-Kari"],"72":["Spamton Spam","Spamton"],"73":["Death From Above","Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser"],"74":["It Came From Bus To Nowhere","Mirror","Red Bus","Terror of Nowhere"],"75":["Zombie Apocalypse","SCP-049-B"],"76":["Eating Contest","Mountain of Smiling Bodies"],"77":["Triple Clockey","Clockey"],"78":["Triple Killer Fish","Killer Fish"],"79":["Lethal League","MR.MEGA","DoomBox"],"80":["Trollage","Comedy","Tragedy"],"81":["Mopemopemopemopemopemope","MopeMope"],"82":["Triple Trouble","Sonic","Rewrite","Atrached"],"83":["Triple Living Shadow","Living Shadow"],"84":["Beyond's Masks","Beyond","Convict[E]","Byte[E]","Wild Yet Curious Creature","Toren's Shadow","Paint(Beyond)"]
         };
 
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
 
         document.getElementById('csvFile').onchange = e => {
-            const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
                 raw = ev.target.result.trim().split('\n').slice(1).map(l => {
                     const c = l.split(','); if (c.length < 5) return null;
-                    return { t: c[0].trim(), r: c[2].trim(), k: c.slice(3, -1).join(',').trim(), res: c[c.length-1].trim() };
+                    const timestamp = c[0].trim();
+                    const map = c[1].trim();
+                    const result = c[c.length - 1].trim();
+                    // ★ カンマ入りラウンド名に対応するため、第3列から最後から2番目までを結合
+                    const content = c.slice(2, -1).join(',').trim(); 
+                    return { t: timestamp, m: map, content, res: result };
                 }).filter(x => x);
                 initF(); upd();
-            }; r.readAsText(f);
+            }; r.readAsText(e.target.files[0]);
         };
 
         function initF() {
             const dS = new Set(), rS = new Set(), kS = new Set();
-            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); if(x.k!=='None') x.k.split('/').forEach(i=>kS.add(i.trim())); });
+            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.content.split(',')[0]); });
             const f = (id, s, rev=false) => { 
                 const el = document.getElementById(id); el.innerHTML = '<option value="all">全て</option>'; 
                 let a = Array.from(s).sort(); if(rev) a.reverse();
                 a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
             };
-            f('fDate', dS, true); f('fRound', rS); f('fKiller', kS);
+            f('fDate', dS, true); f('fRound', rS);
         }
 
         document.querySelectorAll('select, input[type=checkbox]').forEach(el => el.onchange = upd);
 
         function upd() {
-            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, exc = document.getElementById('exClassic').checked;
-            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && !(exc && x.r.includes('Classic')));
+            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, exc = document.getElementById('exClassic').checked;
+            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.content.includes(rf)) && !(exc && x.content.includes('Classic')));
             page = 1; render();
         }
 
@@ -109,7 +115,7 @@
             document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0;
             const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/30)||1;
             tb.innerHTML = ''; rev.slice((page-1)*30, page*30).forEach(x => {
-                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r.slice(0,5)}</td><td>${x.k.slice(0,8)}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`;
+                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.content.slice(0,12)}</td><td>-</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`;
             });
             document.getElementById('pgInf').innerText = `${page}/${tp}`;
             updUnb(); updUi(); renderC();
@@ -120,23 +126,28 @@
         function updUnb() {
             const l = document.getElementById('unbL'), s = {}; l.innerHTML = '';
             filtered.forEach(x => {
-                if (x.r.includes('Unbound') || x.r.includes('アンバウンド')) {
-                    let id = "Unknown", ks = x.k.split('/').map(k => k.trim());
-                    for (const [sid, list] of Object.entries(MASTER)) {
-                        if (ks.some(k => list.some(m => k.toLowerCase().includes(m.toLowerCase())))) { id = sid; break; }
-                    }
-                    if (!s[id]) s[id] = new Set(); ks.forEach(k => s[id].add(k));
+                let foundId = null;
+                // ★ ラウンド名またはその中身からセットを特定
+                for (const [sid, list] of Object.entries(MASTER)) {
+                    if (list.some(m => x.content.toLowerCase().includes(m.toLowerCase()))) { foundId = sid; break; }
+                }
+                
+                if (foundId || x.content.includes('Unbound') || x.content.includes('アンバウンド')) {
+                    const id = foundId || "Unknown";
+                    if (!s[id]) s[id] = new Set();
+                    // コンテンツ内のテラー名を抽出（簡易版）
+                    x.content.split(',').forEach(k => { if(k.trim().length > 2) s[id].add(k.trim()); });
                 }
             });
             Object.keys(s).sort((a,b)=>a==="Unknown"?1:b==="Unknown"?-1:parseInt(a)-parseInt(b)).forEach(id => {
-                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">#${id}</strong><div style="opacity:0.8; margin-top:4px;">${Array.from(s[id]).join('<br>')}</div></div>`;
+                l.innerHTML += `<div class="unb-card"><strong style="color:var(--unb);">#${id}</strong><div style="opacity:0.8; margin-top:4px;">${Array.from(s[id]).slice(0,5).join('<br>')}</div></div>`;
             });
         }
 
         function renderC() {
             const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
             let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0;
-            filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(x.r.includes('Classic')) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
+            filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(x.content.includes('Classic')) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
             charts.r = new Chart(rc, { type:'radar', data:{ labels:['Total','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'}}}, plugins:{legend:{display:false}} } });
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
