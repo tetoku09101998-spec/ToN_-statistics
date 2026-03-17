@@ -29,10 +29,11 @@
         .tab-content { display: none; background: var(--panel-bg); padding: 25px; border-radius: 12px; width: 95%; max-width: 1100px; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .tab-content.active { display: block; }
         
-        /* ういの診断パネル（アイコン対応） */
-        .ui-diagnosis-panel { background: #2d2d3a; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--sub-accent); text-align: left; display: flex; align-items: center; gap: 15px; }
-        .ui-avatar { width: 70px; height: 70px; border-radius: 50%; background: #444; border: 2px solid var(--sub-accent); object-fit: cover; flex-shrink: 0; }
-        .ui-text { font-size: 14px; line-height: 1.5; color: #ddd; }
+        /* ういの診断パネル（アイコン大型化） */
+        .ui-diagnosis-panel { background: #2d2d3a; border-radius: 12px; padding: 20px; margin-bottom: 20px; border-left: 6px solid var(--sub-accent); text-align: left; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .ui-avatar { width: 100px; height: 100px; border-radius: 50%; background: #444; border: 3px solid var(--sub-accent); object-fit: cover; flex-shrink: 0; box-shadow: 0 0 10px rgba(100, 181, 246, 0.2); }
+        .ui-name { font-weight: bold; color: var(--sub-accent); font-size: 16px; display: block; margin-bottom: 8px; }
+        .ui-text { font-size: 15px; line-height: 1.6; color: #eee; }
 
         .stat-card { background: #2a2a2a; padding: 20px; border-radius: 10px; border-left: 5px solid var(--accent-color); }
         .streak-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-left: 10px; }
@@ -68,7 +69,7 @@
         <div class="ui-diagnosis-panel" id="uiDiagnosisPanel" style="display:none;">
             <img id="uiAvatarImg" class="ui-avatar" src="ui_normal.png" alt="Ui" onerror="this.style.backgroundColor='#111';">
             <div style="flex-grow: 1;">
-                <span style="font-weight:bold; color:var(--sub-accent); display:block; margin-bottom:4px;">うい (Ui)</span>
+                <span class="ui-name">うい (Ui)</span>
                 <span class="ui-text" id="uiMessage">ログを読み込みな。話はそれからだよ。</span>
             </div>
         </div>
@@ -76,7 +77,7 @@
 
     <div class="controls">
         <div class="control-group">
-            <strong>📁 データ読込:</strong>
+            <strong data-i18n="label_load">📁 データ読込:</strong>
             <div class="file-input-wrapper"><button class="btn-upload">ファイル選択</button><input type="file" id="csvFileInput" accept=".csv"></div>
             <span id="fileNameDisplay">未選択</span>
         </div>
@@ -155,18 +156,18 @@
         const isExcludedKiller = (name) => name === "???" || name === "??";
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ton_ultimate_faces');
+            const saved = localStorage.getItem('ton_v_final_iconsize');
             if (saved) { parsedData = JSON.parse(saved); initFilters(); updateAll(); }
         });
 
         document.getElementById('csvFileInput').addEventListener('change', e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader();
-            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_ultimate_faces', JSON.stringify(parsedData)); initFilters(); updateAll(); };
+            r.onload = ev => { parseCSV(ev.target.result); localStorage.setItem('ton_v_final_iconsize', JSON.stringify(parsedData)); initFilters(); updateAll(); };
             r.readAsText(f);
         });
 
-        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_ultimate_faces'); location.reload(); } });
+        document.getElementById('clearDataBtn').addEventListener('click', () => { if(confirm("消去するわよ？")) { localStorage.removeItem('ton_v_final_iconsize'); location.reload(); } });
 
         function parseCSV(t) {
             parsedData = t.trim().split('\n').slice(1).map(l => {
@@ -198,7 +199,6 @@
             if(document.getElementById('tab-analytics').classList.contains('active')) updateChart();
         }
 
-        // ★ 顔アイコンとテキストの連動ロジック
         function updateUiDiagnosis() {
             const panel = document.getElementById('uiDiagnosisPanel');
             const msg = document.getElementById('uiMessage');
