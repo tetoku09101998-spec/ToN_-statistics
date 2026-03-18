@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V13 Perfect</title>
+    <title>ToN Stats V14 Real End</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -28,7 +28,7 @@
         @media (min-width: 900px) { .three-col-grid { grid-template-columns: repeat(3, 1fr); align-items: start; } }
         
         .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 13px; }
-        .table-wrapper { overflow-x: auto; border-radius: 8px; background: #1a1a1a; max-height: 500px; }
+        .table-wrapper { overflow-x: auto; border-radius: 8px; background: #1a1a1a; max-height: 500px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 300px; }
         th, td { padding: 10px 8px; border-bottom: 1px solid var(--brd); text-align: left; }
         th { background: #252525; position: sticky; top: 0; z-index: 1; }
@@ -40,6 +40,10 @@
         .unb-title { font-size: 14px; font-weight: bold; color: var(--unb); margin-bottom: 8px; border-bottom: 1px dashed #555; padding-bottom: 4px; }
         .unb-tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
         .unb-tag { background: #1e1e1e; padding: 4px 8px; border-radius: 4px; color: #ddd; font-size: 11px; border: 1px solid #555; }
+
+        .link-box { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--sub); margin-top: 20px; }
+        .link-box a { color: var(--txt); text-decoration: none; display: block; margin: 8px 0; font-size: 14px; transition: color 0.2s; }
+        .link-box a:hover { color: var(--sub); }
     </style>
 </head>
 <body>
@@ -77,13 +81,19 @@
             <div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Rounds</h3><div id="dashR"></div></div>
             <div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Maps</h3><div id="dashM"></div></div>
         </div>
+        
+        <div class="link-box">
+            <h3 style="margin:0 0 10px 0; color:var(--sub);">🔗 Related Links</h3>
+            <a href="https://wikiwiki.jp/ton_jp/" target="_blank">🌐 Terror of Nowhere Japan Wiki</a>
+            <a href="https://wikiwiki.jp/ton_jp/Unbound%20List" target="_blank">📖 Unbound List (Wiki)</a>
+        </div>
     </div>
 
     <div id="t-chart" class="tab-content">
         <select id="vMode" style="width:100%; margin-bottom:15px;">
             <option value="trend">日別勝率推移</option><option value="time">時間帯別分析 (2軸複合)</option>
-            <option value="killer">テラー別勝敗 (Stacked)</option><option value="map">マップ別勝敗 (Stacked)</option>
-            <option value="p_round">出現率: ラウンド (Pie)</option><option value="p_map">出現率: マップ (Pie)</option>
+            <option value="killer">テラー別勝敗 (Stacked)</option><option value="map">マップ別勝敗 (全件)</option>
+            <option value="p_round">出現率: ラウンド (Pie)</option><option value="p_map">出現率: マップ (全件 Pie)</option>
         </select>
         <div style="height:400px;"><canvas id="mainChart"></canvas></div>
     </div>
@@ -195,23 +205,21 @@
 
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
-        // ★ クラシック判定用ヘルパー（英語・日本語両対応）
         const isClassic = (r) => /classic|クラシック/i.test(r);
 
         window.onload = () => {
-            const saved = localStorage.getItem('ton_v13_perfect');
+            const saved = localStorage.getItem('ton_v14_realend');
             if(saved) { parseCSV(saved); initF(); upd(); }
         };
 
         document.getElementById('csvFile').onchange = e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
-                localStorage.setItem('ton_v13_perfect', ev.target.result);
+                localStorage.setItem('ton_v14_realend', ev.target.result);
                 parseCSV(ev.target.result); initF(); upd();
             }; r.readAsText(f);
         };
 
-        // カンマ入りラウンド名を保護する正規CSVパーサー
         function parseCSV(t) {
             raw = t.trim().split('\n').slice(1).map(line => {
                 let cols = []; let inQ = false; let cur = '';
@@ -246,25 +254,14 @@
             f('fDate', dS, true); f('fRound', rS); f('fKiller', kS);
         }
 
-        // ★ イベントリスナーをID指定で確実にバインド
         ['fDate', 'fRound', 'fKiller', 'exClassic', 'vMode'].forEach(id => {
             const el = document.getElementById(id);
             if(el) el.onchange = upd;
         });
 
         function upd() {
-            const df = document.getElementById('fDate').value;
-            const rf = document.getElementById('fRound').value;
-            const kf = document.getElementById('fKiller').value;
-            const exc = document.getElementById('exClassic').checked;
-            
-            // ★ クラシック除外ロジック（日本語名にも対応）
-            filtered = raw.filter(x => 
-                (df === 'all' || x.t.includes(df)) && 
-                (rf === 'all' || x.r === rf) && 
-                (kf === 'all' || x.k.includes(kf)) && 
-                !(exc && isClassic(x.r))
-            );
+            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, exc = document.getElementById('exClassic').checked;
+            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && !(exc && isClassic(x.r)));
             page = 1; render();
         }
 
@@ -315,8 +312,7 @@
 
         function updUnb() {
             const l = document.getElementById('unbL'); l.innerHTML = '';
-            const enc = new Set();
-            const unk = new Set();
+            const enc = new Set(); const unk = new Set();
             
             filtered.forEach(x => {
                 const rowStr = (x.r + ' ' + x.k).toLowerCase();
@@ -324,9 +320,7 @@
                 
                 let foundId = null;
                 for (const [sid, masterArr] of Object.entries(MASTER)) {
-                    if (masterArr.some(m => rowStr.includes(m.toLowerCase()))) { 
-                        foundId = sid; break; 
-                    }
+                    if (masterArr.some(m => rowStr.includes(m.toLowerCase()))) { foundId = sid; break; }
                 }
                 if (foundId) { enc.add(foundId); } 
                 else { x.k.split(/[\/,]+/).forEach(k => { if(k.trim() && k.trim() !== 'None') unk.add(k.trim()); }); }
@@ -348,7 +342,6 @@
         function renderC() {
             const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
             let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0;
-            // ★ Radarチャートの判定も修正
             filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(isClassic(x.r)) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
             charts.r = new Chart(rc, { type:'radar', data:{ labels:['Overall','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50', borderWidth: 2}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc', font:{size:13}}}}, plugins:{legend:{display:false}} } });
             
@@ -362,11 +355,15 @@
                     charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'Win Rate (%)', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games Played', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options:{maintainAspectRatio:false, scales:{y:{max:100, position:'left'},y1:{position:'right', grid:{drawOnChartArea:false}}}} });
                 } else if(['killer','map'].includes(mode)){
                     const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); });
-                    const lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)).slice(0,15);
+                    // ★ マップの場合は全件表示、テラーの場合は上位15件
+                    let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l));
+                    if (mode === 'killer') lbl = lbl.slice(0, 15);
                     charts.m = new Chart(mc, { type:'bar', data:{labels:lbl, datasets:[{label:'Win',data:lbl.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:lbl.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
                 } else {
                     const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items=k==='round'?[x.r]:[x.m]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
-                    const lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,15);
+                    // ★ マップの場合は全件表示、ラウンドの場合は上位15件
+                    let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+                    if (k === 'round') lbl = lbl.slice(0, 15);
                     charts.m = new Chart(mc, { type:'pie', data:{labels:lbl.map(x=>x[0]), datasets:[{data:lbl.map(x=>x[1]), backgroundColor:lbl.map((_,i)=>`hsl(${i*24},70%,45%)`)}]}, options:{maintainAspectRatio:false} });
                 }
             }
