@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V19 Flawless</title>
+    <title>ToN Stats V20 Ultimate</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -38,8 +38,16 @@
         <div class="full"><input type="file" id="csvFile" accept=".csv"></div>
         <select id="fDate"><option value="all">全期間</option></select>
         <select id="fRound"><option value="all">全Round</option></select>
-        <select id="fKiller" class="full"><option value="all">全Terror</option></select>
-        <div class="full" style="font-size:13px; color:#ffeb3b; display:flex; align-items:center;"><input type="checkbox" id="exClassic" style="width:auto; margin-right:8px; transform:scale(1.2);"><label for="exClassic">クラシック除外</label></div>
+        <select id="fKiller"><option value="all">全Terror</option></select>
+        <select id="fRes">
+            <option value="all">全結果 (Win/Loss)</option>
+            <option value="Win">Win (勝利)</option>
+            <option value="Loss">Loss (敗北)</option>
+        </select>
+        <div class="full" style="font-size:13px; color:#ffeb3b; display:flex; align-items:center;">
+            <input type="checkbox" id="exClassic" style="width:auto; margin-right:8px; transform:scale(1.2);">
+            <label for="exClassic">クラシック除外</label>
+        </div>
     </div>
     <div class="tabs">
         <button class="tab-btn active" onclick="tab('t-dash')">📊 Summary</button>
@@ -72,10 +80,9 @@
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
         const isClassic = (r) => /classic|クラシック/i.test(r);
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v19_flawless'); if(saved) { parseCSV(saved); initF(); upd(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v19_flawless', ev.target.result); parseCSV(ev.target.result); initF(); upd(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v20_ultimate'); if(saved) { parseCSV(saved); initF(); upd(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v20_ultimate', ev.target.result); parseCSV(ev.target.result); initF(); upd(); runSim(); }; r.readAsText(f); };
 
-        // ★ 完全版CSVパーサー：末尾の余計なカンマ（空文字列）を徹底排除
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
                 let cols = []; let inQ = false; let cur = ''; 
@@ -85,27 +92,60 @@
                     else { cur += line[i]; } 
                 } 
                 cols.push(cur.trim().replace(/^"|"$/g, '')); 
-                
-                // ★ バグ修正のコア：CSV出力時のTrailing Comma（空の要素）を後ろから削除
-                while(cols.length > 0 && cols[cols.length - 1] === '') {
-                    cols.pop();
-                }
-
+                while(cols.length > 0 && cols[cols.length - 1] === '') cols.pop();
                 if (cols.length < 5) return null; 
-                
-                // これで確実に勝敗結果がpopされる
                 const res = cols.pop(); 
                 return { t: cols.shift(), m: cols.shift(), r: cols.shift(), k: cols.join(', '), res: res }; 
             }).filter(x => x); 
         }
 
-        function initF() { const dS = new Set(), rS = new Set(), kS = new Set(), mS = new Set(); raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); mS.add(x.m); x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') kS.add(v); }); }); const f = (id, s, rev=false) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>'; let a = Array.from(s).sort(); if(rev) a.reverse(); a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); }; f('fDate', dS, true); f('fRound', rS); f('fKiller', kS); f('sRound', rS); f('sMap', mS); f('sKiller', kS); }
-        ['fDate', 'fRound', 'fKiller', 'exClassic', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
+        function initF() { 
+            const dS = new Set(), rS = new Set(), kS = new Set(), mS = new Set(); 
+            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); mS.add(x.m); x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') kS.add(v); }); }); 
+            const f = (id, s, rev=false) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>'; let a = Array.from(s).sort(); if(rev) a.reverse(); a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); }; 
+            f('fDate', dS, true); f('fRound', rS); f('fKiller', kS); f('sRound', rS); f('sMap', mS); f('sKiller', kS); 
+        }
+
+        // ★ fRes (勝敗フィルター) をイベント監視に追加
+        ['fDate', 'fRound', 'fKiller', 'fRes', 'exClassic', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
         ['sRound', 'sMap', 'sKiller'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = runSim; });
         
-        function upd() { const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, exc = document.getElementById('exClassic').checked; filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && !(exc && isClassic(x.r))); page = 1; render(); }
+        // ★ フィルタリングロジックに Win/Loss 判定を組み込み
+        function upd() { 
+            const df = document.getElementById('fDate').value;
+            const rf = document.getElementById('fRound').value;
+            const kf = document.getElementById('fKiller').value;
+            const resf = document.getElementById('fRes').value;
+            const exc = document.getElementById('exClassic').checked; 
+            
+            filtered = raw.filter(x => 
+                (df==='all'||x.t.includes(df)) && 
+                (rf==='all'||x.r===rf) && 
+                (kf==='all'||x.k.includes(kf)) && 
+                (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) &&
+                !(exc && isClassic(x.r))
+            ); 
+            page = 1; render(); 
+        }
+
         function tab(t) { document.querySelectorAll('.tab-btn, .tab-content').forEach(el=>el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="tab('${t}')"]`).classList.add('active'); renderC(); }
-        function render() { let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); document.getElementById('tg').innerText = filtered.length; document.getElementById('tw').innerText = w; document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; rev.slice((page-1)*50, page*50).forEach(x => { tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); document.getElementById('pgInf').innerText = `${page}/${tp}`; updRankings(); updUnb(); updUi(); renderC(); }
+        
+        function render() { 
+            let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); 
+            document.getElementById('tg').innerText = filtered.length; 
+            document.getElementById('tw').innerText = w; 
+            document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; 
+            if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; 
+            
+            const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; 
+            tb.innerHTML = ''; 
+            rev.slice((page-1)*50, page*50).forEach(x => { 
+                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; 
+            }); 
+            document.getElementById('pgInf').innerText = `${page} / ${tp}`; 
+            updRankings(); updUnb(); updUi(); renderC(); 
+        }
+
         function pg(v) { page += v; render(); }
         
         function runSim() {
