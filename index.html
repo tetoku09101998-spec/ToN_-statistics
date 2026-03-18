@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V14 Real End</title>
+    <title>ToN Stats V15 Real End</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -84,16 +84,20 @@
         
         <div class="link-box">
             <h3 style="margin:0 0 10px 0; color:var(--sub);">🔗 Related Links</h3>
-            <a href="https://wikiwiki.jp/ton_jp/" target="_blank">🌐 Terror of Nowhere Japan Wiki</a>
-            <a href="https://wikiwiki.jp/ton_jp/Unbound%20List" target="_blank">📖 Unbound List (Wiki)</a>
+            <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/" target="_blank">📖 取扱説明書 (Manual)</a>
+            <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank">💻 GitHub Repository</a>
         </div>
     </div>
 
     <div id="t-chart" class="tab-content">
         <select id="vMode" style="width:100%; margin-bottom:15px;">
-            <option value="trend">日別勝率推移</option><option value="time">時間帯別分析 (2軸複合)</option>
-            <option value="killer">テラー別勝敗 (Stacked)</option><option value="map">マップ別勝敗 (全件)</option>
-            <option value="p_round">出現率: ラウンド (Pie)</option><option value="p_map">出現率: マップ (全件 Pie)</option>
+            <option value="trend">日別勝率推移</option>
+            <option value="time">時間帯別分析 (2軸複合)</option>
+            <option value="killer">テラー別勝敗 (Stacked)</option>
+            <option value="map">マップ別勝敗 (全件)</option>
+            <option value="p_killer">出現率: テラー (Pie)</option>
+            <option value="p_round">出現率: ラウンド (Pie)</option>
+            <option value="p_map">出現率: マップ (全件 Pie)</option>
         </select>
         <div style="height:400px;"><canvas id="mainChart"></canvas></div>
     </div>
@@ -208,14 +212,14 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
 
         window.onload = () => {
-            const saved = localStorage.getItem('ton_v14_realend');
+            const saved = localStorage.getItem('ton_v15_realend');
             if(saved) { parseCSV(saved); initF(); upd(); }
         };
 
         document.getElementById('csvFile').onchange = e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
-                localStorage.setItem('ton_v14_realend', ev.target.result);
+                localStorage.setItem('ton_v15_realend', ev.target.result);
                 parseCSV(ev.target.result); initF(); upd();
             }; r.readAsText(f);
         };
@@ -355,15 +359,22 @@
                     charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'Win Rate (%)', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games Played', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options:{maintainAspectRatio:false, scales:{y:{max:100, position:'left'},y1:{position:'right', grid:{drawOnChartArea:false}}}} });
                 } else if(['killer','map'].includes(mode)){
                     const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); });
-                    // ★ マップの場合は全件表示、テラーの場合は上位15件
                     let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l));
                     if (mode === 'killer') lbl = lbl.slice(0, 15);
                     charts.m = new Chart(mc, { type:'bar', data:{labels:lbl, datasets:[{label:'Win',data:lbl.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:lbl.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
                 } else {
-                    const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items=k==='round'?[x.r]:[x.m]; items.forEach(i=>{ const v=i.trim(); if(v&&v!=='None')s[v]=(s[v]||0)+1; }); });
-                    // ★ マップの場合は全件表示、ラウンドの場合は上位15件
+                    // ★ Pieチャートのロジック（テラー出現率 p_killer もここで処理）
+                    const k=mode.replace('p_',''), s={}; 
+                    filtered.forEach(x=>{ 
+                        const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); 
+                        items.forEach(i=>{ 
+                            const v=i.trim(); 
+                            // テラーの時だけ「???」を除外
+                            if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; 
+                        }); 
+                    });
                     let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]);
-                    if (k === 'round') lbl = lbl.slice(0, 15);
+                    if (k !== 'map') lbl = lbl.slice(0, 15);
                     charts.m = new Chart(mc, { type:'pie', data:{labels:lbl.map(x=>x[0]), datasets:[{data:lbl.map(x=>x[1]), backgroundColor:lbl.map((_,i)=>`hsl(${i*24},70%,45%)`)}]}, options:{maintainAspectRatio:false} });
                 }
             }
