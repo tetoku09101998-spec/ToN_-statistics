@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V15 Real End</title>
+    <title>ToN Stats V17 with Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -60,6 +60,7 @@
 
     <div class="tabs">
         <button class="tab-btn active" onclick="tab('t-dash')">📊 Summary</button>
+        <button class="tab-btn" onclick="tab('t-sim')">🧪 Simulator</button>
         <button class="tab-btn" onclick="tab('t-chart')">📈 Analytics</button>
         <button class="tab-btn" onclick="tab('t-rank')">🏆 Ranking</button>
         <button class="tab-btn" onclick="tab('t-list')">📝 History</button>
@@ -81,11 +82,25 @@
             <div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Rounds</h3><div id="dashR"></div></div>
             <div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Maps</h3><div id="dashM"></div></div>
         </div>
-        
         <div class="link-box">
             <h3 style="margin:0 0 10px 0; color:var(--sub);">🔗 Related Links</h3>
-            <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/" target="_blank">📖 取扱説明書 (Manual)</a>
+            <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank">📖 取扱説明書 (readme.html)</a>
             <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank">💻 GitHub Repository</a>
+        </div>
+    </div>
+
+    <div id="t-sim" class="tab-content">
+        <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Survival Simulator</h3>
+        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">指定した条件での生存確率を、過去のデータから演算します。</p>
+        <div class="controls" style="margin-bottom:20px;">
+            <select id="sRound"><option value="all">Any Round</option></select>
+            <select id="sMap"><option value="all">Any Map</option></select>
+            <select id="sKiller" class="full"><option value="all">Any Terror</option></select>
+        </div>
+        <div class="card" style="text-align:center; padding:30px 15px;">
+            <div style="font-size:14px; color:#aaa;">Expected Win Rate</div>
+            <div id="simRes" style="font-size:48px; font-weight:bold; color:var(--acc); margin:15px 0;">--%</div>
+            <div id="simDet" style="font-size:13px; color:#888;">Select conditions to simulate</div>
         </div>
     </div>
 
@@ -93,10 +108,10 @@
         <select id="vMode" style="width:100%; margin-bottom:15px;">
             <option value="trend">日別勝率推移</option>
             <option value="time">時間帯別分析 (2軸複合)</option>
-            <option value="killer">テラー別勝敗 (Stacked)</option>
+            <option value="killer">テラー別勝敗 (上位50% + Others)</option>
             <option value="map">マップ別勝敗 (全件)</option>
-            <option value="p_killer">出現率: テラー (Pie)</option>
-            <option value="p_round">出現率: ラウンド (Pie)</option>
+            <option value="p_killer">出現率: テラー (上位50% + Others)</option>
+            <option value="p_round">出現率: ラウンド (上位15件)</option>
             <option value="p_map">出現率: マップ (全件 Pie)</option>
         </select>
         <div style="height:400px;"><canvas id="mainChart"></canvas></div>
@@ -212,15 +227,15 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
 
         window.onload = () => {
-            const saved = localStorage.getItem('ton_v15_realend');
-            if(saved) { parseCSV(saved); initF(); upd(); }
+            const saved = localStorage.getItem('ton_v17_simulator');
+            if(saved) { parseCSV(saved); initF(); upd(); runSim(); }
         };
 
         document.getElementById('csvFile').onchange = e => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload = ev => {
-                localStorage.setItem('ton_v15_realend', ev.target.result);
-                parseCSV(ev.target.result); initF(); upd();
+                localStorage.setItem('ton_v17_simulator', ev.target.result);
+                parseCSV(ev.target.result); initF(); upd(); runSim();
             }; r.readAsText(f);
         };
 
@@ -234,13 +249,8 @@
                 }
                 cols.push(cur.trim().replace(/^"|"$/g, ''));
                 if (cols.length < 5) return null;
-                
                 const res = cols.pop();
-                const time = cols.shift();
-                const map = cols.shift();
-                const round = cols.shift();
-                const killers = cols.join(', ');
-                return { t: time, m: map, r: round, k: killers, res: res };
+                return { t: cols.shift(), m: cols.shift(), r: cols.shift(), k: cols.join(', '), res: res };
             }).filter(x => x);
         }
 
@@ -251,16 +261,25 @@
                 x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') kS.add(v); });
             });
             const f = (id, s, rev=false) => { 
-                const el = document.getElementById(id); el.innerHTML = '<option value="all">全て</option>'; 
+                const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>'; 
                 let a = Array.from(s).sort(); if(rev) a.reverse();
                 a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
             };
+            // メインフィルター
             f('fDate', dS, true); f('fRound', rS); f('fKiller', kS);
+            // シミュレーター用フィルター
+            f('sRound', rS); f('sMap', new Set(raw.map(x=>x.m))); f('sKiller', kS);
         }
 
         ['fDate', 'fRound', 'fKiller', 'exClassic', 'vMode'].forEach(id => {
             const el = document.getElementById(id);
             if(el) el.onchange = upd;
+        });
+
+        // ★ シミュレーター連動
+        ['sRound', 'sMap', 'sKiller'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.onchange = runSim;
         });
 
         function upd() {
@@ -286,6 +305,48 @@
         }
 
         function pg(v) { page += v; render(); }
+
+        // ★ シミュレーター演算エンジン
+        function runSim() {
+            const r = document.getElementById('sRound').value;
+            const m = document.getElementById('sMap').value;
+            const k = document.getElementById('sKiller').value;
+
+            if (r === 'all' && m === 'all' && k === 'all') {
+                document.getElementById('simRes').innerText = '--%';
+                document.getElementById('simDet').innerText = 'Select conditions to simulate';
+                document.getElementById('simRes').style.color = 'var(--acc)';
+                return;
+            }
+
+            // 実測値（完全一致）の検索
+            const exact = raw.filter(x => (r==='all'||x.r===r) && (m==='all'||x.m===m) && (k==='all'||x.k.includes(k)));
+            let w = 0; exact.forEach(x => { if(isW(x.res)) w++; });
+            
+            if (exact.length > 0) {
+                const rate = (w / exact.length * 100).toFixed(1);
+                document.getElementById('simRes').innerText = rate + '%';
+                document.getElementById('simDet').innerText = `実測値に基づく生存確率 (履歴: ${w}W / ${exact.length}T)`;
+                document.getElementById('simRes').style.color = rate >= 50 ? 'var(--acc)' : '#f44336';
+            } else {
+                // 理論値（未遭遇）の算出
+                let rates = [];
+                if(r!=='all') { const f=raw.filter(x=>x.r===r); let fw=0; f.forEach(x=>{if(isW(x.res))fw++;}); if(f.length) rates.push(fw/f.length); }
+                if(m!=='all') { const f=raw.filter(x=>x.m===m); let fw=0; f.forEach(x=>{if(isW(x.res))fw++;}); if(f.length) rates.push(fw/f.length); }
+                if(k!=='all') { const f=raw.filter(x=>x.k.includes(k)); let fw=0; f.forEach(x=>{if(isW(x.res))fw++;}); if(f.length) rates.push(fw/f.length); }
+                
+                if(rates.length > 0) {
+                    const avg = (rates.reduce((a,b)=>a+b, 0) / rates.length * 100).toFixed(1);
+                    document.getElementById('simRes').innerText = avg + '%';
+                    document.getElementById('simDet').innerText = `未遭遇の組み合わせです。各要素の単独勝率から算出した理論値`;
+                    document.getElementById('simRes').style.color = '#ffeb3b';
+                } else {
+                    document.getElementById('simRes').innerText = '???';
+                    document.getElementById('simDet').innerText = `計算可能なデータが不足しています`;
+                    document.getElementById('simRes').style.color = '#888';
+                }
+            }
+        }
 
         function updRankings() {
             const kM = {}, mM = {}, rM = {};
@@ -321,7 +382,6 @@
             filtered.forEach(x => {
                 const rowStr = (x.r + ' ' + x.k).toLowerCase();
                 if (!rowStr.includes('unbound') && !rowStr.includes('アンバウンド')) return;
-                
                 let foundId = null;
                 for (const [sid, masterArr] of Object.entries(MASTER)) {
                     if (masterArr.some(m => rowStr.includes(m.toLowerCase()))) { foundId = sid; break; }
@@ -331,8 +391,7 @@
             });
             
             Array.from(enc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => {
-                const title = MASTER[id][0];
-                const terrors = MASTER[id].slice(1);
+                const title = MASTER[id][0], terrors = MASTER[id].slice(1);
                 let tags = ''; terrors.forEach(k => tags += `<span class="unb-tag">${k}</span>`);
                 l.innerHTML += `<div class="unb-card"><div class="unb-title">Set #${id}: ${title}</div><div class="unb-tag-list">${tags}</div></div>`;
             });
@@ -360,22 +419,27 @@
                 } else if(['killer','map'].includes(mode)){
                     const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); });
                     let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l));
-                    if (mode === 'killer') lbl = lbl.slice(0, 15);
-                    charts.m = new Chart(mc, { type:'bar', data:{labels:lbl, datasets:[{label:'Win',data:lbl.map(x=>s[x].w),backgroundColor:'#4CAF50'},{label:'Lost',data:lbl.map(x=>s[x].l),backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
+                    let wData = [], lData = [], lblData = [];
+                    if (mode === 'killer') {
+                        const half = Math.ceil(lbl.length / 2);
+                        const top50 = lbl.slice(0, half); const others = lbl.slice(half);
+                        lblData = [...top50]; wData = top50.map(x => s[x].w); lData = top50.map(x => s[x].l);
+                        if (others.length > 0) { lblData.push('Others'); wData.push(others.reduce((sum, x) => sum + s[x].w, 0)); lData.push(others.reduce((sum, x) => sum + s[x].l, 0)); }
+                    } else { lblData = lbl; wData = lbl.map(x => s[x].w); lData = lbl.map(x => s[x].l); }
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:lblData, datasets:[{label:'Win',data:wData,backgroundColor:'#4CAF50'},{label:'Lost',data:lData,backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
                 } else {
-                    // ★ Pieチャートのロジック（テラー出現率 p_killer もここで処理）
                     const k=mode.replace('p_',''), s={}; 
-                    filtered.forEach(x=>{ 
-                        const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); 
-                        items.forEach(i=>{ 
-                            const v=i.trim(); 
-                            // テラーの時だけ「???」を除外
-                            if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; 
-                        }); 
-                    });
+                    filtered.forEach(x=>{ const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); items.forEach(i=>{ const v=i.trim(); if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; }); });
                     let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]);
-                    if (k !== 'map') lbl = lbl.slice(0, 15);
-                    charts.m = new Chart(mc, { type:'pie', data:{labels:lbl.map(x=>x[0]), datasets:[{data:lbl.map(x=>x[1]), backgroundColor:lbl.map((_,i)=>`hsl(${i*24},70%,45%)`)}]}, options:{maintainAspectRatio:false} });
+                    let lblData = [], dataArr = [], bgArr = [];
+                    if (k === 'killer') {
+                        const half = Math.ceil(lbl.length / 2); const top50 = lbl.slice(0, half); const others = lbl.slice(half);
+                        lblData = top50.map(x => x[0]); dataArr = top50.map(x => x[1]);
+                        if (others.length > 0) { lblData.push('Others'); dataArr.push(others.reduce((sum, x) => sum + x[1], 0)); }
+                    } else if (k === 'round') { lblData = lbl.slice(0, 15).map(x => x[0]); dataArr = lbl.slice(0, 15).map(x => x[1]);
+                    } else { lblData = lbl.map(x => x[0]); dataArr = lbl.map(x => x[1]); }
+                    bgArr = lblData.map((label, i) => label === 'Others' ? '#888' : `hsl(${i*24},70%,45%)`);
+                    charts.m = new Chart(mc, { type:'pie', data:{labels:lblData, datasets:[{data:dataArr, backgroundColor:bgArr}]}, options:{maintainAspectRatio:false} });
                 }
             }
         }
