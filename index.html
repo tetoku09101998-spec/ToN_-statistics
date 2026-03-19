@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V28 Hexagram</title>
+    <title>ToN Stats V29 Perfect Scale</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -59,13 +59,23 @@
 
     <div id="t-dash" class="tab-content active">
         <div id="ui-box"><img id="ui-face" src="face_normal.png"><p id="ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4;"></p></div>
-        <div class="three-col-grid" style="margin-bottom:20px;"><div class="card" style="margin:0;"><div style="font-size:22px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div><div style="color:var(--acc); font-size:15px; margin-bottom:8px;">Win Rate: <span id="wr">0</span>%</div><div style="font-size:11px; color:#888;">Latest Log: <span id="lDt">-</span></div></div><div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2;"><canvas id="radar" height="200"></canvas></div></div>
+        <div class="three-col-grid" style="margin-bottom:20px;">
+            <div class="card" style="margin:0;">
+                <div style="font-size:22px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div>
+                <div style="color:var(--acc); font-size:15px; margin-bottom:8px;">Win Rate: <span id="wr">0</span>%</div>
+                <div style="font-size:11px; color:#888;">Latest Log: <span id="lDt">-</span></div>
+            </div>
+            <div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2; display: flex; justify-content: center; align-items: center; height: 220px; position: relative;">
+                <canvas id="radar"></canvas>
+            </div>
+        </div>
         <div class="three-col-grid"><div><h3 style="color:var(--sub); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Killers</h3><div id="dashK"></div></div><div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Rounds</h3><div id="dashR"></div></div><div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Maps</h3><div id="dashM"></div></div></div>
         <div class="link-box"><h3 style="margin:0 0 10px 0; color:var(--sub);">🔗 Related Links</h3><a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank">📖 取扱説明書 (readme.html)</a><a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank">💻 GitHub Repository</a></div>
     </div>
 
     <div id="t-sim" class="tab-content">
         <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Dynamic Multi-Threat Simulator</h3>
+        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">実際に遭遇したデータのみを使用し、クラシックとオルタネイトを自動分類します。</p>
         <div class="controls" style="margin-bottom:20px;">
             <select id="sRound"><option value="all">Any Round</option></select>
             <select id="sMap"><option value="all">Any Map</option></select>
@@ -79,24 +89,30 @@
         <div id="sim-ui-box"><img id="sim-ui-face" src="face_normal.png"><p id="sim-ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4; color:var(--unb);"></p></div>
     </div>
 
-    <div id="t-chart" class="tab-content"><select id="vMode" style="width:100%; margin-bottom:15px;"><option value="trend">日別勝率推移</option><option value="time">時間帯別分析</option><option value="killer">テラー別勝敗</option><option value="map">マップ別勝敗</option><option value="p_killer">出現率: テラー</option><option value="p_round">出現率: ラウンド</option><option value="p_map">出現率: マップ</option></select><div style="height:400px;"><canvas id="mainChart"></canvas></div></div>
+    <div id="t-chart" class="tab-content">
+        <select id="vMode" style="width:100%; margin-bottom:15px;">
+            <option value="trend">日別勝率推移</option><option value="time">時間帯別分析</option><option value="killer">テラー別勝敗</option><option value="map">マップ別勝敗</option><option value="p_killer">出現率: テラー</option><option value="p_round">出現率: ラウンド</option><option value="p_map">出現率: マップ</option>
+        </select>
+        <div style="height: 550px; position: relative; width: 100%;">
+            <canvas id="mainChart"></canvas>
+        </div>
+    </div>
+
     <div id="t-rank" class="tab-content"><div class="three-col-grid"><div><h3 style="color:var(--sub);">All Killers</h3><div class="table-wrapper"><table id="fRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:#ffeb3b;">All Rounds</h3><div class="table-wrapper"><table id="fRankR"><thead><tr><th>Round</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:var(--acc);">All Maps</h3><div class="table-wrapper"><table id="fRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div></div></div>
     <div id="t-list" class="tab-content"><div class="table-wrapper"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div><div style="margin-top:15px; display:flex; justify-content:space-between;"><button class="tab-btn" style="border:1px solid #555;" onclick="pg(-1)">◀ Prev</button><span id="pgInf" style="align-self:center;">1/1</span><button class="tab-btn" style="border:1px solid #555;" onclick="pg(1)">Next ▶</button></div></div>
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
 
     <script>
         const MASTER = {"1": ["Guidance & The Booboo's", "The Guidance", "BooBooBabies"], "2": ["Red vs Blue", "Haket", "Blue Haket"], "3": ["Third Trumpet", "CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Forest Guardians", "Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Higher Beings", "Security", "The Swarm", "Prisoner"], "6": ["Quadruple Sponge", "Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["Your Best Friends", "BFF", "Nameless"], "8": ["Hotel Monsters", "Seek", "Rush", "Eyes"], "9": ["Squibb Squad", "Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Search and Destroy", "Garden Rejects", "Convict Squad", "Kimera"], "11": ["Judgement Day", "WhiteNight", "Paradise Bird"], "12": ["Me and My Shadow", "Roblander", "Inverted Roblander"], "13": ["Meltdown", "An Arbiter", "The Red Mist"], "14": ["Faceless Mafia", "Slender", "Slendy", "Hungry Home Invader"], "15": ["Mansion Monsters", "Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["Copyright Infringement", "MX", "Luigi", "Wario Apparition"], "17": ["Purple Bros", "Purple Guy"], "18": ["Scavengers", "Scavenger"], "19": ["Life & Death", "The LifeBringer", "Scrapyard Machine"], "20": ["Labyrinth", "Unknown Witch"], "21": ["Spiteful Shadows", "Umbra", "Spiteful Eye"], "22": ["Triple Munci", "Angry Munci"], "23": ["Daycare", "Karol_Corpse"], "24": ["Huggy Horde", "Huggy", "Huggy Wuggy"], "25": ["Infection", "Arrival"], "26": ["Triple Hush", "Hush"], "27": ["[CENSORED]", "[CENSORED]"], "28": ["Byte Horde", "Dev Bytes", "Vana", "Duke"], "29": ["SawMarathon", "Sawrunner"], "30": ["TAKE THE NAMI CHALLENGE", "Little Witch", "War", "Convict(N)"], "31": ["Thunderstorm", "Lightning"], "32": ["END OF THE WORLD", "Joy"], "33": ["Fragmented Memories", "TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona & Mona & Mona & Mona", "Mona", "Mona & The Mountain"], "35": ["Seekers", "Legs"], "36": ["Nugget Squad", "Convict(N)"], "37": ["Saul's goodmen", "Saul"], "38": ["Something Old, Something New", "Security", "Ancient Security"], "39": ["POV: Bug", "Bigger Boot"], "40": ["Punishing Birdemic", "Punishing Bird"], "41": ["Chomper Trio", "Chomper"], "42": ["Too Many Voices", "With Many Voices"], "43": ["Memory Crypts", "Miros Bird"], "44": ["Zumbo Sauce", "Jumbo Josh"], "45": ["Freaks", "Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cult", "Lunatic Cultist"], "47": ["Transportation Trio & The Drifter", "Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Father Son Bonding", "Purple Guy", "Voidwalker"], "49": ["WHAT IS MY NAME", "HER", "WHITEFACE"], "50": ["Glaggleland Cremators", "Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Triple Signus", "Signus"], "52": ["Triple Akumii Kari", "Akumii-Kari"], "53": ["Black & White", "Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue Monsters", "Blue gaper", "Blue Flies"], "56": ["Drones", "Drone"], "57": ["Scrapyard Takers", "Scrapyard Taker"], "58": ["Luigi Dolls", "Luigi Doll"], "59": ["Meteor Shower", "Meteor"], "60": ["Triple TBH", "TBH", "TBH Spy"], "61": ["Lost Souls", "Lost Soul"], "62": ["Ballin", "Aku Ball"], "63": ["Reunion", "Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Angels", "Roblander", "Bliss", "Ancient Monarch"], "65": ["Ordinary Apocalypse Bird", "Apocalypse Bird", "Immortal Snail"], "66": ["Pack of Wild Yet Curious Creatures", "Wild Yet Curious Creature"], "67": ["ToN X SlashCo Collab", "Beyond", "Manti"], "68": ["Pack of Yolm", "Yolm"], "69": ["Threepy", "Peepy"], "70": ["Ghost Girl", "Ghost Girl"], "71": ["Delete Me", "Deleted", "Akumii-Kari"], "72": ["Spamton Spam", "Spamton"], "73": ["Death From Above", "Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["It Came From Bus To Nowhere", "Mirror", "Red Bus", "Terror of Nowhere"], "75": ["Zombie Apocalypse", "SCP-049-B"], "76": ["Eating Contest", "Mountain of Smiling Bodies"], "77": ["Triple Clockey", "Clockey"], "78": ["Triple Killer Fish", "Killer Fish"], "79": ["Lethal League", "MR.MEGA", "DoomBox"], "80": ["Trollage", "Comedy", "Tragedy"], "81": ["Mopemopemopemopemopemope", "MopeMope"], "82": ["Triple Trouble", "Sonic", "Rewrite", "Atrached"], "83": ["Triple Living Shadow", "Living Shadow"], "84": ["Beyond's Masks", "Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]};
-        
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss", "Lone Agent", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE", "Distorted Yan"];
 
         let raw = [], filtered = [], page = 1, charts = {};
-        
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v28_hexagram'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v28_hexagram', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v29_scale'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v29_scale', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -220,16 +236,12 @@
         function updRankings() { const kM = {}, mM = {}, rM = {}; filtered.forEach(x => { const win = isW(x.res); x.k.split(/[\/,]+/).forEach(k => { const n=k.trim(); if(n && n!=='None' && !n.includes('???')) { kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; } }); mM[x.m]=(mM[x.m]||{t:0,w:0}); mM[x.m].t++; if(win) mM[x.m].w++; rM[x.r]=(rM[x.r]||{t:0,w:0}); rM[x.r].t++; if(win) rM[x.r].w++; }); const fillDash = (id, m, col) => { const el = document.getElementById(id); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => el.innerHTML += `<div class="rank-item"><span>${n} (${s.t})</span><span style="color:${col}; font-weight:bold;">${(s.w/s.t*100).toFixed(0)}%</span></div>`); }; fillDash('dashK', kM, 'var(--sub)'); fillDash('dashM', mM, 'var(--acc)'); fillDash('dashR', rM, '#ffeb3b'); const fillFull = (id, m) => { const el = document.querySelector(`#${id} tbody`); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => el.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td class="w">${s.w}</td><td class="l">${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`); }; fillFull('fRankK', kM); fillFull('fRankM', mM); fillFull('fRankR', rM); }
         function updUnb() { const l = document.getElementById('unbL'); l.innerHTML = ''; const enc = new Set(); const unk = new Set(); filtered.forEach(x => { const rowStr = (x.r + ' ' + x.k).toLowerCase(); if (!rowStr.includes('unbound') && !rowStr.includes('アンバウンド')) return; let foundId = null; for (const [sid, masterArr] of Object.entries(MASTER)) { if (masterArr.some(m => rowStr.includes(m.toLowerCase()))) { foundId = sid; break; } } if (foundId) { enc.add(foundId); } else { x.k.split(/[\/,]+/).forEach(k => { if(k.trim() && k.trim() !== 'None') unk.add(k.trim()); }); } }); Array.from(enc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => { const title = MASTER[id][0], terrors = MASTER[id].slice(1); let tags = ''; terrors.forEach(k => tags += `<span class="unb-tag">${k}</span>`); l.innerHTML += `<div class="unb-card"><div class="unb-title">Set #${id}: ${title}</div><div class="unb-tag-list">${tags}</div></div>`; }); if (unk.size > 0) { let tags = ''; Array.from(unk).forEach(k => tags += `<span class="unb-tag" style="border-color:#f44336; color:#f44336;">${k}</span>`); l.innerHTML += `<div class="unb-card" style="border-top-color:#f44336;"><div class="unb-title" style="color:#f44336; border-bottom-color:#f44336;">Unknown Sets</div><div class="unb-tag-list">${tags}</div></div>`; } }
         
-        // ★ レーダーチャートを6軸（六芒星）に拡張
         function renderC() {
             const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
-            
             let stats = { ov:{t:0,w:0}, cl:{t:0,w:0}, al:{t:0,w:0}, ub:{t:0,w:0}, mu:{t:0,w:0}, sp:{t:0,w:0} };
-            
             filtered.forEach(x => {
                 const win = isW(x.res);
                 stats.ov.t++; if(win) stats.ov.w++;
-                
                 const r = x.r.toLowerCase();
                 if (r.includes('classic') || r.includes('クラシック')) { stats.cl.t++; if(win) stats.cl.w++; }
                 else if (r.includes('alternate') || r.includes('オルタネイト')) { stats.al.t++; if(win) stats.al.w++; }
@@ -237,34 +249,32 @@
                 else if (r.includes('blood') || r.includes('midnight') || r.includes('ブラッド') || r.includes('ミッドナイト')) { stats.mu.t++; if(win) stats.mu.w++; }
                 else { stats.sp.t++; if(win) stats.sp.w++; }
             });
-            
             const calc = (o) => o.t ? (o.w / o.t * 100).toFixed(1) : 0;
             const dataArr = [calc(stats.ov), calc(stats.cl), calc(stats.al), calc(stats.ub), calc(stats.mu), calc(stats.sp)];
-
+            
+            // ★ レーダーチャート：maintainAspectRatioをfalseにして、高さをコンテナに追従させる
             charts.r = new Chart(rc, { 
                 type:'radar', 
                 data:{ 
                     labels:['Overall', 'Classic', 'Alternate', 'Unbound', 'Multi-Threat', 'Special'], 
-                    datasets:[{
-                        data: dataArr, 
-                        backgroundColor:'rgba(76,175,80,0.2)', 
-                        borderColor:'#4CAF50',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#4CAF50'
-                    }] 
+                    datasets:[{ data: dataArr, backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50', borderWidth: 2, pointBackgroundColor: '#4CAF50' }] 
                 }, 
                 options:{ 
-                    scales:{ r:{ max:100, beginAtZero:true, grid:{color:'#444'}, ticks:{display:false}, pointLabels:{color:'#ccc', font:{size:11}} } }, 
+                    maintainAspectRatio: false,
+                    scales:{ r:{ max:100, beginAtZero:true, grid:{color:'#444'}, ticks:{display:false}, pointLabels:{color:'#ccc', font:{size:10}} } }, 
                     plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>c.raw+'%'}} } 
                 } 
             });
 
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
-                if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
-                } else if(mode==='time'){ const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; }); charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options:{maintainAspectRatio:false, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}}} });
-                } else if(['killer','map'].includes(mode)){ const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); }); let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)); let wD = [], lD = [], lbD = []; if (mode === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = [...t]; wD = t.map(x => s[x].w); lD = t.map(x => s[x].l); if (o.length > 0) { lbD.push('Others'); wD.push(o.reduce((sum, x) => sum + s[x].w, 0)); lD.push(o.reduce((sum, x) => sum + s[x].l, 0)); } } else { lbD = lbl; wD = lbl.map(x => s[x].w); lD = lbl.map(x => s[x].l); } charts.m = new Chart(mc, { type:'bar', data:{labels:lbD, datasets:[{label:'Win',data:wD,backgroundColor:'#4CAF50'},{label:'Lost',data:lD,backgroundColor:'#F44336'}]}, options:{maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}} });
-                } else { const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); items.forEach(i=>{ const v=i.trim(); if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; }); }); let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]); let lbD = [], dA = [], bgA = []; if (k === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = t.map(x => x[0]); dA = t.map(x => x[1]); if (o.length > 0) { lbD.push('Others'); dA.push(o.reduce((sum, x) => sum + x[1], 0)); } } else if (k === 'round') { lbD = lbl.slice(0, 15).map(x => x[0]); dA = lbl.slice(0, 15).map(x => x[1]); } else { lbD = lbl.map(x => x[0]); dA = lbl.map(x => x[1]); } bgA = lbD.map((l, i) => l === 'Others' ? '#888' : `hsl(${i*24},70%,45%)`); charts.m = new Chart(mc, { type:'pie', data:{labels:lbD, datasets:[{data:dA, backgroundColor:bgA}]}, options:{maintainAspectRatio:false} }); }
+                // ★ アナリティクスグラフ：こちらもmaintainAspectRatioをfalseにして高さを拡張
+                const chartOpts = { maintainAspectRatio: false };
+                
+                if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options: chartOpts });
+                } else if(mode==='time'){ const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; }); charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options: { ...chartOpts, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}} } });
+                } else if(['killer','map'].includes(mode)){ const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); }); let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)); let wD = [], lD = [], lbD = []; if (mode === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = [...t]; wD = t.map(x => s[x].w); lD = t.map(x => s[x].l); if (o.length > 0) { lbD.push('Others'); wD.push(o.reduce((sum, x) => sum + s[x].w, 0)); lD.push(o.reduce((sum, x) => sum + s[x].l, 0)); } } else { lbD = lbl; wD = lbl.map(x => s[x].w); lD = lbl.map(x => s[x].l); } charts.m = new Chart(mc, { type:'bar', data:{labels:lbD, datasets:[{label:'Win',data:wD,backgroundColor:'#4CAF50'},{label:'Lost',data:lD,backgroundColor:'#F44336'}]}, options: { ...chartOpts, scales:{x:{stacked:true},y:{stacked:true}} } });
+                } else { const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); items.forEach(i=>{ const v=i.trim(); if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; }); }); let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]); let lbD = [], dA = [], bgA = []; if (k === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = t.map(x => x[0]); dA = t.map(x => x[1]); if (o.length > 0) { lbD.push('Others'); dA.push(o.reduce((sum, x) => sum + x[1], 0)); } } else if (k === 'round') { lbD = lbl.slice(0, 15).map(x => x[0]); dA = lbl.slice(0, 15).map(x => x[1]); } else { lbD = lbl.map(x => x[0]); dA = lbl.map(x => x[1]); } bgA = lbD.map((l, i) => l === 'Others' ? '#888' : `hsl(${i*24},70%,45%)`); charts.m = new Chart(mc, { type:'pie', data:{labels:lbD, datasets:[{data:dA, backgroundColor:bgA}]}, options: chartOpts }); }
             }
         }
         function updUi() { if(!filtered.length) return; const f = document.getElementById('ui-face'), m = document.getElementById('ui-msg'); let w=0, n=0, d=0; filtered.forEach(x=>{ if(isW(x.res)) w++; const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); if(h>=0&&h<=4)n++; if(h>=10&&h<=16)d++; }); const r = (w/filtered.length*100); const DB = { night: { f: "face_tired.png", t: [`深夜に ${n} 回もプレイ？ 非論理的ね。寝なさい。`] }, work: { f: "face_angry.png", t: [`日中に ${d} 回の記録。……今、仕事中じゃないの？`] }, high: { f: "face_tsundere.png", t: [`勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。褒めてないわよ。`] }, low: { f: "face_sigh.png", t: [`勝率 ${r.toFixed(1)}%……。泥沼ね。休息しなさい。`] }, normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。次。`] } }; let c = "normal"; const rnd = Math.random(); if(n>0 && rnd > 0.3) c = "night"; else if(d>0 && rnd > 0.4) c = "work"; else if(r>=70) c = "high"; else if(r<30 && filtered.length > 5) c = "low"; f.src = DB[c].f; m.innerText = DB[c].t[0]; }
