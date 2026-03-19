@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V20 Ultimate</title>
+    <title>ToN Stats V21 Multi-Threat</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -11,6 +11,8 @@
         .controls { background: var(--panel); padding: 12px; border-radius: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
         select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; box-sizing: border-box; cursor: pointer; }
+        optgroup { background: #1a1a1a; color: var(--sub); font-style: normal; font-weight: bold; }
+        option { color: #fff; }
         .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
         .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
         .tab-btn.active { color: var(--acc); border-bottom: 3px solid var(--acc); }
@@ -39,16 +41,13 @@
         <select id="fDate"><option value="all">全期間</option></select>
         <select id="fRound"><option value="all">全Round</option></select>
         <select id="fKiller"><option value="all">全Terror</option></select>
-        <select id="fRes">
-            <option value="all">全結果 (Win/Loss)</option>
-            <option value="Win">Win (勝利)</option>
-            <option value="Loss">Loss (敗北)</option>
-        </select>
+        <select id="fRes"><option value="all">全結果 (Win/Loss)</option><option value="Win">Win (勝利)</option><option value="Loss">Loss (敗北)</option></select>
         <div class="full" style="font-size:13px; color:#ffeb3b; display:flex; align-items:center;">
             <input type="checkbox" id="exClassic" style="width:auto; margin-right:8px; transform:scale(1.2);">
             <label for="exClassic">クラシック除外</label>
         </div>
     </div>
+
     <div class="tabs">
         <button class="tab-btn active" onclick="tab('t-dash')">📊 Summary</button>
         <button class="tab-btn" onclick="tab('t-sim')">🧪 Simulator</button>
@@ -57,39 +56,49 @@
         <button class="tab-btn" onclick="tab('t-list')">📝 History</button>
         <button class="tab-btn" onclick="tab('t-unb')">🌀 Unbound Dex</button>
     </div>
+
     <div id="t-dash" class="tab-content active">
         <div id="ui-box"><img id="ui-face" src="face_normal.png"><p id="ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4;"></p></div>
         <div class="three-col-grid" style="margin-bottom:20px;"><div class="card" style="margin:0;"><div style="font-size:22px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div><div style="color:var(--acc); font-size:15px; margin-bottom:8px;">Win Rate: <span id="wr">0</span>%</div><div style="font-size:11px; color:#888;">Latest Log: <span id="lDt">-</span></div></div><div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2;"><canvas id="radar" height="200"></canvas></div></div>
         <div class="three-col-grid"><div><h3 style="color:var(--sub); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Killers</h3><div id="dashK"></div></div><div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Rounds</h3><div id="dashR"></div></div><div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Maps</h3><div id="dashM"></div></div></div>
         <div class="link-box"><h3 style="margin:0 0 10px 0; color:var(--sub);">🔗 Related Links</h3><a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank">📖 取扱説明書 (readme.html)</a><a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank">💻 GitHub Repository</a></div>
     </div>
+
     <div id="t-sim" class="tab-content">
-        <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Survival Simulator</h3>
-        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">指定した条件での生存確率を演算します。</p>
-        <div class="controls" style="margin-bottom:20px;"><select id="sRound"><option value="all">Any Round</option></select><select id="sMap"><option value="all">Any Map</option></select><select id="sKiller" class="full"><option value="all">Any Terror</option></select></div>
+        <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Multi-Threat Simulator</h3>
+        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">ブラッドバス等の特殊ラウンド選択時、テラーを最大3体まで指定可能です。</p>
+        <div class="controls" style="margin-bottom:20px;">
+            <select id="sRound"><option value="all">Any Round</option></select>
+            <select id="sMap"><option value="all">Any Map</option></select>
+            <div class="full" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;" id="simKillersBox">
+                <select id="sKiller"><option value="all">Terror 1</option></select>
+                <select id="sKiller2" style="display:none;"><option value="all">Terror 2</option></select>
+                <select id="sKiller3" style="display:none;"><option value="all">Terror 3</option></select>
+            </div>
+        </div>
         <div class="card" style="text-align:center; padding:30px 15px; margin-bottom:0;"><div style="font-size:14px; color:#aaa;">Expected Win Rate</div><div id="simRes" style="font-size:48px; font-weight:bold; color:var(--acc); margin:15px 0;">--%</div><div id="simDet" style="font-size:13px; color:#888;">Select conditions to simulate</div></div>
         <div id="sim-ui-box"><img id="sim-ui-face" src="face_normal.png"><p id="sim-ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4; color:var(--unb);"></p></div>
     </div>
+
     <div id="t-chart" class="tab-content"><select id="vMode" style="width:100%; margin-bottom:15px;"><option value="trend">日別勝率推移</option><option value="time">時間帯別分析</option><option value="killer">テラー別勝敗</option><option value="map">マップ別勝敗</option><option value="p_killer">出現率: テラー</option><option value="p_round">出現率: ラウンド</option><option value="p_map">出現率: マップ</option></select><div style="height:400px;"><canvas id="mainChart"></canvas></div></div>
     <div id="t-rank" class="tab-content"><div class="three-col-grid"><div><h3 style="color:var(--sub);">All Killers</h3><div class="table-wrapper"><table id="fRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:#ffeb3b;">All Rounds</h3><div class="table-wrapper"><table id="fRankR"><thead><tr><th>Round</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:var(--acc);">All Maps</h3><div class="table-wrapper"><table id="fRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div></div></div>
     <div id="t-list" class="tab-content"><div class="table-wrapper"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div><div style="margin-top:15px; display:flex; justify-content:space-between;"><button class="tab-btn" style="border:1px solid #555;" onclick="pg(-1)">◀ Prev</button><span id="pgInf" style="align-self:center;">1/1</span><button class="tab-btn" style="border:1px solid #555;" onclick="pg(1)">Next ▶</button></div></div>
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
+
     <script>
         const MASTER = {"1": ["Guidance & The Booboo's", "The Guidance", "BooBooBabies"], "2": ["Red vs Blue", "Haket", "Blue Haket"], "3": ["Third Trumpet", "CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Forest Guardians", "Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Higher Beings", "Security", "The Swarm", "Prisoner"], "6": ["Quadruple Sponge", "Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["Your Best Friends", "BFF", "Nameless"], "8": ["Hotel Monsters", "Seek", "Rush", "Eyes"], "9": ["Squibb Squad", "Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Search and Destroy", "Garden Rejects", "Convict Squad", "Kimera"], "11": ["Judgement Day", "WhiteNight", "Paradise Bird"], "12": ["Me and My Shadow", "Roblander", "Inverted Roblander"], "13": ["Meltdown", "An Arbiter", "The Red Mist"], "14": ["Faceless Mafia", "Slender", "Slendy", "Hungry Home Invader"], "15": ["Mansion Monsters", "Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["Copyright Infringement", "MX", "Luigi", "Wario Apparition"], "17": ["Purple Bros", "Purple Guy"], "18": ["Scavengers", "Scavenger"], "19": ["Life & Death", "The LifeBringer", "Scrapyard Machine"], "20": ["Labyrinth", "Unknown Witch"], "21": ["Spiteful Shadows", "Umbra", "Spiteful Eye"], "22": ["Triple Munci", "Angry Munci"], "23": ["Daycare", "Karol_Corpse"], "24": ["Huggy Horde", "Huggy", "Huggy Wuggy"], "25": ["Infection", "Arrival"], "26": ["Triple Hush", "Hush"], "27": ["[CENSORED]", "[CENSORED]"], "28": ["Byte Horde", "Dev Bytes", "Vana", "Duke"], "29": ["SawMarathon", "Sawrunner"], "30": ["TAKE THE NAMI CHALLENGE", "Little Witch", "War", "Convict(N)"], "31": ["Thunderstorm", "Lightning"], "32": ["END OF THE WORLD", "Joy"], "33": ["Fragmented Memories", "TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona & Mona & Mona & Mona", "Mona", "Mona & The Mountain"], "35": ["Seekers", "Legs"], "36": ["Nugget Squad", "Convict(N)"], "37": ["Saul's goodmen", "Saul"], "38": ["Something Old, Something New", "Security", "Ancient Security"], "39": ["POV: Bug", "Bigger Boot"], "40": ["Punishing Birdemic", "Punishing Bird"], "41": ["Chomper Trio", "Chomper"], "42": ["Too Many Voices", "With Many Voices"], "43": ["Memory Crypts", "Miros Bird"], "44": ["Zumbo Sauce", "Jumbo Josh"], "45": ["Freaks", "Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cult", "Lunatic Cultist"], "47": ["Transportation Trio & The Drifter", "Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Father Son Bonding", "Purple Guy", "Voidwalker"], "49": ["WHAT IS MY NAME", "HER", "WHITEFACE"], "50": ["Glaggleland Cremators", "Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Triple Signus", "Signus"], "52": ["Triple Akumii Kari", "Akumii-Kari"], "53": ["Black & White", "Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue Monsters", "Blue gaper", "Blue Flies"], "56": ["Drones", "Drone"], "57": ["Scrapyard Takers", "Scrapyard Taker"], "58": ["Luigi Dolls", "Luigi Doll"], "59": ["Meteor Shower", "Meteor"], "60": ["Triple TBH", "TBH", "TBH Spy"], "61": ["Lost Souls", "Lost Soul"], "62": ["Ballin", "Aku Ball"], "63": ["Reunion", "Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Angels", "Roblander", "Bliss", "Ancient Monarch"], "65": ["Ordinary Apocalypse Bird", "Apocalypse Bird", "Immortal Snail"], "66": ["Pack of Wild Yet Curious Creatures", "Wild Yet Curious Creature"], "67": ["ToN X SlashCo Collab", "Beyond", "Manti"], "68": ["Pack of Yolm", "Yolm"], "69": ["Threepy", "Peepy"], "70": ["Ghost Girl", "Ghost Girl"], "71": ["Delete Me", "Deleted", "Akumii-Kari"], "72": ["Spamton Spam", "Spamton"], "73": ["Death From Above", "Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["It Came From Bus To Nowhere", "Mirror", "Red Bus", "Terror of Nowhere"], "75": ["Zombie Apocalypse", "SCP-049-B"], "76": ["Eating Contest", "Mountain of Smiling Bodies"], "77": ["Triple Clockey", "Clockey"], "78": ["Triple Killer Fish", "Killer Fish"], "79": ["Lethal League", "MR.MEGA", "DoomBox"], "80": ["Trollage", "Comedy", "Tragedy"], "81": ["Mopemopemopemopemopemope", "MopeMope"], "82": ["Triple Trouble", "Sonic", "Rewrite", "Atrached"], "83": ["Triple Living Shadow", "Living Shadow"], "84": ["Beyond's Masks", "Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]};
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
         const isClassic = (r) => /classic|クラシック/i.test(r);
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v20_ultimate'); if(saved) { parseCSV(saved); initF(); upd(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v20_ultimate', ev.target.result); parseCSV(ev.target.result); initF(); upd(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v21_multithreat'); if(saved) { parseCSV(saved); initF(); upd(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v21_multithreat', ev.target.result); parseCSV(ev.target.result); initF(); upd(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
                 let cols = []; let inQ = false; let cur = ''; 
                 for(let i=0; i<line.length; i++) { 
-                    if(line[i] === '"') { inQ = !inQ; } 
-                    else if(line[i] === ',' && !inQ) { cols.push(cur.trim().replace(/^"|"$/g, '')); cur = ''; } 
-                    else { cur += line[i]; } 
+                    if(line[i] === '"') { inQ = !inQ; } else if(line[i] === ',' && !inQ) { cols.push(cur.trim().replace(/^"|"$/g, '')); cur = ''; } else { cur += line[i]; } 
                 } 
                 cols.push(cur.trim().replace(/^"|"$/g, '')); 
                 while(cols.length > 0 && cols[cols.length - 1] === '') cols.pop();
@@ -99,70 +108,88 @@
             }).filter(x => x); 
         }
 
+        // ★ クラシックと通常（オルタネイト含む）のグループ分け生成
         function initF() { 
-            const dS = new Set(), rS = new Set(), kS = new Set(), mS = new Set(); 
-            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); mS.add(x.m); x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') kS.add(v); }); }); 
-            const f = (id, s, rev=false) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>'; let a = Array.from(s).sort(); if(rev) a.reverse(); a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); }; 
-            f('fDate', dS, true); f('fRound', rS); f('fKiller', kS); f('sRound', rS); f('sMap', mS); f('sKiller', kS); 
+            const dS = new Set(), rS = new Set(), mS = new Set(); 
+            const kNorm = new Set(), kCls = new Set();
+            
+            raw.forEach(x => { 
+                dS.add(x.t.split(' ')[0]); rS.add(x.r); mS.add(x.m); 
+                const isC = isClassic(x.r);
+                x.k.split(/[\/,]+/).forEach(i => { 
+                    const v=i.trim(); 
+                    if(v && v!=='None') { if(isC) kCls.add(v); else kNorm.add(v); } 
+                }); 
+            });
+            // 重複排除: 通常でも出るテラーはClassic専用から除外
+            kCls.forEach(v => { if(kNorm.has(v)) kCls.delete(v); });
+
+            const fSimple = (id, s, rev=false) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>'; let a = Array.from(s).sort(); if(rev) a.reverse(); a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); }; 
+            const fGrouped = (id) => {
+                const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>';
+                if(kNorm.size > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; Array.from(kNorm).sort().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
+                if(kCls.size > 0) { el.innerHTML += '<optgroup label="Classic Exclusive">'; Array.from(kCls).sort().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
+            };
+
+            fSimple('fDate', dS, true); fSimple('fRound', rS); fSimple('sRound', rS); fSimple('sMap', mS);
+            fGrouped('fKiller'); fGrouped('sKiller'); fGrouped('sKiller2'); fGrouped('sKiller3');
         }
 
-        // ★ fRes (勝敗フィルター) をイベント監視に追加
         ['fDate', 'fRound', 'fKiller', 'fRes', 'exClassic', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
-        ['sRound', 'sMap', 'sKiller'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = runSim; });
+        ['sRound', 'sMap', 'sKiller', 'sKiller2', 'sKiller3'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = runSim; });
         
-        // ★ フィルタリングロジックに Win/Loss 判定を組み込み
         function upd() { 
-            const df = document.getElementById('fDate').value;
-            const rf = document.getElementById('fRound').value;
-            const kf = document.getElementById('fKiller').value;
-            const resf = document.getElementById('fRes').value;
-            const exc = document.getElementById('exClassic').checked; 
-            
-            filtered = raw.filter(x => 
-                (df==='all'||x.t.includes(df)) && 
-                (rf==='all'||x.r===rf) && 
-                (kf==='all'||x.k.includes(kf)) && 
-                (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) &&
-                !(exc && isClassic(x.r))
-            ); 
+            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, resf = document.getElementById('fRes').value, exc = document.getElementById('exClassic').checked; 
+            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) && !(exc && isClassic(x.r))); 
             page = 1; render(); 
         }
 
         function tab(t) { document.querySelectorAll('.tab-btn, .tab-content').forEach(el=>el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="tab('${t}')"]`).classList.add('active'); renderC(); }
         
         function render() { 
-            let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); 
-            document.getElementById('tg').innerText = filtered.length; 
-            document.getElementById('tw').innerText = w; 
-            document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; 
-            if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; 
-            
-            const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; 
-            tb.innerHTML = ''; 
-            rev.slice((page-1)*50, page*50).forEach(x => { 
-                tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; 
-            }); 
-            document.getElementById('pgInf').innerText = `${page} / ${tp}`; 
-            updRankings(); updUnb(); updUi(); renderC(); 
+            let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); document.getElementById('tg').innerText = filtered.length; document.getElementById('tw').innerText = w; document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; 
+            const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; rev.slice((page-1)*50, page*50).forEach(x => { tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); document.getElementById('pgInf').innerText = `${page} / ${tp}`; updRankings(); updUnb(); updUi(); renderC(); 
         }
 
         function pg(v) { page += v; render(); }
         
+        // ★ ブラッドバス等の複数テラー判定＆勝率計算
         function runSim() {
-            const r = document.getElementById('sRound').value, m = document.getElementById('sMap').value, k = document.getElementById('sKiller').value, face = document.getElementById('sim-ui-face'), msg = document.getElementById('sim-ui-msg');
-            if (r === 'all' && m === 'all' && k === 'all') { document.getElementById('simRes').innerText = '--%'; document.getElementById('simDet').innerText = 'Select conditions'; document.getElementById('simRes').style.color = 'var(--acc)'; face.src = 'face_normal.png'; msg.innerText = '条件を設定しなさい。話はそれからよ。'; return; }
-            const exact = raw.filter(x => (r==='all'||x.r===r) && (m==='all'||x.m===m) && (k==='all'||x.k.includes(k)));
+            const r = document.getElementById('sRound').value, m = document.getElementById('sMap').value;
+            const k1 = document.getElementById('sKiller').value;
+            
+            // UI Toggle
+            const isMulti = /Bloodbath|Blood bath|ブラッドバス|Midnight|ミッドナイト/i.test(r);
+            document.getElementById('sKiller2').style.display = isMulti ? 'block' : 'none';
+            document.getElementById('sKiller3').style.display = isMulti ? 'block' : 'none';
+
+            const k2 = isMulti ? document.getElementById('sKiller2').value : 'all';
+            const k3 = isMulti ? document.getElementById('sKiller3').value : 'all';
+
+            const face = document.getElementById('sim-ui-face'), msg = document.getElementById('sim-ui-msg');
+            
+            if (r === 'all' && m === 'all' && k1 === 'all' && k2 === 'all' && k3 === 'all') { document.getElementById('simRes').innerText = '--%'; document.getElementById('simDet').innerText = 'Select conditions'; document.getElementById('simRes').style.color = 'var(--acc)'; face.src = 'face_normal.png'; msg.innerText = '条件を設定しなさい。話はそれからよ。'; return; }
+            
+            const exact = raw.filter(x => (r==='all'||x.r===r) && (m==='all'||x.m===m) && (k1==='all'||x.k.includes(k1)) && (k2==='all'||x.k.includes(k2)) && (k3==='all'||x.k.includes(k3)));
             let fw = 0; exact.forEach(x => { if(isW(x.res)) fw++; });
             let rate = 0, type = '';
+            
             if (exact.length > 0) { rate = (fw / exact.length * 100); type = `実測値 (${fw}W / ${exact.length}T)`;
-            } else { let rates = []; if(r!=='all') { const f=raw.filter(x=>x.r===r); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } if(m!=='all') { const f=raw.filter(x=>x.m===m); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } if(k!=='all') { const f=raw.filter(x=>x.k.includes(k)); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); }
+            } else { 
+                let rates = []; 
+                if(r!=='all') { const f=raw.filter(x=>x.r===r); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } 
+                if(m!=='all') { const f=raw.filter(x=>x.m===m); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } 
+                const ks = [k1, k2, k3].filter(k => k !== 'all');
+                ks.forEach(k => { const f=raw.filter(x=>x.k.includes(k)); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); });
+                
                 if(rates.length > 0) { rate = (rates.reduce((a,b)=>a+b, 0) / rates.length * 100); type = '理論値（未遭遇）'; } else { rate = -1; }
             }
+            
             if(rate === -1) { document.getElementById('simRes').innerText = '???'; document.getElementById('simDet').innerText = 'データ不足'; document.getElementById('simRes').style.color = '#888'; face.src = 'face_sigh.png'; msg.innerText = '非論理的な組み合わせね。データが足りなくて計算不能よ。';
             } else { const rt = rate.toFixed(1); document.getElementById('simRes').innerText = rt + '%'; document.getElementById('simDet').innerText = `${type} に基づく演算結果`;
                 if(rate >= 80) { face.src = 'face_tsundere.png'; msg.innerText = `勝率 ${rt}%……。ま、当然の結果ね。あんたにしては上出来じゃない。褒めてないわよ。`; document.getElementById('simRes').style.color = 'var(--acc)';
                 } else if(rate >= 50) { face.src = 'face_normal.png'; msg.innerText = `勝率 ${rt}%。五分五分ってところね。非論理的な行動は控えなさい。`; document.getElementById('simRes').style.color = 'var(--acc)';
-                } else if(rate >= 20) { face.src = 'face_angry.png'; msg.innerText = `勝率 ${rt}%。泥沼ね。この条件で挑むなんて、正気なの？ バカじゃないの。`; document.getElementById('simRes').style.color = '#f44336';
+                } else if(rate >= 20) { face.src = 'face_angry.png'; msg.innerText = `勝率 ${rt}%。泥沼ね。この組み合わせで挑むなんて、正気なの？ バカじゃないの。`; document.getElementById('simRes').style.color = '#f44336';
                 } else { face.src = 'face_sigh.png'; msg.innerText = `勝率 ${rt}%。……死にたいなら止めないわ。大人しくログアウトしなさい。`; document.getElementById('simRes').style.color = '#f44336'; }
                 if(type === '理論値（未遭遇）') document.getElementById('simRes').style.color = '#ffeb3b';
             }
@@ -172,10 +199,7 @@
         function updUnb() { const l = document.getElementById('unbL'); l.innerHTML = ''; const enc = new Set(); const unk = new Set(); filtered.forEach(x => { const rowStr = (x.r + ' ' + x.k).toLowerCase(); if (!rowStr.includes('unbound') && !rowStr.includes('アンバウンド')) return; let foundId = null; for (const [sid, masterArr] of Object.entries(MASTER)) { if (masterArr.some(m => rowStr.includes(m.toLowerCase()))) { foundId = sid; break; } } if (foundId) { enc.add(foundId); } else { x.k.split(/[\/,]+/).forEach(k => { if(k.trim() && k.trim() !== 'None') unk.add(k.trim()); }); } }); Array.from(enc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => { const title = MASTER[id][0], terrors = MASTER[id].slice(1); let tags = ''; terrors.forEach(k => tags += `<span class="unb-tag">${k}</span>`); l.innerHTML += `<div class="unb-card"><div class="unb-title">Set #${id}: ${title}</div><div class="unb-tag-list">${tags}</div></div>`; }); if (unk.size > 0) { let tags = ''; Array.from(unk).forEach(k => tags += `<span class="unb-tag" style="border-color:#f44336; color:#f44336;">${k}</span>`); l.innerHTML += `<div class="unb-card" style="border-top-color:#f44336;"><div class="unb-title" style="color:#f44336; border-bottom-color:#f44336;">Unknown Sets</div><div class="unb-tag-list">${tags}</div></div>`; } }
         
         function renderC() {
-            const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
-            let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0; filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(isClassic(x.r)) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } });
-            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Overall','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
-            
+            const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy(); let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0; filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(isClassic(x.r)) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } }); charts.r = new Chart(rc, { type:'radar', data:{ labels:['Overall','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
                 if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
