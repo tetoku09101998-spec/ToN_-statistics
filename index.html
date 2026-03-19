@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V22 Master Sync</title>
+    <title>ToN Stats V23 Masterpiece</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -11,6 +11,8 @@
         .controls { background: var(--panel); padding: 12px; border-radius: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
         select, input[type="file"] { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; box-sizing: border-box; cursor: pointer; }
+        optgroup { background: #1a1a1a; color: var(--sub); font-style: normal; font-weight: bold; }
+        option { color: #fff; }
         .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
         .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
         .tab-btn.active { color: var(--acc); border-bottom: 3px solid var(--acc); }
@@ -64,7 +66,7 @@
 
     <div id="t-sim" class="tab-content">
         <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Dynamic Multi-Threat Simulator</h3>
-        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">スプレッドシートのマスターデータと連動し、選択ラウンドに出現するテラーのみを抽出します。</p>
+        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">ラウンド仕様に基づき、クラシックとオルタネイトの選択枠を自動制御します。</p>
         <div class="controls" style="margin-bottom:20px;">
             <select id="sRound"><option value="all">Any Round</option></select>
             <select id="sMap"><option value="all">Any Map</option></select>
@@ -86,15 +88,14 @@
     <script>
         const MASTER = {"1": ["Guidance & The Booboo's", "The Guidance", "BooBooBabies"], "2": ["Red vs Blue", "Haket", "Blue Haket"], "3": ["Third Trumpet", "CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Forest Guardians", "Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Higher Beings", "Security", "The Swarm", "Prisoner"], "6": ["Quadruple Sponge", "Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["Your Best Friends", "BFF", "Nameless"], "8": ["Hotel Monsters", "Seek", "Rush", "Eyes"], "9": ["Squibb Squad", "Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Search and Destroy", "Garden Rejects", "Convict Squad", "Kimera"], "11": ["Judgement Day", "WhiteNight", "Paradise Bird"], "12": ["Me and My Shadow", "Roblander", "Inverted Roblander"], "13": ["Meltdown", "An Arbiter", "The Red Mist"], "14": ["Faceless Mafia", "Slender", "Slendy", "Hungry Home Invader"], "15": ["Mansion Monsters", "Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["Copyright Infringement", "MX", "Luigi", "Wario Apparition"], "17": ["Purple Bros", "Purple Guy"], "18": ["Scavengers", "Scavenger"], "19": ["Life & Death", "The LifeBringer", "Scrapyard Machine"], "20": ["Labyrinth", "Unknown Witch"], "21": ["Spiteful Shadows", "Umbra", "Spiteful Eye"], "22": ["Triple Munci", "Angry Munci"], "23": ["Daycare", "Karol_Corpse"], "24": ["Huggy Horde", "Huggy", "Huggy Wuggy"], "25": ["Infection", "Arrival"], "26": ["Triple Hush", "Hush"], "27": ["[CENSORED]", "[CENSORED]"], "28": ["Byte Horde", "Dev Bytes", "Vana", "Duke"], "29": ["SawMarathon", "Sawrunner"], "30": ["TAKE THE NAMI CHALLENGE", "Little Witch", "War", "Convict(N)"], "31": ["Thunderstorm", "Lightning"], "32": ["END OF THE WORLD", "Joy"], "33": ["Fragmented Memories", "TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona & Mona & Mona & Mona", "Mona", "Mona & The Mountain"], "35": ["Seekers", "Legs"], "36": ["Nugget Squad", "Convict(N)"], "37": ["Saul's goodmen", "Saul"], "38": ["Something Old, Something New", "Security", "Ancient Security"], "39": ["POV: Bug", "Bigger Boot"], "40": ["Punishing Birdemic", "Punishing Bird"], "41": ["Chomper Trio", "Chomper"], "42": ["Too Many Voices", "With Many Voices"], "43": ["Memory Crypts", "Miros Bird"], "44": ["Zumbo Sauce", "Jumbo Josh"], "45": ["Freaks", "Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cult", "Lunatic Cultist"], "47": ["Transportation Trio & The Drifter", "Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Father Son Bonding", "Purple Guy", "Voidwalker"], "49": ["WHAT IS MY NAME", "HER", "WHITEFACE"], "50": ["Glaggleland Cremators", "Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Triple Signus", "Signus"], "52": ["Triple Akumii Kari", "Akumii-Kari"], "53": ["Black & White", "Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue Monsters", "Blue gaper", "Blue Flies"], "56": ["Drones", "Drone"], "57": ["Scrapyard Takers", "Scrapyard Taker"], "58": ["Luigi Dolls", "Luigi Doll"], "59": ["Meteor Shower", "Meteor"], "60": ["Triple TBH", "TBH", "TBH Spy"], "61": ["Lost Souls", "Lost Soul"], "62": ["Ballin", "Aku Ball"], "63": ["Reunion", "Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Angels", "Roblander", "Bliss", "Ancient Monarch"], "65": ["Ordinary Apocalypse Bird", "Apocalypse Bird", "Immortal Snail"], "66": ["Pack of Wild Yet Curious Creatures", "Wild Yet Curious Creature"], "67": ["ToN X SlashCo Collab", "Beyond", "Manti"], "68": ["Pack of Yolm", "Yolm"], "69": ["Threepy", "Peepy"], "70": ["Ghost Girl", "Ghost Girl"], "71": ["Delete Me", "Deleted", "Akumii-Kari"], "72": ["Spamton Spam", "Spamton"], "73": ["Death From Above", "Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["It Came From Bus To Nowhere", "Mirror", "Red Bus", "Terror of Nowhere"], "75": ["Zombie Apocalypse", "SCP-049-B"], "76": ["Eating Contest", "Mountain of Smiling Bodies"], "77": ["Triple Clockey", "Clockey"], "78": ["Triple Killer Fish", "Killer Fish"], "79": ["Lethal League", "MR.MEGA", "DoomBox"], "80": ["Trollage", "Comedy", "Tragedy"], "81": ["Mopemopemopemopemopemope", "MopeMope"], "82": ["Triple Trouble", "Sonic", "Rewrite", "Atrached"], "83": ["Triple Living Shadow", "Living Shadow"], "84": ["Beyond's Masks", "Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]};
         
-        // ★ スプレッドシートから連携されたオルタネイトのマスターデータ
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss (Lone Agent)", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE"];
 
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
         const isClassic = (r) => /classic|クラシック/i.test(r);
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v22_mastersync'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v22_mastersync', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v23_masterpiece'); if(saved) { parseCSV(saved); initF(); upd(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v23_masterpiece', ev.target.result); parseCSV(ev.target.result); initF(); upd(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -110,45 +111,93 @@
             }).filter(x => x); 
         }
 
-        function initF() { 
-            const dS = new Set(), rS = new Set(), mS = new Set(), kS = new Set();
-            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); mS.add(x.m); x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') kS.add(v); }); });
-            
-            const fSimple = (id, s, rev=false) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>'; let a = Array.from(s).sort(); if(rev) a.reverse(); a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); }; 
-            fSimple('fDate', dS, true); fSimple('fRound', rS); fSimple('sRound', rS); fSimple('sMap', mS); fSimple('fKiller', kS);
+        // 全テラーからクラシックとオルタネイトを分類して取得するヘルパー
+        function getCategorizedTerrors(filterRound = 'all') {
+            let validK = new Set(), alt = [], cls = [];
+            if (filterRound === 'all') {
+                raw.forEach(x => x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }));
+                SHEET_ALTERNATE.forEach(k => validK.add(k));
+            } else {
+                raw.forEach(x => { if(x.r === filterRound) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
+                if (/Alternate|オルタネイト/i.test(filterRound)) SHEET_ALTERNATE.forEach(k => validK.add(k));
+            }
+            validK.forEach(k => { if(SHEET_ALTERNATE.includes(k)) alt.push(k); else cls.push(k); });
+            return { alt: alt.sort(), cls: cls.sort() };
         }
 
-        ['fDate', 'fRound', 'fKiller', 'fRes', 'exClassic', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
-        ['sMap', 'sKiller', 'sKiller2', 'sKiller3'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = runSim; });
-        
-        // ★ ラウンド変更時にテラーのプルダウンを動的フィルタリング
-        document.getElementById('sRound').onchange = () => { updateSimDropdowns(); runSim(); };
+        function initF() { 
+            const dS = new Set(), rS = new Set(), mS = new Set();
+            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); mS.add(x.m); });
+            
+            const fSimple = (id, s, rev=false) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>'; let a = Array.from(s).sort(); if(rev) a.reverse(); a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); }; 
+            fSimple('fDate', dS, true); fSimple('fRound', rS); fSimple('sRound', rS); fSimple('sMap', mS);
+            
+            updateMainDropdowns();
+            updateSimDropdowns();
+        }
 
+        // ★ メインフィルター（統計用）の動的更新
+        function updateMainDropdowns() {
+            const r = document.getElementById('fRound').value;
+            const el = document.getElementById('fKiller');
+            const cur = el.value;
+            const { alt, cls } = getCategorizedTerrors(r);
+            
+            el.innerHTML = '<option value="all">全Terror</option>';
+            if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
+            if(cls.length > 0) { el.innerHTML += '<optgroup label="Classic Exclusive">'; cls.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
+            el.value = (alt.includes(cur) || cls.includes(cur)) ? cur : 'all';
+        }
+
+        // ★ シミュレーター枠の動的更新（仕様完全準拠）
         function updateSimDropdowns() {
             const r = document.getElementById('sRound').value;
-            const isMulti = /Bloodbath|Blood bath|ブラッドバス|Midnight|ミッドナイト/i.test(r);
+            const isBlood = /Bloodbath|Blood bath|ブラッドバス/i.test(r);
+            const isMid = /Midnight|ミッドナイト/i.test(r);
+            const isMulti = isBlood || isMid;
+
             document.getElementById('sKiller2').style.display = isMulti ? 'block' : 'none';
             document.getElementById('sKiller3').style.display = isMulti ? 'block' : 'none';
 
-            let validK = new Set();
-            if (r === 'all') {
-                raw.forEach(x => x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }));
-            } else {
-                // 過去のログから抽出
-                raw.forEach(x => { if(x.r === r) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
-                // スプレッドシートのマスターから補完
-                if (/Alternate|オルタネイト/i.test(r)) { SHEET_ALTERNATE.forEach(k => validK.add(k)); }
-            }
+            // そのラウンド（または全体）のテラーリストを取得
+            const { alt, cls } = getCategorizedTerrors(r);
+            // シミュレーター時は全テラーの中からClassic/Altを抽出して使う
+            const globalT = getCategorizedTerrors('all');
 
-            ['sKiller', 'sKiller2', 'sKiller3'].forEach(id => {
-                const el = document.getElementById(id);
-                const currentVal = el.value;
+            const fillSelect = (id, label, arr) => {
+                const el = document.getElementById(id); const cur = el.value;
+                el.innerHTML = `<option value="all">${label}</option>`;
+                arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
+                el.value = arr.includes(cur) ? cur : 'all';
+            };
+
+            if (isBlood) {
+                // ブラッドバス: クラシック3枠
+                fillSelect('sKiller', 'Classic Terror 1', globalT.cls);
+                fillSelect('sKiller2', 'Classic Terror 2', globalT.cls);
+                fillSelect('sKiller3', 'Classic Terror 3', globalT.cls);
+            } else if (isMid) {
+                // ミッドナイト: クラシック2枠、オルタネイト1枠
+                fillSelect('sKiller', 'Classic Terror 1', globalT.cls);
+                fillSelect('sKiller2', 'Classic Terror 2', globalT.cls);
+                fillSelect('sKiller3', 'Alternate Terror', globalT.alt);
+            } else {
+                // 通常ラウンド: そのラウンドに準拠した動的リスト
+                const el = document.getElementById('sKiller'); const cur = el.value;
                 el.innerHTML = '<option value="all">Any Terror</option>';
-                Array.from(validK).sort().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
-                if(validK.has(currentVal)) el.value = currentVal; else el.value = 'all';
-            });
+                if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
+                if(cls.length > 0) { el.innerHTML += '<optgroup label="Classic Exclusive">'; cls.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
+                el.value = (alt.includes(cur) || cls.includes(cur)) ? cur : 'all';
+            }
         }
 
+        // イベントバインド
+        ['fDate', 'fKiller', 'fRes', 'exClassic', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
+        document.getElementById('fRound').onchange = () => { updateMainDropdowns(); upd(); };
+        
+        ['sMap', 'sKiller', 'sKiller2', 'sKiller3'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = runSim; });
+        document.getElementById('sRound').onchange = () => { updateSimDropdowns(); runSim(); };
+        
         function upd() { const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, resf = document.getElementById('fRes').value, exc = document.getElementById('exClassic').checked; filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) && !(exc && isClassic(x.r))); page = 1; render(); }
         function tab(t) { document.querySelectorAll('.tab-btn, .tab-content').forEach(el=>el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="tab('${t}')"]`).classList.add('active'); renderC(); }
         function render() { let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); document.getElementById('tg').innerText = filtered.length; document.getElementById('tw').innerText = w; document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; rev.slice((page-1)*50, page*50).forEach(x => { tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); document.getElementById('pgInf').innerText = `${page} / ${tp}`; updRankings(); updUnb(); updUi(); renderC(); }
