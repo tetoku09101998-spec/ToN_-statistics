@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V23 Masterpiece</title>
+    <title>ToN Stats V24 True Sync</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -91,11 +91,14 @@
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss (Lone Agent)", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE"];
 
         let raw = [], filtered = [], page = 1, charts = {};
+        // ★ グローバルな分類セットを新設
+        let globalAlt = new Set(), globalCls = new Set();
+
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
         const isClassic = (r) => /classic|クラシック/i.test(r);
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v23_masterpiece'); if(saved) { parseCSV(saved); initF(); upd(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v23_masterpiece', ev.target.result); parseCSV(ev.target.result); initF(); upd(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v24_truesync'); if(saved) { parseCSV(saved); buildGlobals(); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v24_truesync', ev.target.result); parseCSV(ev.target.result); buildGlobals(); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -111,7 +114,25 @@
             }).filter(x => x); 
         }
 
-        // 全テラーからクラシックとオルタネイトを分類して取得するヘルパー
+        // ★ CSV全データを解析して「真のClassic」と「Alt/Regular」を確定させる
+        function buildGlobals() {
+            globalAlt = new Set(SHEET_ALTERNATE);
+            globalCls = new Set();
+            raw.forEach(x => {
+                const isC = isClassic(x.r);
+                x.k.split(/[\/,]+/).forEach(i => {
+                    const v = i.trim();
+                    if(v && v!=='None') {
+                        if(!isC) globalAlt.add(v);
+                        else globalCls.add(v);
+                    }
+                });
+            });
+            // クラシック以外に一度でも出たテラーは「Classic Exclusive」から除外
+            globalAlt.forEach(v => globalCls.delete(v));
+        }
+
+        // この関数も新ロジックに対応
         function getCategorizedTerrors(filterRound = 'all') {
             let validK = new Set(), alt = [], cls = [];
             if (filterRound === 'all') {
@@ -121,35 +142,32 @@
                 raw.forEach(x => { if(x.r === filterRound) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
                 if (/Alternate|オルタネイト/i.test(filterRound)) SHEET_ALTERNATE.forEach(k => validK.add(k));
             }
-            validK.forEach(k => { if(SHEET_ALTERNATE.includes(k)) alt.push(k); else cls.push(k); });
+            validK.forEach(k => { 
+                if(globalCls.has(k)) cls.push(k); 
+                else alt.push(k); // globalClsになければ全てAlt/Regular扱い
+            });
             return { alt: alt.sort(), cls: cls.sort() };
         }
 
         function initF() { 
             const dS = new Set(), rS = new Set(), mS = new Set();
             raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); mS.add(x.m); });
-            
             const fSimple = (id, s, rev=false) => { const el = document.getElementById(id); el.innerHTML = '<option value="all">全て / Any</option>'; let a = Array.from(s).sort(); if(rev) a.reverse(); a.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); }; 
             fSimple('fDate', dS, true); fSimple('fRound', rS); fSimple('sRound', rS); fSimple('sMap', mS);
-            
-            updateMainDropdowns();
-            updateSimDropdowns();
+            updateMainDropdowns(); updateSimDropdowns();
         }
 
-        // ★ メインフィルター（統計用）の動的更新
         function updateMainDropdowns() {
             const r = document.getElementById('fRound').value;
             const el = document.getElementById('fKiller');
             const cur = el.value;
             const { alt, cls } = getCategorizedTerrors(r);
-            
             el.innerHTML = '<option value="all">全Terror</option>';
             if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
             if(cls.length > 0) { el.innerHTML += '<optgroup label="Classic Exclusive">'; cls.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
             el.value = (alt.includes(cur) || cls.includes(cur)) ? cur : 'all';
         }
 
-        // ★ シミュレーター枠の動的更新（仕様完全準拠）
         function updateSimDropdowns() {
             const r = document.getElementById('sRound').value;
             const isBlood = /Bloodbath|Blood bath|ブラッドバス/i.test(r);
@@ -159,9 +177,7 @@
             document.getElementById('sKiller2').style.display = isMulti ? 'block' : 'none';
             document.getElementById('sKiller3').style.display = isMulti ? 'block' : 'none';
 
-            // そのラウンド（または全体）のテラーリストを取得
             const { alt, cls } = getCategorizedTerrors(r);
-            // シミュレーター時は全テラーの中からClassic/Altを抽出して使う
             const globalT = getCategorizedTerrors('all');
 
             const fillSelect = (id, label, arr) => {
@@ -172,17 +188,14 @@
             };
 
             if (isBlood) {
-                // ブラッドバス: クラシック3枠
                 fillSelect('sKiller', 'Classic Terror 1', globalT.cls);
                 fillSelect('sKiller2', 'Classic Terror 2', globalT.cls);
                 fillSelect('sKiller3', 'Classic Terror 3', globalT.cls);
             } else if (isMid) {
-                // ミッドナイト: クラシック2枠、オルタネイト1枠
                 fillSelect('sKiller', 'Classic Terror 1', globalT.cls);
                 fillSelect('sKiller2', 'Classic Terror 2', globalT.cls);
                 fillSelect('sKiller3', 'Alternate Terror', globalT.alt);
             } else {
-                // 通常ラウンド: そのラウンドに準拠した動的リスト
                 const el = document.getElementById('sKiller'); const cur = el.value;
                 el.innerHTML = '<option value="all">Any Terror</option>';
                 if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
@@ -191,7 +204,6 @@
             }
         }
 
-        // イベントバインド
         ['fDate', 'fKiller', 'fRes', 'exClassic', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
         document.getElementById('fRound').onchange = () => { updateMainDropdowns(); upd(); };
         
