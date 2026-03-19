@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V24 True Sync</title>
+    <title>ToN Stats V25 Flawless Sync</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -91,14 +91,13 @@
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss (Lone Agent)", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE"];
 
         let raw = [], filtered = [], page = 1, charts = {};
-        // ★ グローバルな分類セットを新設
         let globalAlt = new Set(), globalCls = new Set();
 
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
         const isClassic = (r) => /classic|クラシック/i.test(r);
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v24_truesync'); if(saved) { parseCSV(saved); buildGlobals(); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v24_truesync', ev.target.result); parseCSV(ev.target.result); buildGlobals(); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v25_flawless_sync'); if(saved) { parseCSV(saved); buildGlobals(); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v25_flawless_sync', ev.target.result); parseCSV(ev.target.result); buildGlobals(); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -114,25 +113,20 @@
             }).filter(x => x); 
         }
 
-        // ★ CSV全データを解析して「真のClassic」と「Alt/Regular」を確定させる
+        // ★ バグ修正版：リストに載っていればAlt、それ以外は無条件でClassic
         function buildGlobals() {
             globalAlt = new Set(SHEET_ALTERNATE);
             globalCls = new Set();
             raw.forEach(x => {
-                const isC = isClassic(x.r);
                 x.k.split(/[\/,]+/).forEach(i => {
                     const v = i.trim();
-                    if(v && v!=='None') {
-                        if(!isC) globalAlt.add(v);
-                        else globalCls.add(v);
+                    if(v && v!=='None' && !globalAlt.has(v)) {
+                        globalCls.add(v);
                     }
                 });
             });
-            // クラシック以外に一度でも出たテラーは「Classic Exclusive」から除外
-            globalAlt.forEach(v => globalCls.delete(v));
         }
 
-        // この関数も新ロジックに対応
         function getCategorizedTerrors(filterRound = 'all') {
             let validK = new Set(), alt = [], cls = [];
             if (filterRound === 'all') {
@@ -143,8 +137,8 @@
                 if (/Alternate|オルタネイト/i.test(filterRound)) SHEET_ALTERNATE.forEach(k => validK.add(k));
             }
             validK.forEach(k => { 
-                if(globalCls.has(k)) cls.push(k); 
-                else alt.push(k); // globalClsになければ全てAlt/Regular扱い
+                if(globalAlt.has(k)) alt.push(k); 
+                else cls.push(k); 
             });
             return { alt: alt.sort(), cls: cls.sort() };
         }
