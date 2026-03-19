@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V27 Ultimate Reality</title>
+    <title>ToN Stats V28 Hexagram</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -66,7 +66,6 @@
 
     <div id="t-sim" class="tab-content">
         <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Dynamic Multi-Threat Simulator</h3>
-        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">実際に遭遇したデータのみを使用し、クラシックとオルタネイトを自動分類します。</p>
         <div class="controls" style="margin-bottom:20px;">
             <select id="sRound"><option value="all">Any Round</option></select>
             <select id="sMap"><option value="all">Any Map</option></select>
@@ -96,8 +95,8 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v27_ultimate_reality'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v27_ultimate_reality', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v28_hexagram'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v28_hexagram', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -113,18 +112,13 @@
             }).filter(x => x); 
         }
 
-        // ★ バグ修正版: マスターは「判定」にのみ使用し、抽出はCSV実データ(raw)からのみ行う
         function getCategorizedTerrors(filterRound = 'all') {
             let validK = new Set(), alt = [], cls = [];
-            
-            // 抽出: 実データ(CSV)からのみ抜き出す
             if (filterRound === 'all') {
                 raw.forEach(x => x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }));
             } else {
                 raw.forEach(x => { if(x.r === filterRound) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
             }
-            
-            // 判定: 正規化したマスターデータと比較
             const normAltList = SHEET_ALTERNATE.map(normStr);
             validK.forEach(k => { 
                 if(normAltList.includes(normStr(k))) alt.push(k); 
@@ -226,8 +220,45 @@
         function updRankings() { const kM = {}, mM = {}, rM = {}; filtered.forEach(x => { const win = isW(x.res); x.k.split(/[\/,]+/).forEach(k => { const n=k.trim(); if(n && n!=='None' && !n.includes('???')) { kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; } }); mM[x.m]=(mM[x.m]||{t:0,w:0}); mM[x.m].t++; if(win) mM[x.m].w++; rM[x.r]=(rM[x.r]||{t:0,w:0}); rM[x.r].t++; if(win) rM[x.r].w++; }); const fillDash = (id, m, col) => { const el = document.getElementById(id); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => el.innerHTML += `<div class="rank-item"><span>${n} (${s.t})</span><span style="color:${col}; font-weight:bold;">${(s.w/s.t*100).toFixed(0)}%</span></div>`); }; fillDash('dashK', kM, 'var(--sub)'); fillDash('dashM', mM, 'var(--acc)'); fillDash('dashR', rM, '#ffeb3b'); const fillFull = (id, m) => { const el = document.querySelector(`#${id} tbody`); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => el.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td class="w">${s.w}</td><td class="l">${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`); }; fillFull('fRankK', kM); fillFull('fRankM', mM); fillFull('fRankR', rM); }
         function updUnb() { const l = document.getElementById('unbL'); l.innerHTML = ''; const enc = new Set(); const unk = new Set(); filtered.forEach(x => { const rowStr = (x.r + ' ' + x.k).toLowerCase(); if (!rowStr.includes('unbound') && !rowStr.includes('アンバウンド')) return; let foundId = null; for (const [sid, masterArr] of Object.entries(MASTER)) { if (masterArr.some(m => rowStr.includes(m.toLowerCase()))) { foundId = sid; break; } } if (foundId) { enc.add(foundId); } else { x.k.split(/[\/,]+/).forEach(k => { if(k.trim() && k.trim() !== 'None') unk.add(k.trim()); }); } }); Array.from(enc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => { const title = MASTER[id][0], terrors = MASTER[id].slice(1); let tags = ''; terrors.forEach(k => tags += `<span class="unb-tag">${k}</span>`); l.innerHTML += `<div class="unb-card"><div class="unb-title">Set #${id}: ${title}</div><div class="unb-tag-list">${tags}</div></div>`; }); if (unk.size > 0) { let tags = ''; Array.from(unk).forEach(k => tags += `<span class="unb-tag" style="border-color:#f44336; color:#f44336;">${k}</span>`); l.innerHTML += `<div class="unb-card" style="border-top-color:#f44336;"><div class="unb-title" style="color:#f44336; border-bottom-color:#f44336;">Unknown Sets</div><div class="unb-tag-list">${tags}</div></div>`; } }
         
+        // ★ レーダーチャートを6軸（六芒星）に拡張
         function renderC() {
-            const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy(); let aT=0, aW=0, cT=0, cW=0, sT=0, sW=0; filtered.forEach(x => { const win = isW(x.res); aT++; if(win) aW++; if(isClassic(x.r)) { cT++; if(win) cW++; } else { sT++; if(win) sW++; } }); charts.r = new Chart(rc, { type:'radar', data:{ labels:['Overall','Classic','Special'], datasets:[{data:[aT?aW/aT*100:0,cT?cW/cT*100:0,sT?sW/sT*100:0], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50'}] }, options:{ scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},pointLabels:{color:'#ccc'}}}, plugins:{legend:{display:false}} } });
+            const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
+            
+            let stats = { ov:{t:0,w:0}, cl:{t:0,w:0}, al:{t:0,w:0}, ub:{t:0,w:0}, mu:{t:0,w:0}, sp:{t:0,w:0} };
+            
+            filtered.forEach(x => {
+                const win = isW(x.res);
+                stats.ov.t++; if(win) stats.ov.w++;
+                
+                const r = x.r.toLowerCase();
+                if (r.includes('classic') || r.includes('クラシック')) { stats.cl.t++; if(win) stats.cl.w++; }
+                else if (r.includes('alternate') || r.includes('オルタネイト')) { stats.al.t++; if(win) stats.al.w++; }
+                else if (r.includes('unbound') || r.includes('アンバウンド')) { stats.ub.t++; if(win) stats.ub.w++; }
+                else if (r.includes('blood') || r.includes('midnight') || r.includes('ブラッド') || r.includes('ミッドナイト')) { stats.mu.t++; if(win) stats.mu.w++; }
+                else { stats.sp.t++; if(win) stats.sp.w++; }
+            });
+            
+            const calc = (o) => o.t ? (o.w / o.t * 100).toFixed(1) : 0;
+            const dataArr = [calc(stats.ov), calc(stats.cl), calc(stats.al), calc(stats.ub), calc(stats.mu), calc(stats.sp)];
+
+            charts.r = new Chart(rc, { 
+                type:'radar', 
+                data:{ 
+                    labels:['Overall', 'Classic', 'Alternate', 'Unbound', 'Multi-Threat', 'Special'], 
+                    datasets:[{
+                        data: dataArr, 
+                        backgroundColor:'rgba(76,175,80,0.2)', 
+                        borderColor:'#4CAF50',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4CAF50'
+                    }] 
+                }, 
+                options:{ 
+                    scales:{ r:{ max:100, beginAtZero:true, grid:{color:'#444'}, ticks:{display:false}, pointLabels:{color:'#ccc', font:{size:11}} } }, 
+                    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>c.raw+'%'}} } 
+                } 
+            });
+
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
                 if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options:{maintainAspectRatio:false} });
