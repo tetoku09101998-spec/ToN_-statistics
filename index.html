@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V29 Perfect Scale</title>
+    <title>ToN Stats V30 Classic Readability</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -61,7 +61,7 @@
         <div id="ui-box"><img id="ui-face" src="face_normal.png"><p id="ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4;"></p></div>
         <div class="three-col-grid" style="margin-bottom:20px;">
             <div class="card" style="margin:0;">
-                <div style="font-size:22px; font-weight:bold;"><span id="tw">0</span>W / <span id="tg">0</span>T</div>
+                <div style="font-size:20px; font-weight:bold; margin-bottom:5px;">Total: <span id="tg">0</span> / Win: <span id="tw" class="w">0</span></div>
                 <div style="color:var(--acc); font-size:15px; margin-bottom:8px;">Win Rate: <span id="wr">0</span>%</div>
                 <div style="font-size:11px; color:#888;">Latest Log: <span id="lDt">-</span></div>
             </div>
@@ -75,7 +75,6 @@
 
     <div id="t-sim" class="tab-content">
         <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Dynamic Multi-Threat Simulator</h3>
-        <p style="font-size:12px; color:#aaa; margin-bottom:15px;">実際に遭遇したデータのみを使用し、クラシックとオルタネイトを自動分類します。</p>
         <div class="controls" style="margin-bottom:20px;">
             <select id="sRound"><option value="all">Any Round</option></select>
             <select id="sMap"><option value="all">Any Map</option></select>
@@ -111,8 +110,8 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v29_scale'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v29_scale', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v30_classic_readability'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v30_classic_readability', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -252,7 +251,6 @@
             const calc = (o) => o.t ? (o.w / o.t * 100).toFixed(1) : 0;
             const dataArr = [calc(stats.ov), calc(stats.cl), calc(stats.al), calc(stats.ub), calc(stats.mu), calc(stats.sp)];
             
-            // ★ レーダーチャート：maintainAspectRatioをfalseにして、高さをコンテナに追従させる
             charts.r = new Chart(rc, { 
                 type:'radar', 
                 data:{ 
@@ -268,7 +266,6 @@
 
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
-                // ★ アナリティクスグラフ：こちらもmaintainAspectRatioをfalseにして高さを拡張
                 const chartOpts = { maintainAspectRatio: false };
                 
                 if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options: chartOpts });
