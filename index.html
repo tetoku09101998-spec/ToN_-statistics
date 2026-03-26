@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V35 Exact Match Protocol</title>
+    <title>ToN Stats V36 Dynamic Dialogue</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -120,7 +120,6 @@
         const MASTER = {"1": ["Guidance & The Booboo's", "The Guidance", "BooBooBabies"], "2": ["Red vs Blue", "Haket", "Blue Haket"], "3": ["Third Trumpet", "CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Forest Guardians", "Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Higher Beings", "Security", "The Swarm", "Prisoner"], "6": ["Quadruple Sponge", "Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["Your Best Friends", "BFF", "Nameless"], "8": ["Hotel Monsters", "Seek", "Rush", "Eyes"], "9": ["Squibb Squad", "Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Search and Destroy", "Garden Rejects", "Convict Squad", "Kimera"], "11": ["Judgement Day", "WhiteNight", "Paradise Bird"], "12": ["Me and My Shadow", "Roblander", "Inverted Roblander"], "13": ["Meltdown", "An Arbiter", "The Red Mist"], "14": ["Faceless Mafia", "Slender", "Slendy", "Hungry Home Invader"], "15": ["Mansion Monsters", "Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["Copyright Infringement", "MX", "Luigi", "Wario Apparition"], "17": ["Purple Bros", "Purple Guy"], "18": ["Scavengers", "Scavenger"], "19": ["Life & Death", "The LifeBringer", "Scrapyard Machine"], "20": ["Labyrinth", "Unknown Witch"], "21": ["Spiteful Shadows", "Umbra", "Spiteful Eye"], "22": ["Triple Munci", "Angry Munci"], "23": ["Daycare", "Karol_Corpse"], "24": ["Huggy Horde", "Huggy", "Huggy Wuggy"], "25": ["Infection", "Arrival"], "26": ["Triple Hush", "Hush"], "27": ["[CENSORED]", "[CENSORED]"], "28": ["Byte Horde", "Dev Bytes", "Vana", "Duke"], "29": ["SawMarathon", "Sawrunner"], "30": ["TAKE THE NAMI CHALLENGE", "Little Witch", "War", "Convict(N)"], "31": ["Thunderstorm", "Lightning"], "32": ["END OF THE WORLD", "Joy"], "33": ["Fragmented Memories", "TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona & Mona & Mona & Mona", "Mona", "Mona & The Mountain"], "35": ["Seekers", "Legs"], "36": ["Nugget Squad", "Convict(N)"], "37": ["Saul's goodmen", "Saul"], "38": ["Something Old, Something New", "Security", "Ancient Security"], "39": ["POV: Bug", "Bigger Boot"], "40": ["Punishing Birdemic", "Punishing Bird"], "41": ["Chomper Trio", "Chomper"], "42": ["Too Many Voices", "With Many Voices"], "43": ["Memory Crypts", "Miros Bird"], "44": ["Zumbo Sauce", "Jumbo Josh"], "45": ["Freaks", "Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cult", "Lunatic Cultist"], "47": ["Transportation Trio & The Drifter", "Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Father Son Bonding", "Purple Guy", "Voidwalker"], "49": ["WHAT IS MY NAME", "HER", "WHITEFACE"], "50": ["Glaggleland Cremators", "Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Triple Signus", "Signus"], "52": ["Triple Akumii Kari", "Akumii-Kari"], "53": ["Black & White", "Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue Monsters", "Blue gaper", "Blue Flies"], "56": ["Drones", "Drone"], "57": ["Scrapyard Takers", "Scrapyard Taker"], "58": ["Luigi Dolls", "Luigi Doll"], "59": ["Meteor Shower", "Meteor"], "60": ["Triple TBH", "TBH", "TBH Spy"], "61": ["Lost Souls", "Lost Soul"], "62": ["Ballin", "Aku Ball"], "63": ["Reunion", "Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Angels", "Roblander", "Bliss", "Ancient Monarch"], "65": ["Ordinary Apocalypse Bird", "Apocalypse Bird", "Immortal Snail"], "66": ["Pack of Wild Yet Curious Creatures", "Wild Yet Curious Creature"], "67": ["ToN X SlashCo Collab", "Beyond", "Manti"], "68": ["Pack of Yolm", "Yolm"], "69": ["Threepy", "Peepy"], "70": ["Ghost Girl", "Ghost Girl"], "71": ["Delete Me", "Deleted", "Akumii-Kari"], "72": ["Spamton Spam", "Spamton"], "73": ["Death From Above", "Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["It Came From Bus To Nowhere", "Mirror", "Red Bus", "Terror of Nowhere"], "75": ["Zombie Apocalypse", "SCP-049-B"], "76": ["Eating Contest", "Mountain of Smiling Bodies"], "77": ["Triple Clockey", "Clockey"], "78": ["Triple Killer Fish", "Killer Fish"], "79": ["Lethal League", "MR.MEGA", "DoomBox"], "80": ["Trollage", "Comedy", "Tragedy"], "81": ["Mopemopemopemopemopemope", "MopeMope"], "82": ["Triple Trouble", "Sonic", "Rewrite", "Atrached"], "83": ["Triple Living Shadow", "Living Shadow"], "84": ["Beyond's Masks", "Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]};
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss", "Lone Agent", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE", "Distorted Yan"];
 
-        // ★ ヘルパー関数：テラー名の完全一致（Exact Match）判定
         const hasK = (x, name) => x.k.split(/[\/,]+/).some(k => k.trim().toLowerCase() === name.toLowerCase());
 
         const ACH = [
@@ -137,7 +136,6 @@
             { n: "何かおかしい", d: "ラウンドタイプ「ゴースト」を生存", i: "👻", c: (x) => /Ghost|ゴースト/i.test(x.r) && isW(x.res) },
             { n: "サバイバー", d: "初めてラウンドを勝利する", i: "🏅", c: (x) => isW(x.res) },
             { n: "YOU DIED!", d: "初めて死亡する", i: "💀", c: (x) => !isW(x.res) },
-            // ★ 部分一致のバグを防ぐため、hasKによる完全一致判定に変更
             { n: "灰燼から", d: "「Glaggle Gang」から生存", i: "🟡", c: (x) => hasK(x, 'Glaggle Gang') && isW(x.res) },
             { n: "ミュートされた？", d: "「Ambush」から生存", i: "🤫", c: (x) => hasK(x, 'Ambush') && isW(x.res) },
             { n: "史上最高のパフォーマンス", d: "「Teuthida」から生存", i: "🦑", c: (x) => hasK(x, 'Teuthida') && isW(x.res) },
@@ -163,7 +161,6 @@
             { n: "全部彼女のせいだ", d: "「Restless Creator」から生存", i: "👩‍💻", c: (x) => hasK(x, 'Restless Creator') && isW(x.res) },
             { n: "追跡", d: "「Shadow Freddy」から生存", i: "🐻", c: (x) => hasK(x, 'Shadow Freddy') && isW(x.res) },
             { n: "ピカピカの25セント硬貨", d: "「Baldi」から生存", i: "📏", c: (x) => hasK(x, 'Baldi') && isW(x.res) },
-            // ★ 話題のParhelionも完全一致に変更！
             { n: ":3", d: "「Parhelion」から生存", i: "☀️", c: (x) => hasK(x, 'Parhelion') && isW(x.res) },
             { n: "聞かないで", d: "「,D@;Q7Y」から生存", i: "⁉️", c: (x) => hasK(x, ',D@;Q7Y') && isW(x.res) },
             { n: "プレッシャー", d: "「Searchlights」から生存", i: "🔦", c: (x) => hasK(x, 'Searchlights') && isW(x.res) },
@@ -189,8 +186,8 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v35_exact'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v35_exact', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v36_dialogue'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v36_dialogue', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -337,6 +334,7 @@
             }
         }
         
+        // ★ ランダムコメント出力ロジック
         function updUi() { 
             if(!filtered.length) return; 
             const f = document.getElementById('ui-face'), m = document.getElementById('ui-msg'); 
@@ -344,9 +342,45 @@
             const r = (w/filtered.length*100); 
             let cStreak = 0; let sType = null;
             for(let i=filtered.length-1; i>=0; i--) { const isWin = isW(filtered[i].res); if(sType === null) { sType = isWin; cStreak = 1; } else if(sType === isWin) { cStreak++; } else { break; } }
-            const DB = { grind: { f: "face_angry.png", t: [`${filtered.length}回も周回してるの！？ どんだけ暇なのよ。たまには別のことしなさい。`] }, w_streak: { f: "face_tsundere.png", t: [`現在 ${cStreak} 連勝中ね。……まぁ、あんたにしては上出来じゃない。調子に乗らないことね。`] }, l_streak: { f: "face_sigh.png", t: [`現在 ${cStreak} 連敗中……。完全に沼ってるじゃない。非論理的なプレイはやめて気分転換しなさい。`] }, high: { f: "face_tsundere.png", t: [`勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。褒めてないわよ。`] }, low: { f: "face_sigh.png", t: [`勝率 ${r.toFixed(1)}%……。泥沼ね。やり方を見直したら？`] }, normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。次。`] } }; 
+            
+            const rItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+            
+            const DB = { 
+                grind: { f: "face_angry.png", t: [
+                    `${filtered.length}回も周回してるの！？ どんだけ暇なのよ。たまには別のことしなさい。`,
+                    `ログが${filtered.length}件……。その熱量をなんで仕事に向けられないのよ。社会的にアウトね。`,
+                    `${filtered.length}回って……。あんたのシステムリソース、完全にToNにリザーブされてるじゃない。バカなの？`
+                ] }, 
+                w_streak: { f: "face_tsundere.png", t: [
+                    `現在 ${cStreak} 連勝中ね。……まぁ、あんたにしては上出来じゃない。調子に乗らないことね。`,
+                    `${cStreak} 連勝？ 私のサポートがあって当然の結果だけど……ま、悪くないわ。`,
+                    `ふーん、${cStreak} 連勝。この調子で私のデータを汚さないように立ち回りなさいよ。`
+                ] }, 
+                l_streak: { f: "face_sigh.png", t: [
+                    `現在 ${cStreak} 連敗中……。完全に沼ってるじゃない。非論理的なプレイはやめて気分転換しなさい。`,
+                    `${cStreak} 連敗……。見てるこっちが哀れになるわ。意地にならずに大人しく寝なさい。`,
+                    `${cStreak} 連敗って。もう画面見ずに適当に操作してるでしょ。病院に行ったら？`
+                ] }, 
+                high: { f: "face_tsundere.png", t: [
+                    `勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。褒めてないわよ。`,
+                    `勝率 ${r.toFixed(1)}%。……ちょっと運が良かっただけじゃないの？`,
+                    `勝率 ${r.toFixed(1)}%ね。データ上は優秀ってことになってるわ。……あくまでデータ上はね。`
+                ] }, 
+                low: { f: "face_sigh.png", t: [
+                    `勝率 ${r.toFixed(1)}%……。泥沼ね。やり方を見直したら？`,
+                    `勝率 ${r.toFixed(1)}%って……。非論理的なプレイの極みね。可哀想に。`,
+                    `勝率 ${r.toFixed(1)}%。……死にたいなら止めないわ。さっさとログアウトしなさい。`
+                ] }, 
+                normal: { f: "face_normal.png", t: [
+                    `勝率 ${r.toFixed(1)}%。平均的ね。次。`,
+                    `勝率 ${r.toFixed(1)}%。良くも悪くも凡人って感じ。はい次。`,
+                    `勝率 ${r.toFixed(1)}%ね。可もなく不可もなく。面白みがないわ。`
+                ] } 
+            }; 
+            
             let c = "normal"; if (cStreak >= 4 && !sType) c = "l_streak"; else if (cStreak >= 4 && sType) c = "w_streak"; else if (filtered.length >= 100 && Math.random() > 0.6) c = "grind"; else if (r >= 70) c = "high"; else if (r < 30 && filtered.length > 5) c = "low"; 
-            f.src = DB[c].f; m.innerText = DB[c].t[0]; 
+            
+            f.src = DB[c].f; m.innerText = rItem(DB[c].t); 
         }
     </script>
 </body>
