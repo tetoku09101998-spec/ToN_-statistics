@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V32 Pure Ratio</title>
+    <title>ToN Stats V33 Pure Data Cleansing</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -42,9 +42,10 @@
         <select id="fRound"><option value="all">全Round</option></select>
         <select id="fKiller"><option value="all">全Terror</option></select>
         <select id="fRes"><option value="all">全結果 (Win/Loss)</option><option value="Win">Win (勝利)</option><option value="Loss">Loss (敗北)</option></select>
-        <div class="full" style="font-size:13px; color:#ffeb3b; display:flex; align-items:center;">
-            <input type="checkbox" id="exClassic" style="width:auto; margin-right:8px; transform:scale(1.2);">
-            <label for="exClassic">クラシック除外</label>
+        <div class="full" style="font-size:13px; color:#ffeb3b; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
+            <label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" id="exClassic" style="width:auto; margin-right:5px; transform:scale(1.2);"> クラシック除外</label>
+            <label style="display:flex; align-items:center; cursor:pointer; color:var(--sub);"><input type="checkbox" id="exAFK" style="width:auto; margin-right:5px; transform:scale(1.2);"> AFK連敗ノイズ除外</label>
+            <span style="color:var(--txt);">（閾値: <input type="number" id="afkVal" value="10" min="3" max="100" style="width:50px; display:inline-block; padding:4px; text-align:center;"> 連敗）</span>
         </div>
     </div>
 
@@ -110,8 +111,8 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v32_pureratio'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v32_pureratio', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v33_pure_cleanse'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v33_pure_cleanse', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -123,16 +124,16 @@
                 while(cols.length > 0 && cols[cols.length - 1] === '') cols.pop();
                 if (cols.length < 5) return null; 
                 const res = cols.pop(); 
-                return { t: cols.shift(), m: cols.shift(), r: cols.shift(), k: cols.join(', '), res: res }; 
+                return { t: cols.shift(), m: cols.shift(), r: cols.shift(), k: cols.join(', '), res: res, afk: false }; 
             }).filter(x => x); 
         }
 
         function getCategorizedTerrors(filterRound = 'all') {
             let validK = new Set(), alt = [], cls = [];
             if (filterRound === 'all') {
-                raw.forEach(x => x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }));
+                raw.forEach(x => { if(!x.afk) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
             } else {
-                raw.forEach(x => { if(x.r === filterRound) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
+                raw.forEach(x => { if(x.r === filterRound && !x.afk) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
             }
             const normAltList = SHEET_ALTERNATE.map(normStr);
             validK.forEach(k => { 
@@ -193,14 +194,70 @@
             }
         }
 
-        ['fDate', 'fKiller', 'fRes', 'exClassic', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
+        // ★ AFK判定を含む動的アップデートロジック
+        function upd() { 
+            const afkLimit = parseInt(document.getElementById('afkVal').value) || 10;
+            const exAFK = document.getElementById('exAFK').checked;
+            
+            let lossStreak = 0;
+            let streakStartIndex = -1;
+            
+            // フラグ初期化
+            raw.forEach(x => x.afk = false);
+            
+            // 順次検証して連続敗北をAFKとしてマーキング
+            for(let i=0; i<raw.length; i++) {
+                if(!isW(raw[i].res)) {
+                    if(lossStreak === 0) streakStartIndex = i;
+                    lossStreak++;
+                } else {
+                    if(lossStreak >= afkLimit) {
+                        for(let j=streakStartIndex; j<i; j++) raw[j].afk = true;
+                    }
+                    lossStreak = 0;
+                }
+            }
+            if(lossStreak >= afkLimit) {
+                for(let j=streakStartIndex; j<raw.length; j++) raw[j].afk = true;
+            }
+
+            const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, resf = document.getElementById('fRes').value, exc = document.getElementById('exClassic').checked; 
+            
+            filtered = raw.filter(x => 
+                (df==='all'||x.t.includes(df)) && 
+                (rf==='all'||x.r===rf) && 
+                (kf==='all'||x.k.includes(kf)) && 
+                (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) && 
+                !(exc && isClassic(x.r)) &&
+                !(exAFK && x.afk) // AFKフィルター適用
+            ); 
+            page = 1; render(); 
+        }
+
+        ['fDate', 'fKiller', 'fRes', 'exClassic', 'exAFK', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
+        document.getElementById('afkVal').onchange = upd;
         document.getElementById('fRound').onchange = () => { updateMainDropdowns(); upd(); };
         ['sMap', 'sKiller', 'sKiller2', 'sKiller3'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = runSim; });
         document.getElementById('sRound').onchange = () => { updateSimDropdowns(); runSim(); };
         
-        function upd() { const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, resf = document.getElementById('fRes').value, exc = document.getElementById('exClassic').checked; filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) && !(exc && isClassic(x.r))); page = 1; render(); }
         function tab(t) { document.querySelectorAll('.tab-btn, .tab-content').forEach(el=>el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="tab('${t}')"]`).classList.add('active'); renderC(); }
-        function render() { let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); document.getElementById('tg').innerText = filtered.length; document.getElementById('tw').innerText = w; document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; rev.slice((page-1)*50, page*50).forEach(x => { tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); document.getElementById('pgInf').innerText = `${page} / ${tp}`; updRankings(); updUnb(); updUi(); renderC(); }
+        
+        function render() { 
+            let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); 
+            document.getElementById('tg').innerText = filtered.length; 
+            document.getElementById('tw').innerText = w; 
+            document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; 
+            if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; 
+            const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; 
+            rev.slice((page-1)*50, page*50).forEach(x => { 
+                // AFKだった場合は履歴上で分かりやすくグレーダウン
+                const rowStyle = x.afk ? 'color:#666;' : '';
+                const afkTag = x.afk ? '<span style="font-size:10px;color:#f44336;border:1px solid #f44336;padding:1px 3px;border-radius:3px;margin-left:5px;">AFK</span>' : '';
+                tb.innerHTML += `<tr style="${rowStyle}"><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}${afkTag}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; 
+            }); 
+            document.getElementById('pgInf').innerText = `${page} / ${tp}`; 
+            updRankings(); updUnb(); updUi(); renderC(); 
+        }
         function pg(v) { page += v; render(); }
         
         function runSim() {
@@ -210,12 +267,12 @@
             const face = document.getElementById('sim-ui-face'), msg = document.getElementById('sim-ui-msg');
             
             if (r === 'all' && m === 'all' && k1 === 'all' && k2 === 'all' && k3 === 'all') { document.getElementById('simRes').innerText = '--%'; document.getElementById('simDet').innerText = 'Select conditions'; document.getElementById('simRes').style.color = 'var(--acc)'; face.src = 'face_normal.png'; msg.innerText = '条件を設定しなさい。話はそれからよ。'; return; }
-            const exact = raw.filter(x => (r==='all'||x.r===r) && (m==='all'||x.m===m) && (k1==='all'||x.k.includes(k1)) && (k2==='all'||x.k.includes(k2)) && (k3==='all'||x.k.includes(k3)));
+            const exact = filtered.filter(x => (r==='all'||x.r===r) && (m==='all'||x.m===m) && (k1==='all'||x.k.includes(k1)) && (k2==='all'||x.k.includes(k2)) && (k3==='all'||x.k.includes(k3)));
             let fw = 0; exact.forEach(x => { if(isW(x.res)) fw++; });
             let rate = 0, type = '';
             
             if (exact.length > 0) { rate = (fw / exact.length * 100); type = `実測値 (${fw}W / ${exact.length}T)`;
-            } else { let rates = []; if(r!=='all') { const f=raw.filter(x=>x.r===r); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } if(m!=='all') { const f=raw.filter(x=>x.m===m); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } const ks = [k1, k2, k3].filter(k => k !== 'all'); ks.forEach(k => { const f=raw.filter(x=>x.k.includes(k)); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); }); if(rates.length > 0) { rate = (rates.reduce((a,b)=>a+b, 0) / rates.length * 100); type = '理論値（未遭遇）'; } else { rate = -1; } }
+            } else { let rates = []; if(r!=='all') { const f=filtered.filter(x=>x.r===r); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } if(m!=='all') { const f=filtered.filter(x=>x.m===m); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } const ks = [k1, k2, k3].filter(k => k !== 'all'); ks.forEach(k => { const f=filtered.filter(x=>x.k.includes(k)); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); }); if(rates.length > 0) { rate = (rates.reduce((a,b)=>a+b, 0) / rates.length * 100); type = '理論値（未遭遇）'; } else { rate = -1; } }
             
             if(rate === -1) { document.getElementById('simRes').innerText = '???'; document.getElementById('simDet').innerText = 'データ不足'; document.getElementById('simRes').style.color = '#888'; face.src = 'face_sigh.png'; msg.innerText = '非論理的な組み合わせね。データが足りなくて計算不能よ。';
             } else { const rt = rate.toFixed(1); document.getElementById('simRes').innerText = rt + '%'; document.getElementById('simDet').innerText = `${type} に基づく演算結果`;
@@ -263,25 +320,14 @@
                         wD = lbl.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); 
                         lD = lbl.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); 
                     } 
-                    // ★ 積み上げグラフを割合(%)表示に改修
-                    charts.m = new Chart(mc, { 
-                        type:'bar', 
-                        data:{labels:lbD, datasets:[{label:'Win%',data:wD,backgroundColor:'#4CAF50'},{label:'Loss%',data:lD,backgroundColor:'#F44336'}]}, 
-                        options: { ...chartOpts, scales:{x:{stacked:true},y:{stacked:true, max:100}}, plugins: { tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.raw + '%' } } } } 
-                    });
+                    charts.m = new Chart(mc, { type:'bar', data:{labels:lbD, datasets:[{label:'Win%',data:wD,backgroundColor:'#4CAF50'},{label:'Loss%',data:lD,backgroundColor:'#F44336'}]}, options: { ...chartOpts, scales:{x:{stacked:true},y:{stacked:true, max:100}}, plugins: { tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.raw + '%' } } } } });
                 } else { 
                     const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); items.forEach(i=>{ const v=i.trim(); if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; }); }); let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]); let lbD = [], dA = [], bgA = []; if (k === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = t.map(x => x[0]); dA = t.map(x => x[1]); if (o.length > 0) { lbD.push('Others'); dA.push(o.reduce((sum, x) => sum + x[1], 0)); } } else if (k === 'round') { lbD = lbl.slice(0, 15).map(x => x[0]); dA = lbl.slice(0, 15).map(x => x[1]); } else { lbD = lbl.map(x => x[0]); dA = lbl.map(x => x[1]); } bgA = lbD.map((l, i) => l === 'Others' ? '#888' : `hsl(${i*24},70%,45%)`); 
-                    // ★ 円グラフのツールチップに%を追加
-                    charts.m = new Chart(mc, { 
-                        type:'pie', 
-                        data:{labels:lbD, datasets:[{data:dA, backgroundColor:bgA}]}, 
-                        options: { ...chartOpts, plugins: { tooltip: { callbacks: { label: function(c) { const tot = c.dataset.data.reduce((a,b)=>a+b,0); const p = (c.raw/tot*100).toFixed(1); return c.label + ': ' + c.raw + ' (' + p + '%)'; } } } } } 
-                    }); 
+                    charts.m = new Chart(mc, { type:'pie', data:{labels:lbD, datasets:[{data:dA, backgroundColor:bgA}]}, options: { ...chartOpts, plugins: { tooltip: { callbacks: { label: function(c) { const tot = c.dataset.data.reduce((a,b)=>a+b,0); const p = (c.raw/tot*100).toFixed(1); return c.label + ': ' + c.raw + ' (' + p + '%)'; } } } } } }); 
                 }
             }
         }
         
-        // ★ コメントロジック：時間帯を廃止し、連勝・連敗や周回数（プレイスキル）に基づいた判定に変更
         function updUi() { 
             if(!filtered.length) return; 
             const f = document.getElementById('ui-face'), m = document.getElementById('ui-msg'); 
