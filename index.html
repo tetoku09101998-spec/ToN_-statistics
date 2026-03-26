@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V34 Gamification Masterpiece</title>
+    <title>ToN Stats V35 Exact Match Protocol</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -34,7 +34,6 @@
         .unb-tag-list { display: flex; flex-wrap: wrap; gap: 5px; .unb-tag { background: #1e1e1e; padding: 4px 8px; border-radius: 4px; color: #ddd; font-size: 11px; border: 1px solid #555; } }
         .link-box { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--sub); margin-top: 20px; a { color: var(--txt); text-decoration: none; display: block; margin: 8px 0; font-size: 14px; transition: 0.2s; &:hover { color: var(--sub); } } }
         
-        /* ★ アチーブメントUI用のCSS */
         .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         .ach-card { background: #252525; border-radius: 8px; padding: 15px; display: flex; align-items: center; border-left: 5px solid #444; opacity: 0.4; filter: grayscale(100%); transition: 0.3s; }
         .ach-card.unlocked { opacity: 1; filter: grayscale(0%); border-left-color: #FFD700; background: linear-gradient(135deg, #2a2a2a 0%, #3a3a20 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -121,7 +120,9 @@
         const MASTER = {"1": ["Guidance & The Booboo's", "The Guidance", "BooBooBabies"], "2": ["Red vs Blue", "Haket", "Blue Haket"], "3": ["Third Trumpet", "CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Forest Guardians", "Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Higher Beings", "Security", "The Swarm", "Prisoner"], "6": ["Quadruple Sponge", "Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["Your Best Friends", "BFF", "Nameless"], "8": ["Hotel Monsters", "Seek", "Rush", "Eyes"], "9": ["Squibb Squad", "Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Search and Destroy", "Garden Rejects", "Convict Squad", "Kimera"], "11": ["Judgement Day", "WhiteNight", "Paradise Bird"], "12": ["Me and My Shadow", "Roblander", "Inverted Roblander"], "13": ["Meltdown", "An Arbiter", "The Red Mist"], "14": ["Faceless Mafia", "Slender", "Slendy", "Hungry Home Invader"], "15": ["Mansion Monsters", "Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["Copyright Infringement", "MX", "Luigi", "Wario Apparition"], "17": ["Purple Bros", "Purple Guy"], "18": ["Scavengers", "Scavenger"], "19": ["Life & Death", "The LifeBringer", "Scrapyard Machine"], "20": ["Labyrinth", "Unknown Witch"], "21": ["Spiteful Shadows", "Umbra", "Spiteful Eye"], "22": ["Triple Munci", "Angry Munci"], "23": ["Daycare", "Karol_Corpse"], "24": ["Huggy Horde", "Huggy", "Huggy Wuggy"], "25": ["Infection", "Arrival"], "26": ["Triple Hush", "Hush"], "27": ["[CENSORED]", "[CENSORED]"], "28": ["Byte Horde", "Dev Bytes", "Vana", "Duke"], "29": ["SawMarathon", "Sawrunner"], "30": ["TAKE THE NAMI CHALLENGE", "Little Witch", "War", "Convict(N)"], "31": ["Thunderstorm", "Lightning"], "32": ["END OF THE WORLD", "Joy"], "33": ["Fragmented Memories", "TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona & Mona & Mona & Mona", "Mona", "Mona & The Mountain"], "35": ["Seekers", "Legs"], "36": ["Nugget Squad", "Convict(N)"], "37": ["Saul's goodmen", "Saul"], "38": ["Something Old, Something New", "Security", "Ancient Security"], "39": ["POV: Bug", "Bigger Boot"], "40": ["Punishing Birdemic", "Punishing Bird"], "41": ["Chomper Trio", "Chomper"], "42": ["Too Many Voices", "With Many Voices"], "43": ["Memory Crypts", "Miros Bird"], "44": ["Zumbo Sauce", "Jumbo Josh"], "45": ["Freaks", "Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cult", "Lunatic Cultist"], "47": ["Transportation Trio & The Drifter", "Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Father Son Bonding", "Purple Guy", "Voidwalker"], "49": ["WHAT IS MY NAME", "HER", "WHITEFACE"], "50": ["Glaggleland Cremators", "Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Triple Signus", "Signus"], "52": ["Triple Akumii Kari", "Akumii-Kari"], "53": ["Black & White", "Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue Monsters", "Blue gaper", "Blue Flies"], "56": ["Drones", "Drone"], "57": ["Scrapyard Takers", "Scrapyard Taker"], "58": ["Luigi Dolls", "Luigi Doll"], "59": ["Meteor Shower", "Meteor"], "60": ["Triple TBH", "TBH", "TBH Spy"], "61": ["Lost Souls", "Lost Soul"], "62": ["Ballin", "Aku Ball"], "63": ["Reunion", "Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Angels", "Roblander", "Bliss", "Ancient Monarch"], "65": ["Ordinary Apocalypse Bird", "Apocalypse Bird", "Immortal Snail"], "66": ["Pack of Wild Yet Curious Creatures", "Wild Yet Curious Creature"], "67": ["ToN X SlashCo Collab", "Beyond", "Manti"], "68": ["Pack of Yolm", "Yolm"], "69": ["Threepy", "Peepy"], "70": ["Ghost Girl", "Ghost Girl"], "71": ["Delete Me", "Deleted", "Akumii-Kari"], "72": ["Spamton Spam", "Spamton"], "73": ["Death From Above", "Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["It Came From Bus To Nowhere", "Mirror", "Red Bus", "Terror of Nowhere"], "75": ["Zombie Apocalypse", "SCP-049-B"], "76": ["Eating Contest", "Mountain of Smiling Bodies"], "77": ["Triple Clockey", "Clockey"], "78": ["Triple Killer Fish", "Killer Fish"], "79": ["Lethal League", "MR.MEGA", "DoomBox"], "80": ["Trollage", "Comedy", "Tragedy"], "81": ["Mopemopemopemopemopemope", "MopeMope"], "82": ["Triple Trouble", "Sonic", "Rewrite", "Atrached"], "83": ["Triple Living Shadow", "Living Shadow"], "84": ["Beyond's Masks", "Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]};
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss", "Lone Agent", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE", "Distorted Yan"];
 
-        // ★ Wikiから抽出・疑似実装したバカみたいな数の実績リスト
+        // ★ ヘルパー関数：テラー名の完全一致（Exact Match）判定
+        const hasK = (x, name) => x.k.split(/[\/,]+/).some(k => k.trim().toLowerCase() === name.toLowerCase());
+
         const ACH = [
             { n: "血液不足", d: "ラウンドタイプ「ブラッドバス」を生存", i: "🩸", c: (x) => /Bloodbath|ブラッドバス/i.test(x.r) && isW(x.res) },
             { n: "禁煙！", d: "ラウンドタイプ「霧」を生存", i: "🌫️", c: (x) => /Fog|霧/i.test(x.r) && isW(x.res) },
@@ -136,43 +137,45 @@
             { n: "何かおかしい", d: "ラウンドタイプ「ゴースト」を生存", i: "👻", c: (x) => /Ghost|ゴースト/i.test(x.r) && isW(x.res) },
             { n: "サバイバー", d: "初めてラウンドを勝利する", i: "🏅", c: (x) => isW(x.res) },
             { n: "YOU DIED!", d: "初めて死亡する", i: "💀", c: (x) => !isW(x.res) },
-            { n: "灰燼から", d: "「Glaggle Gang」から生存", i: "🟡", c: (x) => /Glaggle Gang/i.test(x.k) && isW(x.res) },
-            { n: "ミュートされた？", d: "「Ambush」から生存", i: "🤫", c: (x) => /Ambush/i.test(x.k) && isW(x.res) },
-            { n: "史上最高のパフォーマンス", d: "「Teuthida」から生存", i: "🦑", c: (x) => /Teuthida/i.test(x.k) && isW(x.res) },
-            { n: "衝突と解消", d: "「Convict Squad」から生存", i: "💥", c: (x) => /Convict Squad/i.test(x.k) && isW(x.res) },
-            { n: "日頃の行い", d: "「Angry Munci」から生存", i: "😡", c: (x) => /Angry Munci/i.test(x.k) && isW(x.res) },
-            { n: "削除されました", d: "「sm64.z64」から生存", i: "🍄", c: (x) => /sm64\.z64/i.test(x.k) && isW(x.res) },
-            { n: "いつもの作業", d: "「Don't Touch Me」から生存", i: "🔘", c: (x) => /Don't Touch Me/i.test(x.k) && isW(x.res) },
-            { n: "復讐", d: "「Judas」から生存", i: "🗡️", c: (x) => /Judas/i.test(x.k) && isW(x.res) },
-            { n: "始マリノ祭リ", d: "「Walpurgisnacht」から生存", i: "🎭", c: (x) => /Walpurgisnacht/i.test(x.k) && isW(x.res) },
-            { n: "赤い霧が帰ってきます", d: "「The Red Mist」から生存", i: "🪓", c: (x) => /The Red Mist/i.test(x.k) && isW(x.res) },
-            { n: "OPテラー", d: "「Sakuya The Ripper」から生存", i: "⏱️", c: (x) => /Sakuya The Ripper/i.test(x.k) && isW(x.res) },
-            { n: "原初の信号", d: "「S.O.S」から生存", i: "📡", c: (x) => /S\.O\.S/i.test(x.k) && isW(x.res) },
-            { n: "止まらない食欲", d: "「The MeatBallMan」から生存", i: "🍝", c: (x) => /MeatBallMan/i.test(x.k) && isW(x.res) },
-            { n: "心なき機械", d: "「Nameless」から生存", i: "🤖", c: (x) => /Nameless/i.test(x.k) && isW(x.res) },
-            { n: "エンパシー", d: "「Apathy」から生存", i: "😶", c: (x) => /Apathy/i.test(x.k) && isW(x.res) },
-            { n: "楽園はそこにあった", d: "「Paradise Bird」から生存", i: "🦩", c: (x) => /Paradise Bird/i.test(x.k) && isW(x.res) },
-            { n: "失われた魂", d: "「Kimera」から生存", i: "🧬", c: (x) => /Kimera/i.test(x.k) && isW(x.res) },
-            { n: "汚染された", d: "「Beyond」に遭遇", i: "👁️", c: (x) => /Beyond/i.test(x.k) },
-            { n: "バンバンたちが天国へ送るかのごとく", d: "「Garten Goers」から生存", i: "👹", c: (x) => /Garten Goers/i.test(x.k) && isW(x.res) },
-            { n: "燦爛たる幸福", d: "「Joy」から生存", i: "💊", c: (x) => /Joy/i.test(x.k) && isW(x.res) },
-            { n: "バスパス", d: "「Transportation Trio & The Drifter」から生存", i: "🚌", c: (x) => /Transportation Trio & The Drifter/i.test(x.k) && isW(x.res) },
-            { n: "破滅", d: "「Monarch」から生存", i: "👑", c: (x) => /Monarch/i.test(x.k) && isW(x.res) },
-            { n: "全部彼女のせいだ", d: "「Restless Creator」から生存", i: "👩‍💻", c: (x) => /Restless Creator/i.test(x.k) && isW(x.res) },
-            { n: "追跡", d: "「Shadow Freddy」から生存", i: "🐻", c: (x) => /Shadow Freddy/i.test(x.k) && isW(x.res) },
-            { n: "ピカピカの25セント硬貨", d: "「Baldi」から生存", i: "📏", c: (x) => /Baldi/i.test(x.k) && isW(x.res) },
-            { n: ":3", d: "「Parhelion」から生存", i: "☀️", c: (x) => /Parhelion/i.test(x.k) && isW(x.res) },
-            { n: "聞かないで", d: "「,D@;Q7Y」から生存", i: "⁉️", c: (x) => /,D@;Q7Y/i.test(x.k) && isW(x.res) },
-            { n: "プレッシャー", d: "「Searchlights」から生存", i: "🔦", c: (x) => /Searchlights/i.test(x.k) && isW(x.res) },
-            { n: "侵入", d: "「Interloper」に殺される", i: "🚷", c: (x) => /Interloper/i.test(x.k) && !isW(x.res) },
-            { n: "あっ", d: "「Toren's Shadow」を怒らせる(遭遇)", i: "💢", c: (x) => /Toren's Shadow/i.test(x.k) },
-            { n: "止まれ", d: "「The Guidance」に殺される", i: "🛑", c: (x) => /The Guidance/i.test(x.k) && !isW(x.res) },
-            { n: "場所もタイミングも悪かった", d: "「MR MEGA」に殺される", i: "⚡", c: (x) => /MR MEGA/i.test(x.k) && !isW(x.res) },
-            { n: "143", d: "「Blackspace」で「Hellmari」に殺される", i: "🎻", c: (x) => /Blackspace/i.test(x.m) && /Hellmari/i.test(x.k) && !isW(x.res) },
-            { n: "ベストオブパープルガイ", d: "「狂気」のPurple Guyから生存", i: "🟪", c: (x) => /Insanity|狂気/i.test(x.r) && /Purple Guy/i.test(x.k) && isW(x.res) },
-            { n: "隠れんぼ王", d: "RushかAmbushが存在するブラッドバスかミッドナイトを生存", i: "🚪", c: (x) => (/Bloodbath|Midnight|ブラッドバス|ミッドナイト/i.test(x.r)) && (/Rush|Ambush/i.test(x.k)) && isW(x.res) },
-            { n: "ザ・ワールド", d: "Sakuya Izayoiが存在するブラッドバスかミッドナイトを生存", i: "🔪", c: (x) => (/Bloodbath|Midnight|ブラッドバス|ミッドナイト/i.test(x.r)) && (/Sakuya Izayoi/i.test(x.k)) && isW(x.res) },
-            { n: "子供向けじゃないよ", d: "「MopeMope」から生存", i: "🌸", c: (x) => /MopeMope/i.test(x.k) && isW(x.res) },
+            // ★ 部分一致のバグを防ぐため、hasKによる完全一致判定に変更
+            { n: "灰燼から", d: "「Glaggle Gang」から生存", i: "🟡", c: (x) => hasK(x, 'Glaggle Gang') && isW(x.res) },
+            { n: "ミュートされた？", d: "「Ambush」から生存", i: "🤫", c: (x) => hasK(x, 'Ambush') && isW(x.res) },
+            { n: "史上最高のパフォーマンス", d: "「Teuthida」から生存", i: "🦑", c: (x) => hasK(x, 'Teuthida') && isW(x.res) },
+            { n: "衝突と解消", d: "「Convict Squad」から生存", i: "💥", c: (x) => hasK(x, 'Convict Squad') && isW(x.res) },
+            { n: "日頃の行い", d: "「Angry Munci」から生存", i: "😡", c: (x) => hasK(x, 'Angry Munci') && isW(x.res) },
+            { n: "削除されました", d: "「sm64.z64」から生存", i: "🍄", c: (x) => hasK(x, 'sm64.z64') && isW(x.res) },
+            { n: "いつもの作業", d: "「Don't Touch Me」から生存", i: "🔘", c: (x) => hasK(x, "Don't Touch Me") && isW(x.res) },
+            { n: "復讐", d: "「Judas」から生存", i: "🗡️", c: (x) => hasK(x, 'Judas') && isW(x.res) },
+            { n: "始マリノ祭リ", d: "「Walpurgisnacht」から生存", i: "🎭", c: (x) => hasK(x, 'Walpurgisnacht') && isW(x.res) },
+            { n: "赤い霧が帰ってきます", d: "「The Red Mist」から生存", i: "🪓", c: (x) => hasK(x, 'The Red Mist') && isW(x.res) },
+            { n: "OPテラー", d: "「Sakuya The Ripper」から生存", i: "⏱️", c: (x) => hasK(x, 'Sakuya The Ripper') && isW(x.res) },
+            { n: "原初の信号", d: "「S.O.S」から生存", i: "📡", c: (x) => hasK(x, 'S.O.S') && isW(x.res) },
+            { n: "止まらない食欲", d: "「The MeatBallMan」から生存", i: "🍝", c: (x) => hasK(x, 'MeatBallMan') && isW(x.res) },
+            { n: "心なき機械", d: "「Nameless」から生存", i: "🤖", c: (x) => hasK(x, 'Nameless') && isW(x.res) },
+            { n: "エンパシー", d: "「Apathy」から生存", i: "😶", c: (x) => hasK(x, 'Apathy') && isW(x.res) },
+            { n: "楽園はそこにあった", d: "「Paradise Bird」から生存", i: "🦩", c: (x) => hasK(x, 'Paradise Bird') && isW(x.res) },
+            { n: "失われた魂", d: "「Kimera」から生存", i: "🧬", c: (x) => hasK(x, 'Kimera') && isW(x.res) },
+            { n: "汚染された", d: "「Beyond」に遭遇", i: "👁️", c: (x) => hasK(x, 'Beyond') },
+            { n: "バンバンたちが天国へ送るかのごとく", d: "「Garten Goers」から生存", i: "👹", c: (x) => hasK(x, 'Garten Goers') && isW(x.res) },
+            { n: "燦爛たる幸福", d: "「Joy」から生存", i: "💊", c: (x) => hasK(x, 'Joy') && isW(x.res) },
+            { n: "バスパス", d: "「Transportation Trio & The Drifter」から生存", i: "🚌", c: (x) => hasK(x, 'Transportation Trio & The Drifter') && isW(x.res) },
+            { n: "破滅", d: "「Monarch」から生存", i: "👑", c: (x) => hasK(x, 'Monarch') && isW(x.res) },
+            { n: "全部彼女のせいだ", d: "「Restless Creator」から生存", i: "👩‍💻", c: (x) => hasK(x, 'Restless Creator') && isW(x.res) },
+            { n: "追跡", d: "「Shadow Freddy」から生存", i: "🐻", c: (x) => hasK(x, 'Shadow Freddy') && isW(x.res) },
+            { n: "ピカピカの25セント硬貨", d: "「Baldi」から生存", i: "📏", c: (x) => hasK(x, 'Baldi') && isW(x.res) },
+            // ★ 話題のParhelionも完全一致に変更！
+            { n: ":3", d: "「Parhelion」から生存", i: "☀️", c: (x) => hasK(x, 'Parhelion') && isW(x.res) },
+            { n: "聞かないで", d: "「,D@;Q7Y」から生存", i: "⁉️", c: (x) => hasK(x, ',D@;Q7Y') && isW(x.res) },
+            { n: "プレッシャー", d: "「Searchlights」から生存", i: "🔦", c: (x) => hasK(x, 'Searchlights') && isW(x.res) },
+            { n: "侵入", d: "「Interloper」に殺される", i: "🚷", c: (x) => hasK(x, 'Interloper') && !isW(x.res) },
+            { n: "あっ", d: "「Toren's Shadow」を怒らせる(遭遇)", i: "💢", c: (x) => hasK(x, "Toren's Shadow") },
+            { n: "止まれ", d: "「The Guidance」に殺される", i: "🛑", c: (x) => hasK(x, 'The Guidance') && !isW(x.res) },
+            { n: "場所もタイミングも悪かった", d: "「MR MEGA」に殺される", i: "⚡", c: (x) => hasK(x, 'MR MEGA') && !isW(x.res) },
+            { n: "143", d: "「Blackspace」で「Hellmari」に殺される", i: "🎻", c: (x) => /Blackspace/i.test(x.m) && hasK(x, 'Hellmari') && !isW(x.res) },
+            { n: "ベストオブパープルガイ", d: "「狂気」のPurple Guyから生存", i: "🟪", c: (x) => /Insanity|狂気/i.test(x.r) && hasK(x, 'Purple Guy') && isW(x.res) },
+            { n: "隠れんぼ王", d: "RushかAmbushが存在するブラッドバスかミッドナイトを生存", i: "🚪", c: (x) => (/Bloodbath|Midnight|ブラッドバス|ミッドナイト/i.test(x.r)) && (hasK(x, 'Rush') || hasK(x, 'Ambush')) && isW(x.res) },
+            { n: "ザ・ワールド", d: "Sakuya Izayoiが存在するブラッドバスかミッドナイトを生存", i: "🔪", c: (x) => (/Bloodbath|Midnight|ブラッドバス|ミッドナイト/i.test(x.r)) && (hasK(x, 'Sakuya Izayoi') || hasK(x, 'Sakuya The Ripper')) && isW(x.res) },
+            { n: "子供向けじゃないよ", d: "「MopeMope」から生存", i: "🌸", c: (x) => hasK(x, 'MopeMope') && isW(x.res) },
             { n: "あの子のように！", d: "「ブラッドバス」生存 (疑似: 最後の一人)", i: "🩸", c: (x) => /Bloodbath|ブラッドバス/i.test(x.r) && isW(x.res) },
             { n: "完璧主義", d: "一切ダメージを負わずに10ラウンド連続で生存 (疑似: 10連勝)", i: "🛡️", type: "streak", req: 10 },
             { n: "深淵を覗きし者", d: "オルタネイト図鑑を完成させる (疑似: 15種類遭遇)", i: "📖", type: "alt_count", req: 15 },
@@ -186,8 +189,8 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v34_gamification'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v34_gamification', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v35_exact'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v35_exact', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -271,11 +274,10 @@
         }
         function pg(v) { page += v; render(); }
         
-        // ★ 実績の動的判定ロジック
         function updAch() {
             const box = document.getElementById('achBox'); box.innerHTML = '';
             let unlocked = new Set(), winStreak = 0, maxWinStreak = 0, seenAlts = new Set();
-            const validData = raw.filter(x => !x.afk); // AFKノイズは実績解除対象外
+            const validData = raw.filter(x => !x.afk); 
             
             validData.forEach(x => {
                 if (isW(x.res)) { winStreak++; if (winStreak > maxWinStreak) maxWinStreak = winStreak; } else { winStreak = 0; }
