@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V30 Classic Readability</title>
+    <title>ToN Stats V31 Percentile Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -110,8 +110,8 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v30_classic_readability'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v30_classic_readability', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v31_percentile'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v31_percentile', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -166,20 +166,16 @@
             const isBlood = /Bloodbath|Blood bath|ブラッドバス/i.test(r);
             const isMid = /Midnight|ミッドナイト/i.test(r);
             const isMulti = isBlood || isMid;
-
             document.getElementById('sKiller2').style.display = isMulti ? 'block' : 'none';
             document.getElementById('sKiller3').style.display = isMulti ? 'block' : 'none';
-
             const { alt, cls } = getCategorizedTerrors(r);
             const globalT = getCategorizedTerrors('all');
-
             const fillSelect = (id, label, arr) => {
                 const el = document.getElementById(id); const cur = el.value;
                 el.innerHTML = `<option value="all">${label}</option>`;
                 arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
                 el.value = arr.includes(cur) ? cur : 'all';
             };
-
             if (isBlood) {
                 fillSelect('sKiller', 'Classic Terror 1', globalT.cls);
                 fillSelect('sKiller2', 'Classic Terror 2', globalT.cls);
@@ -199,13 +195,23 @@
 
         ['fDate', 'fKiller', 'fRes', 'exClassic', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
         document.getElementById('fRound').onchange = () => { updateMainDropdowns(); upd(); };
-        
         ['sMap', 'sKiller', 'sKiller2', 'sKiller3'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = runSim; });
         document.getElementById('sRound').onchange = () => { updateSimDropdowns(); runSim(); };
         
         function upd() { const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, resf = document.getElementById('fRes').value, exc = document.getElementById('exClassic').checked; filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) && !(exc && isClassic(x.r))); page = 1; render(); }
         function tab(t) { document.querySelectorAll('.tab-btn, .tab-content').forEach(el=>el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="tab('${t}')"]`).classList.add('active'); renderC(); }
-        function render() { let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); document.getElementById('tg').innerText = filtered.length; document.getElementById('tw').innerText = w; document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; rev.slice((page-1)*50, page*50).forEach(x => { tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); document.getElementById('pgInf').innerText = `${page} / ${tp}`; updRankings(); updUnb(); updUi(); renderC(); }
+        
+        function render() { 
+            let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); 
+            document.getElementById('tg').innerText = filtered.length; 
+            document.getElementById('tw').innerText = w; 
+            document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; 
+            if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; 
+            const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; 
+            rev.slice((page-1)*50, page*50).forEach(x => { tb.innerHTML += `<tr><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); 
+            document.getElementById('pgInf').innerText = `${page} / ${tp}`; 
+            updRankings(); updUnb(); updUi(); renderC(); 
+        }
         function pg(v) { page += v; render(); }
         
         function runSim() {
@@ -232,7 +238,45 @@
             }
         }
         
-        function updRankings() { const kM = {}, mM = {}, rM = {}; filtered.forEach(x => { const win = isW(x.res); x.k.split(/[\/,]+/).forEach(k => { const n=k.trim(); if(n && n!=='None' && !n.includes('???')) { kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; } }); mM[x.m]=(mM[x.m]||{t:0,w:0}); mM[x.m].t++; if(win) mM[x.m].w++; rM[x.r]=(rM[x.r]||{t:0,w:0}); rM[x.r].t++; if(win) rM[x.r].w++; }); const fillDash = (id, m, col) => { const el = document.getElementById(id); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => el.innerHTML += `<div class="rank-item"><span>${n} (${s.t})</span><span style="color:${col}; font-weight:bold;">${(s.w/s.t*100).toFixed(0)}%</span></div>`); }; fillDash('dashK', kM, 'var(--sub)'); fillDash('dashM', mM, 'var(--acc)'); fillDash('dashR', rM, '#ffeb3b'); const fillFull = (id, m) => { const el = document.querySelector(`#${id} tbody`); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => el.innerHTML += `<tr><td>${n}</td><td>${s.t}</td><td class="w">${s.w}</td><td class="l">${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`); }; fillFull('fRankK', kM); fillFull('fRankM', mM); fillFull('fRankR', rM); }
+        // ★ ランキングにパーセンテージ（出現率）を追加
+        function updRankings() { 
+            const kM = {}, mM = {}, rM = {}; 
+            const tot = filtered.length; 
+            filtered.forEach(x => { 
+                const win = isW(x.res); 
+                x.k.split(/[\/,]+/).forEach(k => { 
+                    const n=k.trim(); 
+                    if(n && n!=='None' && !n.includes('???')) { 
+                        kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; 
+                    } 
+                }); 
+                mM[x.m]=(mM[x.m]||{t:0,w:0}); mM[x.m].t++; if(win) mM[x.m].w++; 
+                rM[x.r]=(rM[x.r]||{t:0,w:0}); rM[x.r].t++; if(win) rM[x.r].w++; 
+            }); 
+            
+            const fillDash = (id, m, col) => { 
+                const el = document.getElementById(id); el.innerHTML = ''; 
+                Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => {
+                    const eR = tot ? (s.t/tot*100).toFixed(1) : 0;
+                    el.innerHTML += `<div class="rank-item"><span>${n} <span style="color:#888;font-size:11px;">(${s.t}回 / ${eR}%)</span></span><span style="color:${col}; font-weight:bold;">${(s.w/s.t*100).toFixed(0)}%</span></div>`;
+                }); 
+            }; 
+            fillDash('dashK', kM, 'var(--sub)'); 
+            fillDash('dashM', mM, 'var(--acc)'); 
+            fillDash('dashR', rM, '#ffeb3b'); 
+            
+            const fillFull = (id, m) => { 
+                const el = document.querySelector(`#${id} tbody`); el.innerHTML = ''; 
+                Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => {
+                    const eR = tot ? (s.t/tot*100).toFixed(1) : 0;
+                    el.innerHTML += `<tr><td>${n}</td><td>${s.t} <span style="color:#888;font-size:10px;">(${eR}%)</span></td><td class="w">${s.w}</td><td class="l">${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`;
+                }); 
+            }; 
+            fillFull('fRankK', kM); 
+            fillFull('fRankM', mM); 
+            fillFull('fRankR', rM); 
+        }
+
         function updUnb() { const l = document.getElementById('unbL'); l.innerHTML = ''; const enc = new Set(); const unk = new Set(); filtered.forEach(x => { const rowStr = (x.r + ' ' + x.k).toLowerCase(); if (!rowStr.includes('unbound') && !rowStr.includes('アンバウンド')) return; let foundId = null; for (const [sid, masterArr] of Object.entries(MASTER)) { if (masterArr.some(m => rowStr.includes(m.toLowerCase()))) { foundId = sid; break; } } if (foundId) { enc.add(foundId); } else { x.k.split(/[\/,]+/).forEach(k => { if(k.trim() && k.trim() !== 'None') unk.add(k.trim()); }); } }); Array.from(enc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => { const title = MASTER[id][0], terrors = MASTER[id].slice(1); let tags = ''; terrors.forEach(k => tags += `<span class="unb-tag">${k}</span>`); l.innerHTML += `<div class="unb-card"><div class="unb-title">Set #${id}: ${title}</div><div class="unb-tag-list">${tags}</div></div>`; }); if (unk.size > 0) { let tags = ''; Array.from(unk).forEach(k => tags += `<span class="unb-tag" style="border-color:#f44336; color:#f44336;">${k}</span>`); l.innerHTML += `<div class="unb-card" style="border-top-color:#f44336;"><div class="unb-title" style="color:#f44336; border-bottom-color:#f44336;">Unknown Sets</div><div class="unb-tag-list">${tags}</div></div>`; } }
         
         function renderC() {
