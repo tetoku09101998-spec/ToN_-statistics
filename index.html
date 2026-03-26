@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V33 Pure Data Cleansing</title>
+    <title>ToN Stats V34 Gamification Masterpiece</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
@@ -33,6 +33,15 @@
         .unb-title { font-size: 14px; font-weight: bold; color: var(--unb); margin-bottom: 8px; border-bottom: 1px dashed #555; padding-bottom: 4px; }
         .unb-tag-list { display: flex; flex-wrap: wrap; gap: 5px; .unb-tag { background: #1e1e1e; padding: 4px 8px; border-radius: 4px; color: #ddd; font-size: 11px; border: 1px solid #555; } }
         .link-box { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--sub); margin-top: 20px; a { color: var(--txt); text-decoration: none; display: block; margin: 8px 0; font-size: 14px; transition: 0.2s; &:hover { color: var(--sub); } } }
+        
+        /* ★ アチーブメントUI用のCSS */
+        .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .ach-card { background: #252525; border-radius: 8px; padding: 15px; display: flex; align-items: center; border-left: 5px solid #444; opacity: 0.4; filter: grayscale(100%); transition: 0.3s; }
+        .ach-card.unlocked { opacity: 1; filter: grayscale(0%); border-left-color: #FFD700; background: linear-gradient(135deg, #2a2a2a 0%, #3a3a20 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .ach-icon { font-size: 30px; margin-right: 15px; width: 40px; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .ach-info { flex: 1; }
+        .ach-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #fff; }
+        .ach-desc { font-size: 11px; color: #aaa; }
     </style>
 </head>
 <body>
@@ -54,6 +63,7 @@
         <button class="tab-btn" onclick="tab('t-sim')">🧪 Simulator</button>
         <button class="tab-btn" onclick="tab('t-chart')">📈 Analytics</button>
         <button class="tab-btn" onclick="tab('t-rank')">🏆 Ranking</button>
+        <button class="tab-btn" onclick="tab('t-ach')">🎖️ Achievements</button>
         <button class="tab-btn" onclick="tab('t-list')">📝 History</button>
         <button class="tab-btn" onclick="tab('t-unb')">🌀 Unbound Dex</button>
     </div>
@@ -66,9 +76,7 @@
                 <div style="color:var(--acc); font-size:15px; margin-bottom:8px;">Win Rate: <span id="wr">0</span>%</div>
                 <div style="font-size:11px; color:#888;">Latest Log: <span id="lDt">-</span></div>
             </div>
-            <div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2; display: flex; justify-content: center; align-items: center; height: 220px; position: relative;">
-                <canvas id="radar"></canvas>
-            </div>
+            <div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2; display: flex; justify-content: center; align-items: center; height: 220px; position: relative;"><canvas id="radar"></canvas></div>
         </div>
         <div class="three-col-grid"><div><h3 style="color:var(--sub); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Killers</h3><div id="dashK"></div></div><div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Rounds</h3><div id="dashR"></div></div><div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Maps</h3><div id="dashM"></div></div></div>
         <div class="link-box"><h3 style="margin:0 0 10px 0; color:var(--sub);">🔗 Related Links</h3><a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank">📖 取扱説明書 (readme.html)</a><a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank">💻 GitHub Repository</a></div>
@@ -93,12 +101,19 @@
         <select id="vMode" style="width:100%; margin-bottom:15px;">
             <option value="trend">日別勝率推移</option><option value="time">時間帯別分析</option><option value="killer">テラー別勝敗 (割合)</option><option value="map">マップ別勝敗 (割合)</option><option value="p_killer">出現率: テラー</option><option value="p_round">出現率: ラウンド</option><option value="p_map">出現率: マップ</option>
         </select>
-        <div style="height: 550px; position: relative; width: 100%;">
-            <canvas id="mainChart"></canvas>
-        </div>
+        <div style="height: 550px; position: relative; width: 100%;"><canvas id="mainChart"></canvas></div>
     </div>
 
     <div id="t-rank" class="tab-content"><div class="three-col-grid"><div><h3 style="color:var(--sub);">All Killers</h3><div class="table-wrapper"><table id="fRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:#ffeb3b;">All Rounds</h3><div class="table-wrapper"><table id="fRankR"><thead><tr><th>Round</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:var(--acc);">All Maps</h3><div class="table-wrapper"><table id="fRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div></div></div>
+    
+    <div id="t-ach" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--brd); padding-bottom:10px; margin-bottom:20px;">
+            <h3 style="color:#FFD700; margin:0;">Unlockable Achievements</h3>
+            <div style="font-size:16px; font-weight:bold;">Unlocked: <span id="achCnt" style="color:var(--acc);">0</span> / <span id="achTot">0</span> (<span id="achPct">0</span>%)</div>
+        </div>
+        <div class="ach-grid" id="achBox"></div>
+    </div>
+
     <div id="t-list" class="tab-content"><div class="table-wrapper"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div><div style="margin-top:15px; display:flex; justify-content:space-between;"><button class="tab-btn" style="border:1px solid #555;" onclick="pg(-1)">◀ Prev</button><span id="pgInf" style="align-self:center;">1/1</span><button class="tab-btn" style="border:1px solid #555;" onclick="pg(1)">Next ▶</button></div></div>
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
 
@@ -106,13 +121,73 @@
         const MASTER = {"1": ["Guidance & The Booboo's", "The Guidance", "BooBooBabies"], "2": ["Red vs Blue", "Haket", "Blue Haket"], "3": ["Third Trumpet", "CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Forest Guardians", "Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Higher Beings", "Security", "The Swarm", "Prisoner"], "6": ["Quadruple Sponge", "Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["Your Best Friends", "BFF", "Nameless"], "8": ["Hotel Monsters", "Seek", "Rush", "Eyes"], "9": ["Squibb Squad", "Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Search and Destroy", "Garden Rejects", "Convict Squad", "Kimera"], "11": ["Judgement Day", "WhiteNight", "Paradise Bird"], "12": ["Me and My Shadow", "Roblander", "Inverted Roblander"], "13": ["Meltdown", "An Arbiter", "The Red Mist"], "14": ["Faceless Mafia", "Slender", "Slendy", "Hungry Home Invader"], "15": ["Mansion Monsters", "Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["Copyright Infringement", "MX", "Luigi", "Wario Apparition"], "17": ["Purple Bros", "Purple Guy"], "18": ["Scavengers", "Scavenger"], "19": ["Life & Death", "The LifeBringer", "Scrapyard Machine"], "20": ["Labyrinth", "Unknown Witch"], "21": ["Spiteful Shadows", "Umbra", "Spiteful Eye"], "22": ["Triple Munci", "Angry Munci"], "23": ["Daycare", "Karol_Corpse"], "24": ["Huggy Horde", "Huggy", "Huggy Wuggy"], "25": ["Infection", "Arrival"], "26": ["Triple Hush", "Hush"], "27": ["[CENSORED]", "[CENSORED]"], "28": ["Byte Horde", "Dev Bytes", "Vana", "Duke"], "29": ["SawMarathon", "Sawrunner"], "30": ["TAKE THE NAMI CHALLENGE", "Little Witch", "War", "Convict(N)"], "31": ["Thunderstorm", "Lightning"], "32": ["END OF THE WORLD", "Joy"], "33": ["Fragmented Memories", "TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona & Mona & Mona & Mona", "Mona", "Mona & The Mountain"], "35": ["Seekers", "Legs"], "36": ["Nugget Squad", "Convict(N)"], "37": ["Saul's goodmen", "Saul"], "38": ["Something Old, Something New", "Security", "Ancient Security"], "39": ["POV: Bug", "Bigger Boot"], "40": ["Punishing Birdemic", "Punishing Bird"], "41": ["Chomper Trio", "Chomper"], "42": ["Too Many Voices", "With Many Voices"], "43": ["Memory Crypts", "Miros Bird"], "44": ["Zumbo Sauce", "Jumbo Josh"], "45": ["Freaks", "Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cult", "Lunatic Cultist"], "47": ["Transportation Trio & The Drifter", "Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Father Son Bonding", "Purple Guy", "Voidwalker"], "49": ["WHAT IS MY NAME", "HER", "WHITEFACE"], "50": ["Glaggleland Cremators", "Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Triple Signus", "Signus"], "52": ["Triple Akumii Kari", "Akumii-Kari"], "53": ["Black & White", "Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue Monsters", "Blue gaper", "Blue Flies"], "56": ["Drones", "Drone"], "57": ["Scrapyard Takers", "Scrapyard Taker"], "58": ["Luigi Dolls", "Luigi Doll"], "59": ["Meteor Shower", "Meteor"], "60": ["Triple TBH", "TBH", "TBH Spy"], "61": ["Lost Souls", "Lost Soul"], "62": ["Ballin", "Aku Ball"], "63": ["Reunion", "Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Angels", "Roblander", "Bliss", "Ancient Monarch"], "65": ["Ordinary Apocalypse Bird", "Apocalypse Bird", "Immortal Snail"], "66": ["Pack of Wild Yet Curious Creatures", "Wild Yet Curious Creature"], "67": ["ToN X SlashCo Collab", "Beyond", "Manti"], "68": ["Pack of Yolm", "Yolm"], "69": ["Threepy", "Peepy"], "70": ["Ghost Girl", "Ghost Girl"], "71": ["Delete Me", "Deleted", "Akumii-Kari"], "72": ["Spamton Spam", "Spamton"], "73": ["Death From Above", "Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["It Came From Bus To Nowhere", "Mirror", "Red Bus", "Terror of Nowhere"], "75": ["Zombie Apocalypse", "SCP-049-B"], "76": ["Eating Contest", "Mountain of Smiling Bodies"], "77": ["Triple Clockey", "Clockey"], "78": ["Triple Killer Fish", "Killer Fish"], "79": ["Lethal League", "MR.MEGA", "DoomBox"], "80": ["Trollage", "Comedy", "Tragedy"], "81": ["Mopemopemopemopemopemope", "MopeMope"], "82": ["Triple Trouble", "Sonic", "Rewrite", "Atrached"], "83": ["Triple Living Shadow", "Living Shadow"], "84": ["Beyond's Masks", "Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]};
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss", "Lone Agent", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE", "Distorted Yan"];
 
+        // ★ Wikiから抽出・疑似実装したバカみたいな数の実績リスト
+        const ACH = [
+            { n: "血液不足", d: "ラウンドタイプ「ブラッドバス」を生存", i: "🩸", c: (x) => /Bloodbath|ブラッドバス/i.test(x.r) && isW(x.res) },
+            { n: "禁煙！", d: "ラウンドタイプ「霧」を生存", i: "🌫️", c: (x) => /Fog|霧/i.test(x.r) && isW(x.res) },
+            { n: "一線を越える", d: "ラウンドタイプ「狂気」を生存", i: "🤪", c: (x) => /Insanity|狂気/i.test(x.r) && isW(x.res) },
+            { n: "表と裏", d: "ラウンドタイプ「オルタネイト」を生存", i: "🎭", c: (x) => /Alternate|オルタネイト/i.test(x.r) && isW(x.res) },
+            { n: "脱出成功", d: "ラウンドタイプ「サボタージュ」を生存", i: "🔪", c: (x) => /Sabotage|サボタージュ/i.test(x.r) && isW(x.res) },
+            { n: "夜明けの始まり", d: "ラウンドタイプ「ミッドナイト」を生存", i: "🕛", c: (x) => /Midnight|ミッドナイト/i.test(x.r) && isW(x.res) },
+            { n: "消えゆく記憶", d: "ラウンドタイプ「ミスティックムーン」を生存", i: "🌙", c: (x) => /Mystic Moon|ミスティックムーン/i.test(x.r) && isW(x.res) },
+            { n: "終末の日", d: "ラウンドタイプ「トワイライト」を生存", i: "🌆", c: (x) => /Twilight|トワイライト/i.test(x.r) && isW(x.res) },
+            { n: "戦争", d: "ラウンドタイプ「ブラッドムーン」を生存", i: "⚔️", c: (x) => /Bloodmoon|ブラッドムーン/i.test(x.r) && isW(x.res) },
+            { n: "付き添い人", d: "ラウンドタイプ「ソルスティス」を生存", i: "☀️", c: (x) => /Solstice|ソルスティス/i.test(x.r) && isW(x.res) },
+            { n: "何かおかしい", d: "ラウンドタイプ「ゴースト」を生存", i: "👻", c: (x) => /Ghost|ゴースト/i.test(x.r) && isW(x.res) },
+            { n: "サバイバー", d: "初めてラウンドを勝利する", i: "🏅", c: (x) => isW(x.res) },
+            { n: "YOU DIED!", d: "初めて死亡する", i: "💀", c: (x) => !isW(x.res) },
+            { n: "灰燼から", d: "「Glaggle Gang」から生存", i: "🟡", c: (x) => /Glaggle Gang/i.test(x.k) && isW(x.res) },
+            { n: "ミュートされた？", d: "「Ambush」から生存", i: "🤫", c: (x) => /Ambush/i.test(x.k) && isW(x.res) },
+            { n: "史上最高のパフォーマンス", d: "「Teuthida」から生存", i: "🦑", c: (x) => /Teuthida/i.test(x.k) && isW(x.res) },
+            { n: "衝突と解消", d: "「Convict Squad」から生存", i: "💥", c: (x) => /Convict Squad/i.test(x.k) && isW(x.res) },
+            { n: "日頃の行い", d: "「Angry Munci」から生存", i: "😡", c: (x) => /Angry Munci/i.test(x.k) && isW(x.res) },
+            { n: "削除されました", d: "「sm64.z64」から生存", i: "🍄", c: (x) => /sm64\.z64/i.test(x.k) && isW(x.res) },
+            { n: "いつもの作業", d: "「Don't Touch Me」から生存", i: "🔘", c: (x) => /Don't Touch Me/i.test(x.k) && isW(x.res) },
+            { n: "復讐", d: "「Judas」から生存", i: "🗡️", c: (x) => /Judas/i.test(x.k) && isW(x.res) },
+            { n: "始マリノ祭リ", d: "「Walpurgisnacht」から生存", i: "🎭", c: (x) => /Walpurgisnacht/i.test(x.k) && isW(x.res) },
+            { n: "赤い霧が帰ってきます", d: "「The Red Mist」から生存", i: "🪓", c: (x) => /The Red Mist/i.test(x.k) && isW(x.res) },
+            { n: "OPテラー", d: "「Sakuya The Ripper」から生存", i: "⏱️", c: (x) => /Sakuya The Ripper/i.test(x.k) && isW(x.res) },
+            { n: "原初の信号", d: "「S.O.S」から生存", i: "📡", c: (x) => /S\.O\.S/i.test(x.k) && isW(x.res) },
+            { n: "止まらない食欲", d: "「The MeatBallMan」から生存", i: "🍝", c: (x) => /MeatBallMan/i.test(x.k) && isW(x.res) },
+            { n: "心なき機械", d: "「Nameless」から生存", i: "🤖", c: (x) => /Nameless/i.test(x.k) && isW(x.res) },
+            { n: "エンパシー", d: "「Apathy」から生存", i: "😶", c: (x) => /Apathy/i.test(x.k) && isW(x.res) },
+            { n: "楽園はそこにあった", d: "「Paradise Bird」から生存", i: "🦩", c: (x) => /Paradise Bird/i.test(x.k) && isW(x.res) },
+            { n: "失われた魂", d: "「Kimera」から生存", i: "🧬", c: (x) => /Kimera/i.test(x.k) && isW(x.res) },
+            { n: "汚染された", d: "「Beyond」に遭遇", i: "👁️", c: (x) => /Beyond/i.test(x.k) },
+            { n: "バンバンたちが天国へ送るかのごとく", d: "「Garten Goers」から生存", i: "👹", c: (x) => /Garten Goers/i.test(x.k) && isW(x.res) },
+            { n: "燦爛たる幸福", d: "「Joy」から生存", i: "💊", c: (x) => /Joy/i.test(x.k) && isW(x.res) },
+            { n: "バスパス", d: "「Transportation Trio & The Drifter」から生存", i: "🚌", c: (x) => /Transportation Trio & The Drifter/i.test(x.k) && isW(x.res) },
+            { n: "破滅", d: "「Monarch」から生存", i: "👑", c: (x) => /Monarch/i.test(x.k) && isW(x.res) },
+            { n: "全部彼女のせいだ", d: "「Restless Creator」から生存", i: "👩‍💻", c: (x) => /Restless Creator/i.test(x.k) && isW(x.res) },
+            { n: "追跡", d: "「Shadow Freddy」から生存", i: "🐻", c: (x) => /Shadow Freddy/i.test(x.k) && isW(x.res) },
+            { n: "ピカピカの25セント硬貨", d: "「Baldi」から生存", i: "📏", c: (x) => /Baldi/i.test(x.k) && isW(x.res) },
+            { n: ":3", d: "「Parhelion」から生存", i: "☀️", c: (x) => /Parhelion/i.test(x.k) && isW(x.res) },
+            { n: "聞かないで", d: "「,D@;Q7Y」から生存", i: "⁉️", c: (x) => /,D@;Q7Y/i.test(x.k) && isW(x.res) },
+            { n: "プレッシャー", d: "「Searchlights」から生存", i: "🔦", c: (x) => /Searchlights/i.test(x.k) && isW(x.res) },
+            { n: "侵入", d: "「Interloper」に殺される", i: "🚷", c: (x) => /Interloper/i.test(x.k) && !isW(x.res) },
+            { n: "あっ", d: "「Toren's Shadow」を怒らせる(遭遇)", i: "💢", c: (x) => /Toren's Shadow/i.test(x.k) },
+            { n: "止まれ", d: "「The Guidance」に殺される", i: "🛑", c: (x) => /The Guidance/i.test(x.k) && !isW(x.res) },
+            { n: "場所もタイミングも悪かった", d: "「MR MEGA」に殺される", i: "⚡", c: (x) => /MR MEGA/i.test(x.k) && !isW(x.res) },
+            { n: "143", d: "「Blackspace」で「Hellmari」に殺される", i: "🎻", c: (x) => /Blackspace/i.test(x.m) && /Hellmari/i.test(x.k) && !isW(x.res) },
+            { n: "ベストオブパープルガイ", d: "「狂気」のPurple Guyから生存", i: "🟪", c: (x) => /Insanity|狂気/i.test(x.r) && /Purple Guy/i.test(x.k) && isW(x.res) },
+            { n: "隠れんぼ王", d: "RushかAmbushが存在するブラッドバスかミッドナイトを生存", i: "🚪", c: (x) => (/Bloodbath|Midnight|ブラッドバス|ミッドナイト/i.test(x.r)) && (/Rush|Ambush/i.test(x.k)) && isW(x.res) },
+            { n: "ザ・ワールド", d: "Sakuya Izayoiが存在するブラッドバスかミッドナイトを生存", i: "🔪", c: (x) => (/Bloodbath|Midnight|ブラッドバス|ミッドナイト/i.test(x.r)) && (/Sakuya Izayoi/i.test(x.k)) && isW(x.res) },
+            { n: "子供向けじゃないよ", d: "「MopeMope」から生存", i: "🌸", c: (x) => /MopeMope/i.test(x.k) && isW(x.res) },
+            { n: "あの子のように！", d: "「ブラッドバス」生存 (疑似: 最後の一人)", i: "🩸", c: (x) => /Bloodbath|ブラッドバス/i.test(x.r) && isW(x.res) },
+            { n: "完璧主義", d: "一切ダメージを負わずに10ラウンド連続で生存 (疑似: 10連勝)", i: "🛡️", type: "streak", req: 10 },
+            { n: "深淵を覗きし者", d: "オルタネイト図鑑を完成させる (疑似: 15種類遭遇)", i: "📖", type: "alt_count", req: 15 },
+            { n: "異常な執念", d: "累計プレイ回数1000回突破 (Secret)", i: "🔥", type: "total", req: 1000 },
+            { n: "社畜の鑑", d: "平日の日中（9:00〜18:00）にToNをプレイする (Secret)", i: "🏢", type: "time", hMin: 9, hMax: 18 },
+            { n: "徹夜明けのメルトダウン", d: "深夜（2:00〜5:00）にToNをプレイする (Secret)", i: "☕", type: "time", hMin: 2, hMax: 5 }
+        ];
+
         let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v33_pure_cleanse'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v33_pure_cleanse', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v34_gamification'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v34_gamification', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function parseCSV(t) { 
             raw = t.trim().split('\n').slice(1).map(line => { 
@@ -130,16 +205,10 @@
 
         function getCategorizedTerrors(filterRound = 'all') {
             let validK = new Set(), alt = [], cls = [];
-            if (filterRound === 'all') {
-                raw.forEach(x => { if(!x.afk) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
-            } else {
-                raw.forEach(x => { if(x.r === filterRound && !x.afk) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); });
-            }
+            if (filterRound === 'all') { raw.forEach(x => { if(!x.afk) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); }); }
+            else { raw.forEach(x => { if(x.r === filterRound && !x.afk) x.k.split(/[\/,]+/).forEach(i => { const v=i.trim(); if(v && v!=='None') validK.add(v); }); }); }
             const normAltList = SHEET_ALTERNATE.map(normStr);
-            validK.forEach(k => { 
-                if(normAltList.includes(normStr(k))) alt.push(k); 
-                else cls.push(k); 
-            });
+            validK.forEach(k => { if(normAltList.includes(normStr(k))) alt.push(k); else cls.push(k); });
             return { alt: alt.sort(), cls: cls.sort() };
         }
 
@@ -152,9 +221,7 @@
         }
 
         function updateMainDropdowns() {
-            const r = document.getElementById('fRound').value;
-            const el = document.getElementById('fKiller');
-            const cur = el.value;
+            const r = document.getElementById('fRound').value, el = document.getElementById('fKiller'), cur = el.value;
             const { alt, cls } = getCategorizedTerrors(r);
             el.innerHTML = '<option value="all">全Terror</option>';
             if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
@@ -163,80 +230,29 @@
         }
 
         function updateSimDropdowns() {
-            const r = document.getElementById('sRound').value;
-            const isBlood = /Bloodbath|Blood bath|ブラッドバス/i.test(r);
-            const isMid = /Midnight|ミッドナイト/i.test(r);
-            const isMulti = isBlood || isMid;
+            const r = document.getElementById('sRound').value, isMulti = /Bloodbath|ブラッドバス|Midnight|ミッドナイト/i.test(r);
             document.getElementById('sKiller2').style.display = isMulti ? 'block' : 'none';
             document.getElementById('sKiller3').style.display = isMulti ? 'block' : 'none';
-            const { alt, cls } = getCategorizedTerrors(r);
-            const globalT = getCategorizedTerrors('all');
-            const fillSelect = (id, label, arr) => {
-                const el = document.getElementById(id); const cur = el.value;
-                el.innerHTML = `<option value="all">${label}</option>`;
-                arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
-                el.value = arr.includes(cur) ? cur : 'all';
-            };
-            if (isBlood) {
-                fillSelect('sKiller', 'Classic Terror 1', globalT.cls);
-                fillSelect('sKiller2', 'Classic Terror 2', globalT.cls);
-                fillSelect('sKiller3', 'Classic Terror 3', globalT.cls);
-            } else if (isMid) {
-                fillSelect('sKiller', 'Classic Terror 1', globalT.cls);
-                fillSelect('sKiller2', 'Classic Terror 2', globalT.cls);
-                fillSelect('sKiller3', 'Alternate Terror', globalT.alt);
-            } else {
-                const el = document.getElementById('sKiller'); const cur = el.value;
-                el.innerHTML = '<option value="all">Any Terror</option>';
-                if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
-                if(cls.length > 0) { el.innerHTML += '<optgroup label="Classic Exclusive">'; cls.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; }
-                el.value = (alt.includes(cur) || cls.includes(cur)) ? cur : 'all';
-            }
+            const { alt, cls } = getCategorizedTerrors(r), globalT = getCategorizedTerrors('all');
+            const fillSelect = (id, label, arr) => { const el = document.getElementById(id); const cur = el.value; el.innerHTML = `<option value="all">${label}</option>`; arr.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.value = arr.includes(cur) ? cur : 'all'; };
+            if (/Bloodbath|ブラッドバス/i.test(r)) { fillSelect('sKiller', 'Classic Terror 1', globalT.cls); fillSelect('sKiller2', 'Classic Terror 2', globalT.cls); fillSelect('sKiller3', 'Classic Terror 3', globalT.cls); }
+            else if (/Midnight|ミッドナイト/i.test(r)) { fillSelect('sKiller', 'Classic Terror 1', globalT.cls); fillSelect('sKiller2', 'Classic Terror 2', globalT.cls); fillSelect('sKiller3', 'Alternate Terror', globalT.alt); }
+            else { const el = document.getElementById('sKiller'); const cur = el.value; el.innerHTML = '<option value="all">Any Terror</option>'; if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; } if(cls.length > 0) { el.innerHTML += '<optgroup label="Classic Exclusive">'; cls.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; } el.value = (alt.includes(cur) || cls.includes(cur)) ? cur : 'all'; }
         }
 
-        // ★ AFK判定を含む動的アップデートロジック
         function upd() { 
-            const afkLimit = parseInt(document.getElementById('afkVal').value) || 10;
-            const exAFK = document.getElementById('exAFK').checked;
-            
-            let lossStreak = 0;
-            let streakStartIndex = -1;
-            
-            // フラグ初期化
+            const afkLimit = parseInt(document.getElementById('afkVal').value) || 10, exAFK = document.getElementById('exAFK').checked;
+            let lossStreak = 0, streakStartIndex = -1;
             raw.forEach(x => x.afk = false);
-            
-            // 順次検証して連続敗北をAFKとしてマーキング
-            for(let i=0; i<raw.length; i++) {
-                if(!isW(raw[i].res)) {
-                    if(lossStreak === 0) streakStartIndex = i;
-                    lossStreak++;
-                } else {
-                    if(lossStreak >= afkLimit) {
-                        for(let j=streakStartIndex; j<i; j++) raw[j].afk = true;
-                    }
-                    lossStreak = 0;
-                }
-            }
-            if(lossStreak >= afkLimit) {
-                for(let j=streakStartIndex; j<raw.length; j++) raw[j].afk = true;
-            }
-
+            for(let i=0; i<raw.length; i++) { if(!isW(raw[i].res)) { if(lossStreak === 0) streakStartIndex = i; lossStreak++; } else { if(lossStreak >= afkLimit) { for(let j=streakStartIndex; j<i; j++) raw[j].afk = true; } lossStreak = 0; } }
+            if(lossStreak >= afkLimit) { for(let j=streakStartIndex; j<raw.length; j++) raw[j].afk = true; }
             const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, resf = document.getElementById('fRes').value, exc = document.getElementById('exClassic').checked; 
-            
-            filtered = raw.filter(x => 
-                (df==='all'||x.t.includes(df)) && 
-                (rf==='all'||x.r===rf) && 
-                (kf==='all'||x.k.includes(kf)) && 
-                (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) && 
-                !(exc && isClassic(x.r)) &&
-                !(exAFK && x.afk) // AFKフィルター適用
-            ); 
+            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) && !(exc && isClassic(x.r)) && !(exAFK && x.afk)); 
             page = 1; render(); 
         }
 
         ['fDate', 'fKiller', 'fRes', 'exClassic', 'exAFK', 'vMode'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = upd; });
-        document.getElementById('afkVal').onchange = upd;
-        document.getElementById('fRound').onchange = () => { updateMainDropdowns(); upd(); };
+        document.getElementById('afkVal').onchange = upd; document.getElementById('fRound').onchange = () => { updateMainDropdowns(); upd(); };
         ['sMap', 'sKiller', 'sKiller2', 'sKiller3'].forEach(id => { const el = document.getElementById(id); if(el) el.onchange = runSim; });
         document.getElementById('sRound').onchange = () => { updateSimDropdowns(); runSim(); };
         
@@ -249,39 +265,54 @@
             document.getElementById('wr').innerText = filtered.length ? (w/filtered.length*100).toFixed(1) : 0; 
             if(filtered.length) document.getElementById('lDt').innerText = filtered[filtered.length-1].t; 
             const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; 
-            rev.slice((page-1)*50, page*50).forEach(x => { 
-                // AFKだった場合は履歴上で分かりやすくグレーダウン
-                const rowStyle = x.afk ? 'color:#666;' : '';
-                const afkTag = x.afk ? '<span style="font-size:10px;color:#f44336;border:1px solid #f44336;padding:1px 3px;border-radius:3px;margin-left:5px;">AFK</span>' : '';
-                tb.innerHTML += `<tr style="${rowStyle}"><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}${afkTag}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; 
-            }); 
+            rev.slice((page-1)*50, page*50).forEach(x => { const rowStyle = x.afk ? 'color:#666;' : ''; const afkTag = x.afk ? '<span style="font-size:10px;color:#f44336;border:1px solid #f44336;padding:1px 3px;border-radius:3px;margin-left:5px;">AFK</span>' : ''; tb.innerHTML += `<tr style="${rowStyle}"><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}${afkTag}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); 
             document.getElementById('pgInf').innerText = `${page} / ${tp}`; 
-            updRankings(); updUnb(); updUi(); renderC(); 
+            updRankings(); updUnb(); updAch(); updUi(); renderC(); 
         }
         function pg(v) { page += v; render(); }
         
+        // ★ 実績の動的判定ロジック
+        function updAch() {
+            const box = document.getElementById('achBox'); box.innerHTML = '';
+            let unlocked = new Set(), winStreak = 0, maxWinStreak = 0, seenAlts = new Set();
+            const validData = raw.filter(x => !x.afk); // AFKノイズは実績解除対象外
+            
+            validData.forEach(x => {
+                if (isW(x.res)) { winStreak++; if (winStreak > maxWinStreak) maxWinStreak = winStreak; } else { winStreak = 0; }
+                ACH.forEach((a, i) => { if (!unlocked.has(i) && a.c && a.c(x)) unlocked.add(i); });
+                x.k.split(/[\/,]+/).forEach(k => { if(SHEET_ALTERNATE.map(normStr).includes(normStr(k.trim()))) seenAlts.add(k.trim()); });
+            });
+
+            ACH.forEach((a, i) => {
+                if (a.type === 'streak' && maxWinStreak >= a.req) unlocked.add(i);
+                if (a.type === 'total' && validData.length >= a.req) unlocked.add(i);
+                if (a.type === 'alt_count' && seenAlts.size >= a.req) unlocked.add(i);
+                if (a.type === 'time') { let hasTime = validData.some(x => { const h = parseInt((x.t.match(/\s(\d+):/)||[0,-1])[1]); return h >= a.hMin && h <= a.hMax; }); if (hasTime) unlocked.add(i); }
+            });
+
+            document.getElementById('achTot').innerText = ACH.length;
+            document.getElementById('achCnt').innerText = unlocked.size;
+            document.getElementById('achPct').innerText = ACH.length ? ((unlocked.size / ACH.length) * 100).toFixed(1) : 0;
+
+            ACH.forEach((a, i) => {
+                const isU = unlocked.has(i), cls = isU ? 'ach-card unlocked' : 'ach-card';
+                const dText = a.type && !isU && a.n.includes("Secret") ? "???" : a.d;
+                box.innerHTML += `<div class="${cls}"><div class="ach-icon">${a.i}</div><div class="ach-info"><div class="ach-name">${a.n}</div><div class="ach-desc">${dText}</div></div></div>`;
+            });
+        }
+
         function runSim() {
             const r = document.getElementById('sRound').value, m = document.getElementById('sMap').value, k1 = document.getElementById('sKiller').value;
-            const isMulti = /Bloodbath|Blood bath|ブラッドバス|Midnight|ミッドナイト/i.test(r);
-            const k2 = isMulti ? document.getElementById('sKiller2').value : 'all', k3 = isMulti ? document.getElementById('sKiller3').value : 'all';
+            const isMulti = /Bloodbath|ブラッドバス|Midnight|ミッドナイト/i.test(r), k2 = isMulti ? document.getElementById('sKiller2').value : 'all', k3 = isMulti ? document.getElementById('sKiller3').value : 'all';
             const face = document.getElementById('sim-ui-face'), msg = document.getElementById('sim-ui-msg');
-            
             if (r === 'all' && m === 'all' && k1 === 'all' && k2 === 'all' && k3 === 'all') { document.getElementById('simRes').innerText = '--%'; document.getElementById('simDet').innerText = 'Select conditions'; document.getElementById('simRes').style.color = 'var(--acc)'; face.src = 'face_normal.png'; msg.innerText = '条件を設定しなさい。話はそれからよ。'; return; }
             const exact = filtered.filter(x => (r==='all'||x.r===r) && (m==='all'||x.m===m) && (k1==='all'||x.k.includes(k1)) && (k2==='all'||x.k.includes(k2)) && (k3==='all'||x.k.includes(k3)));
             let fw = 0; exact.forEach(x => { if(isW(x.res)) fw++; });
             let rate = 0, type = '';
-            
-            if (exact.length > 0) { rate = (fw / exact.length * 100); type = `実測値 (${fw}W / ${exact.length}T)`;
-            } else { let rates = []; if(r!=='all') { const f=filtered.filter(x=>x.r===r); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } if(m!=='all') { const f=filtered.filter(x=>x.m===m); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } const ks = [k1, k2, k3].filter(k => k !== 'all'); ks.forEach(k => { const f=filtered.filter(x=>x.k.includes(k)); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); }); if(rates.length > 0) { rate = (rates.reduce((a,b)=>a+b, 0) / rates.length * 100); type = '理論値（未遭遇）'; } else { rate = -1; } }
-            
-            if(rate === -1) { document.getElementById('simRes').innerText = '???'; document.getElementById('simDet').innerText = 'データ不足'; document.getElementById('simRes').style.color = '#888'; face.src = 'face_sigh.png'; msg.innerText = '非論理的な組み合わせね。データが足りなくて計算不能よ。';
-            } else { const rt = rate.toFixed(1); document.getElementById('simRes').innerText = rt + '%'; document.getElementById('simDet').innerText = `${type} に基づく演算結果`;
-                if(rate >= 80) { face.src = 'face_tsundere.png'; msg.innerText = `勝率 ${rt}%……。ま、当然の結果ね。あんたにしては上出来じゃない。褒めてないわよ。`; document.getElementById('simRes').style.color = 'var(--acc)';
-                } else if(rate >= 50) { face.src = 'face_normal.png'; msg.innerText = `勝率 ${rt}%。五分五分ってところね。非論理的な行動は控えなさい。`; document.getElementById('simRes').style.color = 'var(--acc)';
-                } else if(rate >= 20) { face.src = 'face_angry.png'; msg.innerText = `勝率 ${rt}%。泥沼ね。この組み合わせで挑むなんて、正気なの？ バカじゃないの。`; document.getElementById('simRes').style.color = '#f44336';
-                } else { face.src = 'face_sigh.png'; msg.innerText = `勝率 ${rt}%。……死にたいなら止めないわ。大人しくログアウトしなさい。`; document.getElementById('simRes').style.color = '#f44336'; }
-                if(type === '理論値（未遭遇）') document.getElementById('simRes').style.color = '#ffeb3b';
-            }
+            if (exact.length > 0) { rate = (fw / exact.length * 100); type = `実測値 (${fw}W / ${exact.length}T)`; } 
+            else { let rates = []; if(r!=='all') { const f=filtered.filter(x=>x.r===r); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } if(m!=='all') { const f=filtered.filter(x=>x.m===m); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); } const ks = [k1, k2, k3].filter(k => k !== 'all'); ks.forEach(k => { const f=filtered.filter(x=>x.k.includes(k)); let w=0; f.forEach(x=>{if(isW(x.res))w++;}); if(f.length) rates.push(w/f.length); }); if(rates.length > 0) { rate = (rates.reduce((a,b)=>a+b, 0) / rates.length * 100); type = '理論値（未遭遇）'; } else { rate = -1; } }
+            if(rate === -1) { document.getElementById('simRes').innerText = '???'; document.getElementById('simDet').innerText = 'データ不足'; document.getElementById('simRes').style.color = '#888'; face.src = 'face_sigh.png'; msg.innerText = '非論理的な組み合わせね。データが足りなくて計算不能よ。'; } 
+            else { const rt = rate.toFixed(1); document.getElementById('simRes').innerText = rt + '%'; document.getElementById('simDet').innerText = `${type} に基づく演算結果`; if(rate >= 80) { face.src = 'face_tsundere.png'; msg.innerText = `勝率 ${rt}%……。ま、当然の結果ね。あんたにしては上出来じゃない。褒めてないわよ。`; document.getElementById('simRes').style.color = 'var(--acc)'; } else if(rate >= 50) { face.src = 'face_normal.png'; msg.innerText = `勝率 ${rt}%。五分五分ってところね。非論理的な行動は控えなさい。`; document.getElementById('simRes').style.color = 'var(--acc)'; } else if(rate >= 20) { face.src = 'face_angry.png'; msg.innerText = `勝率 ${rt}%。泥沼ね。この組み合わせで挑むなんて、正気なの？ バカじゃないの。`; document.getElementById('simRes').style.color = '#f44336'; } else { face.src = 'face_sigh.png'; msg.innerText = `勝率 ${rt}%。……死にたいなら止めないわ。大人しくログアウトしなさい。`; document.getElementById('simRes').style.color = '#f44336'; } if(type === '理論値（未遭遇）') document.getElementById('simRes').style.color = '#ffeb3b'; }
         }
         
         function updRankings() { const kM = {}, mM = {}, rM = {}; const tot = filtered.length; filtered.forEach(x => { const win = isW(x.res); x.k.split(/[\/,]+/).forEach(k => { const n=k.trim(); if(n && n!=='None' && !n.includes('???')) { kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; } }); mM[x.m]=(mM[x.m]||{t:0,w:0}); mM[x.m].t++; if(win) mM[x.m].w++; rM[x.r]=(rM[x.r]||{t:0,w:0}); rM[x.r].t++; if(win) rM[x.r].w++; }); const fillDash = (id, m, col) => { const el = document.getElementById(id); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => { const eR = tot ? (s.t/tot*100).toFixed(1) : 0; el.innerHTML += `<div class="rank-item"><span>${n} <span style="color:#888;font-size:11px;">(${s.t}回 / ${eR}%)</span></span><span style="color:${col}; font-weight:bold;">${(s.w/s.t*100).toFixed(0)}%</span></div>`; }); }; fillDash('dashK', kM, 'var(--sub)'); fillDash('dashM', mM, 'var(--acc)'); fillDash('dashR', rM, '#ffeb3b'); const fillFull = (id, m) => { const el = document.querySelector(`#${id} tbody`); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => { const eR = tot ? (s.t/tot*100).toFixed(1) : 0; el.innerHTML += `<tr><td>${n}</td><td>${s.t} <span style="color:#888;font-size:10px;">(${eR}%)</span></td><td class="w">${s.w}</td><td class="l">${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`; }); }; fillFull('fRankK', kM); fillFull('fRankM', mM); fillFull('fRankR', rM); }
@@ -292,39 +323,15 @@
             let stats = { ov:{t:0,w:0}, cl:{t:0,w:0}, al:{t:0,w:0}, ub:{t:0,w:0}, mu:{t:0,w:0}, sp:{t:0,w:0} };
             filtered.forEach(x => { const win = isW(x.res); stats.ov.t++; if(win) stats.ov.w++; const r = x.r.toLowerCase(); if (r.includes('classic') || r.includes('クラシック')) { stats.cl.t++; if(win) stats.cl.w++; } else if (r.includes('alternate') || r.includes('オルタネイト')) { stats.al.t++; if(win) stats.al.w++; } else if (r.includes('unbound') || r.includes('アンバウンド')) { stats.ub.t++; if(win) stats.ub.w++; } else if (r.includes('blood') || r.includes('midnight') || r.includes('ブラッド') || r.includes('ミッドナイト')) { stats.mu.t++; if(win) stats.mu.w++; } else { stats.sp.t++; if(win) stats.sp.w++; } });
             const calc = (o) => o.t ? (o.w / o.t * 100).toFixed(1) : 0;
-            const dataArr = [calc(stats.ov), calc(stats.cl), calc(stats.al), calc(stats.ub), calc(stats.mu), calc(stats.sp)];
-            
-            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Overall', 'Classic', 'Alternate', 'Unbound', 'Multi-Threat', 'Special'], datasets:[{ data: dataArr, backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50', borderWidth: 2, pointBackgroundColor: '#4CAF50' }] }, options:{ maintainAspectRatio: false, scales:{ r:{ max:100, beginAtZero:true, grid:{color:'#444'}, ticks:{display:false}, pointLabels:{color:'#ccc', font:{size:10}} } }, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>c.raw+'%'}} } } });
+            charts.r = new Chart(rc, { type:'radar', data:{ labels:['Overall', 'Classic', 'Alternate', 'Unbound', 'Multi-Threat', 'Special'], datasets:[{ data: [calc(stats.ov), calc(stats.cl), calc(stats.al), calc(stats.ub), calc(stats.mu), calc(stats.sp)], backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4CAF50', borderWidth: 2, pointBackgroundColor: '#4CAF50' }] }, options:{ maintainAspectRatio: false, scales:{ r:{ max:100, beginAtZero:true, grid:{color:'#444'}, ticks:{display:false}, pointLabels:{color:'#ccc', font:{size:10}} } }, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>c.raw+'%'}} } } });
 
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
                 const chartOpts = { maintainAspectRatio: false };
-                
-                if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options: chartOpts });
-                } else if(mode==='time'){ const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; }); charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options: { ...chartOpts, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}} } });
-                } else if(['killer','map'].includes(mode)){ 
-                    const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); }); 
-                    let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)); 
-                    let wD = [], lD = [], lbD = []; 
-                    if (mode === 'killer') { 
-                        const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = [...t]; 
-                        wD = t.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); 
-                        lD = t.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); 
-                        if (o.length > 0) { 
-                            lbD.push('Others'); 
-                            const oW = o.reduce((sum, x) => sum + s[x].w, 0); const oL = o.reduce((sum, x) => sum + s[x].l, 0); 
-                            wD.push((oW / (oW + oL) * 100).toFixed(1)); lD.push((oL / (oW + oL) * 100).toFixed(1)); 
-                        } 
-                    } else { 
-                        lbD = lbl; 
-                        wD = lbl.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); 
-                        lD = lbl.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); 
-                    } 
-                    charts.m = new Chart(mc, { type:'bar', data:{labels:lbD, datasets:[{label:'Win%',data:wD,backgroundColor:'#4CAF50'},{label:'Loss%',data:lD,backgroundColor:'#F44336'}]}, options: { ...chartOpts, scales:{x:{stacked:true},y:{stacked:true, max:100}}, plugins: { tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.raw + '%' } } } } });
-                } else { 
-                    const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); items.forEach(i=>{ const v=i.trim(); if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; }); }); let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]); let lbD = [], dA = [], bgA = []; if (k === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = t.map(x => x[0]); dA = t.map(x => x[1]); if (o.length > 0) { lbD.push('Others'); dA.push(o.reduce((sum, x) => sum + x[1], 0)); } } else if (k === 'round') { lbD = lbl.slice(0, 15).map(x => x[0]); dA = lbl.slice(0, 15).map(x => x[1]); } else { lbD = lbl.map(x => x[0]); dA = lbl.map(x => x[1]); } bgA = lbD.map((l, i) => l === 'Others' ? '#888' : `hsl(${i*24},70%,45%)`); 
-                    charts.m = new Chart(mc, { type:'pie', data:{labels:lbD, datasets:[{data:dA, backgroundColor:bgA}]}, options: { ...chartOpts, plugins: { tooltip: { callbacks: { label: function(c) { const tot = c.dataset.data.reduce((a,b)=>a+b,0); const p = (c.raw/tot*100).toFixed(1); return c.label + ': ' + c.raw + ' (' + p + '%)'; } } } } } }); 
-                }
+                if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options: chartOpts }); } 
+                else if(mode==='time'){ const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; }); charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options: { ...chartOpts, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}} } }); } 
+                else if(['killer','map'].includes(mode)){ const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); }); let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)); let wD = [], lD = [], lbD = []; if (mode === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = [...t]; wD = t.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); lD = t.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); if (o.length > 0) { lbD.push('Others'); const oW = o.reduce((sum, x) => sum + s[x].w, 0); const oL = o.reduce((sum, x) => sum + s[x].l, 0); wD.push((oW / (oW + oL) * 100).toFixed(1)); lD.push((oL / (oW + oL) * 100).toFixed(1)); } } else { lbD = lbl; wD = lbl.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); lD = lbl.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); } charts.m = new Chart(mc, { type:'bar', data:{labels:lbD, datasets:[{label:'Win%',data:wD,backgroundColor:'#4CAF50'},{label:'Loss%',data:lD,backgroundColor:'#F44336'}]}, options: { ...chartOpts, scales:{x:{stacked:true},y:{stacked:true, max:100}}, plugins: { tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.raw + '%' } } } } }); } 
+                else { const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); items.forEach(i=>{ const v=i.trim(); if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; }); }); let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]); let lbD = [], dA = [], bgA = []; if (k === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = t.map(x => x[0]); dA = t.map(x => x[1]); if (o.length > 0) { lbD.push('Others'); dA.push(o.reduce((sum, x) => sum + x[1], 0)); } } else if (k === 'round') { lbD = lbl.slice(0, 15).map(x => x[0]); dA = lbl.slice(0, 15).map(x => x[1]); } else { lbD = lbl.map(x => x[0]); dA = lbl.map(x => x[1]); } bgA = lbD.map((l, i) => l === 'Others' ? '#888' : `hsl(${i*24},70%,45%)`); charts.m = new Chart(mc, { type:'pie', data:{labels:lbD, datasets:[{data:dA, backgroundColor:bgA}]}, options: { ...chartOpts, plugins: { tooltip: { callbacks: { label: function(c) { const tot = c.dataset.data.reduce((a,b)=>a+b,0); const p = (c.raw/tot*100).toFixed(1); return c.label + ': ' + c.raw + ' (' + p + '%)'; } } } } } }); }
             }
         }
         
@@ -333,31 +340,10 @@
             const f = document.getElementById('ui-face'), m = document.getElementById('ui-msg'); 
             let w=0; filtered.forEach(x=>{ if(isW(x.res)) w++; }); 
             const r = (w/filtered.length*100); 
-            
             let cStreak = 0; let sType = null;
-            for(let i=filtered.length-1; i>=0; i--) {
-                const isWin = isW(filtered[i].res);
-                if(sType === null) { sType = isWin; cStreak = 1; }
-                else if(sType === isWin) { cStreak++; }
-                else { break; }
-            }
-
-            const DB = { 
-                grind: { f: "face_angry.png", t: [`${filtered.length}回も周回してるの！？ どんだけ暇なのよ。たまには別のことしなさい。`] }, 
-                w_streak: { f: "face_tsundere.png", t: [`現在 ${cStreak} 連勝中ね。……まぁ、あんたにしては上出来じゃない。調子に乗らないことね。`] }, 
-                l_streak: { f: "face_sigh.png", t: [`現在 ${cStreak} 連敗中……。完全に沼ってるじゃない。非論理的なプレイはやめて気分転換しなさい。`] }, 
-                high: { f: "face_tsundere.png", t: [`勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。褒めてないわよ。`] }, 
-                low: { f: "face_sigh.png", t: [`勝率 ${r.toFixed(1)}%……。泥沼ね。やり方を見直したら？`] }, 
-                normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。次。`] } 
-            }; 
-            
-            let c = "normal"; 
-            if (cStreak >= 4 && !sType) c = "l_streak"; 
-            else if (cStreak >= 4 && sType) c = "w_streak"; 
-            else if (filtered.length >= 100 && Math.random() > 0.6) c = "grind"; 
-            else if (r >= 70) c = "high"; 
-            else if (r < 30 && filtered.length > 5) c = "low"; 
-            
+            for(let i=filtered.length-1; i>=0; i--) { const isWin = isW(filtered[i].res); if(sType === null) { sType = isWin; cStreak = 1; } else if(sType === isWin) { cStreak++; } else { break; } }
+            const DB = { grind: { f: "face_angry.png", t: [`${filtered.length}回も周回してるの！？ どんだけ暇なのよ。たまには別のことしなさい。`] }, w_streak: { f: "face_tsundere.png", t: [`現在 ${cStreak} 連勝中ね。……まぁ、あんたにしては上出来じゃない。調子に乗らないことね。`] }, l_streak: { f: "face_sigh.png", t: [`現在 ${cStreak} 連敗中……。完全に沼ってるじゃない。非論理的なプレイはやめて気分転換しなさい。`] }, high: { f: "face_tsundere.png", t: [`勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。褒めてないわよ。`] }, low: { f: "face_sigh.png", t: [`勝率 ${r.toFixed(1)}%……。泥沼ね。やり方を見直したら？`] }, normal: { f: "face_normal.png", t: [`勝率 ${r.toFixed(1)}%。平均的ね。次。`] } }; 
+            let c = "normal"; if (cStreak >= 4 && !sType) c = "l_streak"; else if (cStreak >= 4 && sType) c = "w_streak"; else if (filtered.length >= 100 && Math.random() > 0.6) c = "grind"; else if (r >= 70) c = "high"; else if (r < 30 && filtered.length > 5) c = "low"; 
             f.src = DB[c].f; m.innerText = DB[c].t[0]; 
         }
     </script>
