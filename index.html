@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V43 Limit Break</title>
+    <title>ToN Stats V45 Perfect Restoration</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; --nem: #e53935; --prey: #00bcd4; }
@@ -12,6 +12,7 @@
         .full { grid-column: 1 / -1; }
         select, input[type="file"], button.lang-btn { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; box-sizing: border-box; cursor: pointer; }
         button.lang-btn { background: #3949ab; font-weight: bold; font-size: 14px; transition: 0.2s; } button.lang-btn:hover { background: #3f51b5; }
+        button.clear-btn { background: #e53935; font-weight: bold; font-size: 14px; transition: 0.2s; } button.clear-btn:hover { background: #b71c1c; }
         optgroup { background: #1a1a1a; color: var(--sub); font-style: normal; font-weight: bold; } option { color: #fff; }
         .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
         .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; white-space: nowrap; }
@@ -28,7 +29,6 @@
         table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 300px; th, td { padding: 10px 8px; border-bottom: 1px solid var(--brd); text-align: left; } th { background: #252525; position: sticky; top: 0; z-index: 1; } }
         .w { color: var(--acc); font-weight: bold; } .l { color: #f44336; font-weight: bold; }
         .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; } .unb-card { background: #2c2c2c; padding: 15px; border-radius: 8px; border-top: 4px solid var(--unb); font-size: 12px; text-align: left; } .unb-title { font-size: 14px; font-weight: bold; color: var(--unb); margin-bottom: 8px; border-bottom: 1px dashed #555; padding-bottom: 4px; } .unb-tag-list { display: flex; flex-wrap: wrap; gap: 5px; } .unb-tag { background: #1e1e1e; padding: 4px 8px; border-radius: 4px; color: #ddd; font-size: 11px; border: 1px solid #555; }
-        .link-box { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--sub); margin-top: 20px; a { color: var(--txt); text-decoration: none; display: block; margin: 8px 0; font-size: 14px; } }
         .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; } .ach-card { background: #252525; border-radius: 8px; padding: 15px; display: flex; align-items: center; border-left: 5px solid #444; opacity: 0.4; filter: grayscale(100%); transition: 0.3s; } .ach-card.unlocked { opacity: 1; filter: grayscale(0%); border-left-color: #FFD700; background: linear-gradient(135deg, #2a2a2a 0%, #3a3a20 100%); } .ach-icon { font-size: 30px; margin-right: 15px; width: 40px; text-align: center; } .ach-info { flex: 1; } .ach-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #fff; } .ach-desc { font-size: 11px; color: #aaa; }
         .sim-report { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #444; text-align: left; font-size: 13px; } .sim-factor { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #333; } .sim-pos { color: var(--acc); font-weight: bold; } .sim-neg { color: #f44336; font-weight: bold; } .sim-base { color: var(--sub); font-weight: bold; }
         .nem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } @media (max-width: 768px) { .nem-grid { grid-template-columns: 1fr; } } .nem-box { background: #252525; border-radius: 10px; padding: 15px; } .nem-title { font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid; } .nem-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #333; } .nem-rank { font-size: 16px; font-weight: bold; width: 30px; color: #888; } .nem-name { flex: 1; font-weight: bold; font-size: 14px; } .nem-score { font-size: 16px; font-weight: bold; text-align: right; } .nem-sub { font-size: 10px; color: #888; display: block; }
@@ -39,6 +39,7 @@
         <div class="full" style="display:flex; gap:10px;">
             <input type="file" id="csvFile" accept=".csv" style="flex:1;" onclick="this.value=null;">
             <button class="lang-btn" onclick="toggleLang()" style="width:auto; padding:0 20px;">🌐 EN / JP</button>
+            <button class="clear-btn" onclick="clearCache()" style="width:auto; padding:0 20px;" data-ja="🗑️ キャッシュ消去" data-en="🗑️ Clear Storage">🗑️ キャッシュ消去</button>
         </div>
         <select id="fDate"><option value="all" data-ja="全期間" data-en="All Dates">全期間</option></select>
         <select id="fRound"><option value="all" data-ja="全Round" data-en="All Rounds">全Round</option></select>
@@ -75,63 +76,13 @@
         <div class="three-col-grid"><div><h3 style="color:var(--sub); border-bottom:2px solid #444; padding-bottom:5px;" data-ja="Top 10 テラー" data-en="Top 10 Terrors">Top 10 テラー</h3><div id="dashK"></div></div><div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;" data-ja="Top 10 ラウンド" data-en="Top 10 Rounds">Top 10 ラウンド</h3><div id="dashR"></div></div><div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;" data-ja="Top 10 マップ" data-en="Top 10 Maps">Top 10 マップ</h3><div id="dashM"></div></div></div>
     </div>
 
-    <div id="t-sim" class="tab-content">
-        <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Heuristic Synergy Predictor</h3>
-        <div class="controls" style="margin-bottom:20px;">
-            <select id="sRound"><option value="all" data-ja="ラウンド指定なし" data-en="Any Round">ラウンド指定なし</option></select>
-            <select id="sMap"><option value="all" data-ja="マップ指定なし" data-en="Any Map">マップ指定なし</option></select>
-            <div class="full" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;" id="simKillersBox">
-                <select id="sKiller"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">テラー指定なし</option></select>
-                <select id="sKiller2" style="display:none;"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">テラー指定なし</option></select>
-                <select id="sKiller3" style="display:none;"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">テラー指定なし</option></select>
-            </div>
-        </div>
-        <div class="card" style="text-align:center; padding:20px 15px; margin-bottom:0;">
-            <div style="font-size:14px; color:#aaa; font-weight:bold;" data-ja="予測生存率" data-en="Expected Survival Rate">予測生存率</div>
-            <div id="simRes" style="font-size:52px; font-weight:bold; color:var(--acc); margin:10px 0; text-shadow: 0 0 10px rgba(76,175,80,0.3);">--%</div>
-            <div id="simDet" style="font-size:13px; color:#888;" data-ja="条件を設定してください。" data-en="Select conditions to analyze.">条件を設定してください。</div>
-            <div id="simReportBox" class="sim-report" style="display:none;">
-                <div style="color:var(--txt); margin-bottom:8px; font-weight:bold;">[ Analysis Report : Death Factors ]</div>
-                <div id="simFactors"></div>
-            </div>
-        </div>
-        <div id="sim-ui-box"><img id="sim-ui-face" src="face_normal.png"><p id="sim-ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4; color:var(--unb);"></p></div>
-    </div>
-
-    <div id="t-nem" class="tab-content">
-        <h3 style="color:var(--nem); border-bottom:1px solid #444; padding-bottom:5px;">Bayesian Nemesis & Prey Analysis</h3>
-        <p style="font-size:11px; color:#aaa; margin-bottom:20px;" data-ja="※ベイズ推定を用いて「遭遇回数」と「敗北率」を重み付けし、真の天敵と獲物を偏差値化します。(遭遇3回以上)" data-en="*Uses Bayesian inference to weight encounters and loss rates, revealing true Nemesis and Prey. (Min 3 encounters)">※ベイズ推定を用いて「遭遇回数」と「敗北率」を重み付けし、真の天敵と獲物を偏差値化します。(遭遇3回以上)</p>
-        <div class="nem-grid">
-            <div class="nem-box" style="border-top: 5px solid var(--nem);">
-                <div class="nem-title" style="color:var(--nem); border-bottom-color:var(--nem);">Top 10 Nemesis <span data-ja="(真の天敵)" data-en="(True Foes)">(真の天敵)</span></div>
-                <div id="nemList"></div>
-            </div>
-            <div class="nem-box" style="border-top: 5px solid var(--prey);">
-                <div class="nem-title" style="color:var(--prey); border-bottom-color:var(--prey);">Top 10 Prey <span data-ja="(獲物)" data-en="(Easy Targets)">(獲物)</span></div>
-                <div id="preyList"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="t-chart" class="tab-content">
-        <select id="vMode" style="width:100%; margin-bottom:15px;">
-            <option value="trend" data-ja="日別勝率推移" data-en="Daily Win Rate Trend">日別勝率推移</option>
-            <option value="time" data-ja="時間帯別分析" data-en="Time of Day Analysis">時間帯別分析</option>
-            <option value="killer" data-ja="テラー別勝敗 (割合)" data-en="Win/Loss by Terror (%)">テラー別勝敗 (割合)</option>
-            <option value="map" data-ja="マップ別勝敗 (割合)" data-en="Win/Loss by Map (%)">マップ別勝敗 (割合)</option>
-            <option value="p_killer" data-ja="出現率: テラー" data-en="Spawn Rate: Terror">出現率: テラー</option>
-            <option value="p_round" data-ja="出現率: ラウンド" data-en="Spawn Rate: Round">出現率: ラウンド</option>
-            <option value="p_map" data-ja="出現率: マップ" data-en="Spawn Rate: Map">出現率: マップ</option>
-        </select>
-        <div style="height: 550px; position: relative; width: 100%;"><canvas id="mainChart"></canvas></div>
-    </div>
-
+    <div id="t-sim" class="tab-content"><h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Heuristic Synergy Predictor</h3><div class="controls" style="margin-bottom:20px;"><select id="sRound"><option value="all" data-ja="ラウンド指定なし" data-en="Any Round">ラウンド指定なし</option></select><select id="sMap"><option value="all" data-ja="マップ指定なし" data-en="Any Map">マップ指定なし</option></select><div class="full" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;" id="simKillersBox"><select id="sKiller"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">テラー指定なし</option></select><select id="sKiller2" style="display:none;"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">テラー指定なし</option></select><select id="sKiller3" style="display:none;"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">テラー指定なし</option></select></div></div><div class="card" style="text-align:center; padding:20px 15px; margin-bottom:0;"><div style="font-size:14px; color:#aaa; font-weight:bold;" data-ja="予測生存率" data-en="Expected Survival Rate">予測生存率</div><div id="simRes" style="font-size:52px; font-weight:bold; color:var(--acc); margin:10px 0; text-shadow: 0 0 10px rgba(76,175,80,0.3);">--%</div><div id="simDet" style="font-size:13px; color:#888;" data-ja="条件を設定してください。" data-en="Select conditions to analyze.">条件を設定してください。</div><div id="simReportBox" class="sim-report" style="display:none;"><div style="color:var(--txt); margin-bottom:8px; font-weight:bold;">[ Analysis Report ]</div><div id="simFactors"></div></div></div><div id="sim-ui-box"><img id="sim-ui-face" src="face_normal.png"><p id="sim-ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4; color:var(--unb);"></p></div></div>
+    <div id="t-nem" class="tab-content"><h3 style="color:var(--nem); border-bottom:1px solid #444; padding-bottom:5px;">Bayesian Nemesis & Prey</h3><div class="nem-grid"><div class="nem-box" style="border-top: 5px solid var(--nem);"><div class="nem-title" style="color:var(--nem); border-bottom-color:var(--nem);">Top 10 Nemesis</div><div id="nemList"></div></div><div class="nem-box" style="border-top: 5px solid var(--prey);"><div class="nem-title" style="color:var(--prey); border-bottom-color:var(--prey);">Top 10 Prey</div><div id="preyList"></div></div></div></div>
+    <div id="t-chart" class="tab-content"><select id="vMode" style="width:100%; margin-bottom:15px;"><option value="trend" data-ja="日別勝率推移" data-en="Daily Trend">日別勝率推移</option><option value="time" data-ja="時間帯別分析" data-en="Time Analysis">時間帯別分析</option><option value="killer" data-ja="テラー別勝敗" data-en="Win/Loss by Terror">テラー別勝敗</option><option value="map" data-ja="マップ別勝敗" data-en="Win/Loss by Map">マップ別勝敗</option></select><div style="height: 550px; position: relative; width: 100%;"><canvas id="mainChart"></canvas></div></div>
     <div id="t-rank" class="tab-content"><div class="three-col-grid"><div><h3 style="color:var(--sub);">All Killers</h3><div class="table-wrapper"><table id="fRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:#ffeb3b;">All Rounds</h3><div class="table-wrapper"><table id="fRankR"><thead><tr><th>Round</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:var(--acc);">All Maps</h3><div class="table-wrapper"><table id="fRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div></div></div>
     
     <div id="t-ach" class="tab-content"><div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--brd); padding-bottom:10px; margin-bottom:20px;"><h3 style="color:#FFD700; margin:0;" data-ja="解除可能な実績" data-en="Unlockable Achievements">解除可能な実績</h3><div style="font-size:16px; font-weight:bold;">Unlocked: <span id="achCnt" style="color:var(--acc);">0</span> / <span id="achTot">0</span> (<span id="achPct">0</span>%)</div></div><div class="ach-grid" id="achBox"></div></div>
-    
     <div id="t-list" class="tab-content"><div class="table-wrapper"><table><thead><tr><th data-ja="日時" data-en="Date">Date</th><th data-ja="ラウンド" data-en="Round">Round</th><th data-ja="テラー" data-en="Terror">Terror</th><th data-ja="結果" data-en="Res">Res</th></tr></thead><tbody id="hBody"></tbody></table></div><div style="margin-top:15px; display:flex; justify-content:space-between;"><button class="tab-btn" style="border:1px solid #555;" onclick="pg(-1)">◀ Prev</button><span id="pgInf" style="align-self:center;">1/1</span><button class="tab-btn" style="border:1px solid #555;" onclick="pg(1)">Next ▶</button></div></div>
-    
     <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
 
     <script>
@@ -143,18 +94,31 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
+        // ★ 全56種のI18N完全復旧
         const ACH_I18N = {
             "血液不足": "Survive Bloodbath", "禁煙！": "Survive Fog", "一線を越える": "Survive Insanity", "表と裏": "Survive Alternate",
-            "脱出成功": "Survive Sabotage", "夜明けの始まり": "Survive Midnight", "サバイバー": "Win a round for the first time",
-            "灰燼から": "Survive Glaggle Gang", "ミュートされた？": "Survive Ambush", "史上最高のパフォーマンス": "Survive Teuthida",
-            "衝突と解消": "Survive Convict Squad", "日頃の行い": "Survive Angry Munci", "削除されました": "Survive sm64.z64",
-            "赤い霧が帰ってきます": "Survive The Red Mist", "OPテラー": "Survive Sakuya The Ripper", "エンパシー": "Survive Apathy",
-            "楽園はそこにあった": "Survive Paradise Bird", "汚染された": "Encounter Beyond", "燦爛たる幸福": "Survive Joy",
-            "全部彼女のせいだ": "Survive Restless Creator", ":3": "Survive Parhelion", "侵入": "Killed by Interloper",
-            "完璧主義": "Survive 10 rounds in a row without taking damage (Proxy: 10 Win Streak)",
-            "異常な執念": "Total plays exceed 1000 (Secret)", "徹夜明けのメルトダウン": "Play ToN during midnight (2:00-5:00) (Secret)"
+            "脱出成功": "Survive Sabotage", "夜明けの始まり": "Survive Midnight", "消えゆく記憶": "Survive Mystic Moon", 
+            "終末の日": "Survive Twilight", "戦争": "Survive Bloodmoon", "付き添い人": "Survive Solstice", "何かおかしい": "Survive Ghost",
+            "サバイバー": "Win a round for the first time", "YOU DIED!": "Die for the first time", "灰燼から": "Survive Glaggle Gang", 
+            "ミュートされた？": "Survive Ambush", "史上最高のパフォーマンス": "Survive Teuthida", "衝突と解消": "Survive Convict Squad", 
+            "日頃の行い": "Survive Angry Munci", "削除されました": "Survive sm64.z64", "いつもの作業": "Survive Don't Touch Me",
+            "復讐": "Survive Judas", "始マリノ祭リ": "Survive Walpurgisnacht", "赤い霧が帰ってきます": "Survive The Red Mist", 
+            "OPテラー": "Survive Sakuya The Ripper", "原初の信号": "Survive S.O.S", "止まらない食欲": "Survive The MeatBallMan",
+            "心なき機械": "Survive Nameless", "エンパシー": "Survive Apathy", "楽園はそこにあった": "Survive Paradise Bird", 
+            "失われた魂": "Survive Kimera", "汚染された": "Encounter Beyond", "バンバンたちが天国へ送るかのごとく": "Survive Garten Goers",
+            "燦爛たる幸福": "Survive Joy", "バスパス": "Survive Transportation Trio & The Drifter", "破滅": "Survive Monarch",
+            "全部彼女のせいだ": "Survive Restless Creator", "追跡": "Survive Shadow Freddy", "ピカピカの25セント硬貨": "Survive Baldi",
+            ":3": "Survive Parhelion", "聞かないで": "Survive ,D@;Q7Y", "プレッシャー": "Survive Searchlights",
+            "侵入": "Killed by Interloper", "あっ": "Encounter Toren's Shadow", "止まれ": "Killed by The Guidance", 
+            "場所もタイミングも悪かった": "Killed by MR MEGA", "143": "Killed by Hellmari in Blackspace", 
+            "ベストオブパープルガイ": "Survive Purple Guy in Insanity", "隠れんぼ王": "Survive Rush or Ambush in Bloodbath/Midnight",
+            "ザ・ワールド": "Survive Sakuya Izayoi/The Ripper in Bloodbath/Midnight", "子供向けじゃないよ": "Survive MopeMope",
+            "あの子のように！": "Survive Bloodbath (Proxy: Last Man Standing)", "完璧主義": "10 Win Streak (Proxy: Flawless)",
+            "深淵を覗きし者": "Encounter 15 Alternates (Proxy)", "異常な執念": "Total plays exceed 1000 (Secret)", 
+            "社畜の鑑": "Play during work hours (9:00-18:00) (Secret)", "徹夜明けのメルトダウン": "Play during midnight (2:00-5:00) (Secret)"
         };
 
+        // ★ 全56種の実績判定ロジック完全復旧
         const ACH = [
             { n: "血液不足", d: "ラウンドタイプ「ブラッドバス」を生存", i: "🩸", c: (x) => /Bloodbath|ブラッドバス/i.test(x.r) && isW(x.res) },
             { n: "禁煙！", d: "ラウンドタイプ「霧」を生存", i: "🌫️", c: (x) => /Fog|霧/i.test(x.r) && isW(x.res) },
@@ -162,24 +126,55 @@
             { n: "表と裏", d: "ラウンドタイプ「オルタネイト」を生存", i: "🎭", c: (x) => /Alternate|オルタネイト/i.test(x.r) && isW(x.res) },
             { n: "脱出成功", d: "ラウンドタイプ「サボタージュ」を生存", i: "🔪", c: (x) => /Sabotage|サボタージュ/i.test(x.r) && isW(x.res) },
             { n: "夜明けの始まり", d: "ラウンドタイプ「ミッドナイト」を生存", i: "🕛", c: (x) => /Midnight|ミッドナイト/i.test(x.r) && isW(x.res) },
+            { n: "消えゆく記憶", d: "ラウンドタイプ「ミスティックムーン」を生存", i: "🌙", c: (x) => /Mystic Moon|ミスティックムーン/i.test(x.r) && isW(x.res) },
+            { n: "終末の日", d: "ラウンドタイプ「トワイライト」を生存", i: "🌆", c: (x) => /Twilight|トワイライト/i.test(x.r) && isW(x.res) },
+            { n: "戦争", d: "ラウンドタイプ「ブラッドムーン」を生存", i: "⚔️", c: (x) => /Bloodmoon|ブラッドムーン/i.test(x.r) && isW(x.res) },
+            { n: "付き添い人", d: "ラウンドタイプ「ソルスティス」を生存", i: "☀️", c: (x) => /Solstice|ソルスティス/i.test(x.r) && isW(x.res) },
+            { n: "何かおかしい", d: "ラウンドタイプ「ゴースト」を生存", i: "👻", c: (x) => /Ghost|ゴースト/i.test(x.r) && isW(x.res) },
             { n: "サバイバー", d: "初めてラウンドを勝利する", i: "🏅", c: (x) => isW(x.res) },
+            { n: "YOU DIED!", d: "初めて死亡する", i: "💀", c: (x) => !isW(x.res) },
             { n: "灰燼から", d: "「Glaggle Gang」から生存", i: "🟡", c: (x) => hasK(x, 'Glaggle Gang') && isW(x.res) },
             { n: "ミュートされた？", d: "「Ambush」から生存", i: "🤫", c: (x) => hasK(x, 'Ambush') && isW(x.res) },
             { n: "史上最高のパフォーマンス", d: "「Teuthida」から生存", i: "🦑", c: (x) => hasK(x, 'Teuthida') && isW(x.res) },
             { n: "衝突と解消", d: "「Convict Squad」から生存", i: "💥", c: (x) => hasK(x, 'Convict Squad') && isW(x.res) },
             { n: "日頃の行い", d: "「Angry Munci」から生存", i: "😡", c: (x) => hasK(x, 'Angry Munci') && isW(x.res) },
             { n: "削除されました", d: "「sm64.z64」から生存", i: "🍄", c: (x) => hasK(x, 'sm64.z64') && isW(x.res) },
+            { n: "いつもの作業", d: "「Don't Touch Me」から生存", i: "🔘", c: (x) => hasK(x, "Don't Touch Me") && isW(x.res) },
+            { n: "復讐", d: "「Judas」から生存", i: "🗡️", c: (x) => hasK(x, 'Judas') && isW(x.res) },
+            { n: "始マリノ祭リ", d: "「Walpurgisnacht」から生存", i: "🎭", c: (x) => hasK(x, 'Walpurgisnacht') && isW(x.res) },
             { n: "赤い霧が帰ってきます", d: "「The Red Mist」から生存", i: "🪓", c: (x) => hasK(x, 'The Red Mist') && isW(x.res) },
             { n: "OPテラー", d: "「Sakuya The Ripper」から生存", i: "⏱️", c: (x) => hasK(x, 'Sakuya The Ripper') && isW(x.res) },
+            { n: "原初の信号", d: "「S.O.S」から生存", i: "📡", c: (x) => hasK(x, 'S.O.S') && isW(x.res) },
+            { n: "止まらない食欲", d: "「The MeatBallMan」から生存", i: "🍝", c: (x) => hasK(x, 'MeatBallMan') && isW(x.res) },
+            { n: "心なき機械", d: "「Nameless」から生存", i: "🤖", c: (x) => hasK(x, 'Nameless') && isW(x.res) },
             { n: "エンパシー", d: "「Apathy」から生存", i: "😶", c: (x) => hasK(x, 'Apathy') && isW(x.res) },
             { n: "楽園はそこにあった", d: "「Paradise Bird」から生存", i: "🦩", c: (x) => hasK(x, 'Paradise Bird') && isW(x.res) },
+            { n: "失われた魂", d: "「Kimera」から生存", i: "🧬", c: (x) => hasK(x, 'Kimera') && isW(x.res) },
             { n: "汚染された", d: "「Beyond」に遭遇", i: "👁️", c: (x) => hasK(x, 'Beyond') },
+            { n: "バンバンたちが天国へ送るかのごとく", d: "「Garten Goers」から生存", i: "👹", c: (x) => hasK(x, 'Garten Goers') && isW(x.res) },
             { n: "燦爛たる幸福", d: "「Joy」から生存", i: "💊", c: (x) => hasK(x, 'Joy') && isW(x.res) },
+            { n: "バスパス", d: "「Transportation Trio & The Drifter」から生存", i: "🚌", c: (x) => hasK(x, 'Transportation Trio & The Drifter') && isW(x.res) },
+            { n: "破滅", d: "「Monarch」から生存", i: "👑", c: (x) => hasK(x, 'Monarch') && isW(x.res) },
             { n: "全部彼女のせいだ", d: "「Restless Creator」から生存", i: "👩‍💻", c: (x) => hasK(x, 'Restless Creator') && isW(x.res) },
+            { n: "追跡", d: "「Shadow Freddy」から生存", i: "🐻", c: (x) => hasK(x, 'Shadow Freddy') && isW(x.res) },
+            { n: "ピカピカの25セント硬貨", d: "「Baldi」から生存", i: "📏", c: (x) => hasK(x, 'Baldi') && isW(x.res) },
             { n: ":3", d: "「Parhelion」から生存", i: "☀️", c: (x) => hasK(x, 'Parhelion') && isW(x.res) },
+            { n: "聞かないで", d: "「,D@;Q7Y」から生存", i: "⁉️", c: (x) => hasK(x, ',D@;Q7Y') && isW(x.res) },
+            { n: "プレッシャー", d: "「Searchlights」から生存", i: "🔦", c: (x) => hasK(x, 'Searchlights') && isW(x.res) },
             { n: "侵入", d: "「Interloper」に殺される", i: "🚷", c: (x) => hasK(x, 'Interloper') && !isW(x.res) },
+            { n: "あっ", d: "「Toren's Shadow」を怒らせる(遭遇)", i: "💢", c: (x) => hasK(x, "Toren's Shadow") },
+            { n: "止まれ", d: "「The Guidance」に殺される", i: "🛑", c: (x) => hasK(x, 'The Guidance') && !isW(x.res) },
+            { n: "場所もタイミングも悪かった", d: "「MR MEGA」に殺される", i: "⚡", c: (x) => hasK(x, 'MR MEGA') && !isW(x.res) },
+            { n: "143", d: "「Blackspace」で「Hellmari」に殺される", i: "🎻", c: (x) => /Blackspace/i.test(x.m) && hasK(x, 'Hellmari') && !isW(x.res) },
+            { n: "ベストオブパープルガイ", d: "「狂気」のPurple Guyから生存", i: "🟪", c: (x) => /Insanity|狂気/i.test(x.r) && hasK(x, 'Purple Guy') && isW(x.res) },
+            { n: "隠れんぼ王", d: "RushかAmbushが存在するブラッドバスかミッドナイトを生存", i: "🚪", c: (x) => (/Bloodbath|Midnight|ブラッドバス|ミッドナイト/i.test(x.r)) && (hasK(x, 'Rush') || hasK(x, 'Ambush')) && isW(x.res) },
+            { n: "ザ・ワールド", d: "Sakuya Izayoiが存在するブラッドバスかミッドナイトを生存", i: "🔪", c: (x) => (/Bloodbath|Midnight|ブラッドバス|ミッドナイト/i.test(x.r)) && (hasK(x, 'Sakuya Izayoi') || hasK(x, 'Sakuya The Ripper')) && isW(x.res) },
+            { n: "子供向けじゃないよ", d: "「MopeMope」から生存", i: "🌸", c: (x) => hasK(x, 'MopeMope') && isW(x.res) },
+            { n: "あの子のように！", d: "「ブラッドバス」生存 (疑似: 最後の一人)", i: "🩸", c: (x) => /Bloodbath|ブラッドバス/i.test(x.r) && isW(x.res) },
             { n: "完璧主義", d: "一切ダメージを負わずに10ラウンド連続で生存 (疑似: 10連勝)", i: "🛡️", type: "streak", req: 10 },
+            { n: "深淵を覗きし者", d: "オルタネイト図鑑を完成させる (疑似: 15種類遭遇)", i: "📖", type: "alt_count", req: 15 },
             { n: "異常な執念", d: "累計プレイ回数1000回突破 (Secret)", i: "🔥", type: "total", req: 1000 },
+            { n: "社畜の鑑", d: "平日の日中（9:00〜18:00）にToNをプレイする (Secret)", i: "🏢", type: "time", hMin: 9, hMax: 18 },
             { n: "徹夜明けのメルトダウン", d: "深夜（2:00〜5:00）にToNをプレイする (Secret)", i: "☕", type: "time", hMin: 2, hMax: 5 }
         ];
 
@@ -193,6 +188,13 @@
                 if (text) el.innerText = text;
             });
             if(raw.length) { updAch(); updNemesis(); updUi(); runSim(); initF(); }
+        }
+
+        // ★ ブラウザのゴミを掃除してローカルストレージを蘇生させるクリアボタン
+        function clearCache() {
+            localStorage.clear();
+            const msg = currLang === 'ja' ? "LocalStorageのキャッシュ（過去のゴミデータ）をすべて消去しました。これで次回以降の保存が正常に機能するはずです。" : "LocalStorage cache cleared! Saving should work again.";
+            alert(msg);
         }
 
         function parseCSV(t) { 
@@ -224,22 +226,21 @@
 
         window.onload = () => { 
             try {
-                const saved = localStorage.getItem('ton_v43_limitbreak'); 
+                const saved = localStorage.getItem('ton_v45_perfect'); 
                 if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } 
             } catch(e) {
                 console.warn("Storage quota exceeded on load. Waiting for manual file upload.");
             }
         };
 
-        // ★ 巨大ファイル対応：例外を握りつぶしてメモリ上だけで完結させる
         document.getElementById('csvFile').onchange = e => { 
             const f = e.target.files[0]; if(!f) return; 
             const r = new FileReader(); 
             r.onload = ev => { 
                 try {
-                    localStorage.setItem('ton_v43_limitbreak', ev.target.result); 
+                    localStorage.setItem('ton_v45_perfect', ev.target.result); 
                 } catch(err) {
-                    console.warn("ファイルサイズがLocalStorageの制限を超えました。メモリモードで起動します。(Storage quota exceeded. Running in memory mode.)");
+                    console.warn("ファイルサイズが限界です。メモリモードで起動します。");
                 }
                 parseCSV(ev.target.result); 
                 initF(); upd(); updateSimDropdowns(); runSim(); 
