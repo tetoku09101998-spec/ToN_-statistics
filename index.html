@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V40 Global i18n</title>
+    <title>ToN Stats V41 Flawless</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; --nem: #e53935; --prey: #00bcd4; }
@@ -143,7 +143,6 @@
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        // ★ 多言語対応 (i18n) の辞書（実績説明文用）
         const ACH_I18N = {
             "血液不足": "Survive Bloodbath", "禁煙！": "Survive Fog", "一線を越える": "Survive Insanity", "表と裏": "Survive Alternate",
             "脱出成功": "Survive Sabotage", "夜明けの始まり": "Survive Midnight", "サバイバー": "Win a round for the first time",
@@ -193,10 +192,10 @@
                 const text = el.getAttribute(`data-${currLang}`);
                 if (text) el.innerText = text;
             });
-            if(raw.length) { updAch(); updNemesis(); updUi(); }
+            if(raw.length) { updAch(); updNemesis(); updUi(); runSim(); initF(); }
         }
 
-        // ★ CSVパーサーの完全リファクタリング（堅牢化）
+        // ★ CSVパーサー（完全堅牢化：列数の揺れと不正行の排除）
         function parseCSV(t) { 
             let skipped = 0;
             let tempRaw = t.trim().split('\n').slice(1).map(line => { 
@@ -208,17 +207,13 @@
                 } 
                 cols.push(cur.trim().replace(/^"|"$/g, '')); 
                 
-                // 不正な空列を除去
                 while(cols.length > 0 && cols[cols.length - 1] === '') cols.pop();
-                
-                // Timestamp, Map, RoundType, Killers, Result なので最低4列(Killersが空の場合)を許容
                 if (cols.length < 4) { skipped++; return null; }
                 
-                const res = cols[cols.length - 1]; // 結果は常に最後
+                const res = cols[cols.length - 1]; 
                 const tStamp = cols[0];
                 const map = cols[1];
                 const round = cols[2];
-                // 3列目〜最後の列の前までがKillers (カンマが含まれていた場合の安全策)
                 const killers = cols.length >= 5 ? cols.slice(3, -1).join(', ') : cols[3];
 
                 return { t: tStamp||'', m: map||'', r: round||'', k: killers||'None', res: res, afk: false }; 
@@ -228,12 +223,12 @@
             if (skipped > 0) alert(currLang === 'ja' ? `警告: 不正な形式の行を ${skipped} 件スキップしました。` : `Warning: Skipped ${skipped} malformed rows.`);
         }
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v40_i18n'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        window.onload = () => { const saved = localStorage.getItem('ton_v41_flawless'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
         document.getElementById('csvFile').onchange = e => { 
             const f = e.target.files[0]; if(!f) return; 
             const r = new FileReader(); 
             r.onload = ev => { 
-                localStorage.setItem('ton_v40_i18n', ev.target.result); 
+                localStorage.setItem('ton_v41_flawless', ev.target.result); 
                 parseCSV(ev.target.result); 
                 initF(); upd(); updateSimDropdowns(); runSim(); 
             }; 
@@ -277,11 +272,20 @@
             else { const el = document.getElementById('sKiller'); const cur = el.value; el.innerHTML = `<option value="all">${currLang==='ja'?'テラー指定なし':'Any Terror'}</option>`; if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; } if(cls.length > 0) { el.innerHTML += '<optgroup label="Classic Exclusive">'; cls.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; } el.value = (alt.includes(cur) || cls.includes(cur)) ? cur : 'all'; }
         }
 
+        // ★ バグ修正： x.res を raw[i].res に変更
         function upd() { 
             const afkLimit = parseInt(document.getElementById('afkVal').value) || 10, exAFK = document.getElementById('exAFK').checked;
             let lossStreak = 0, streakStartIndex = -1;
             raw.forEach(x => x.afk = false);
-            for(let i=0; i<raw.length; i++) { if(!isW(x.res)) { if(lossStreak === 0) streakStartIndex = i; lossStreak++; } else { if(lossStreak >= afkLimit) { for(let j=streakStartIndex; j<i; j++) raw[j].afk = true; } lossStreak = 0; } }
+            for(let i=0; i<raw.length; i++) { 
+                if(!isW(raw[i].res)) { 
+                    if(lossStreak === 0) streakStartIndex = i; 
+                    lossStreak++; 
+                } else { 
+                    if(lossStreak >= afkLimit) { for(let j=streakStartIndex; j<i; j++) raw[j].afk = true; } 
+                    lossStreak = 0; 
+                } 
+            }
             if(lossStreak >= afkLimit) { for(let j=streakStartIndex; j<raw.length; j++) raw[j].afk = true; }
             const df = document.getElementById('fDate').value, rf = document.getElementById('fRound').value, kf = document.getElementById('fKiller').value, resf = document.getElementById('fRes').value, exc = document.getElementById('exClassic').checked; 
             filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && (resf==='all'|| (resf==='Win' ? isW(x.res) : !isW(x.res))) && !(exc && isClassic(x.r)) && !(exAFK && x.afk)); 
@@ -295,7 +299,6 @@
         
         function tab(t) { document.querySelectorAll('.tab-btn, .tab-content').forEach(el=>el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="tab('${t}')"]`).classList.add('active'); renderC(); }
         
-        // ★ レンダー関数の完全復旧 (全モジュール呼び出し)
         function render() { 
             let w=0; filtered.forEach(x => { if(isW(x.res)) w++; }); 
             document.getElementById('tg').innerText = filtered.length; 
@@ -306,7 +309,6 @@
             rev.slice((page-1)*50, page*50).forEach(x => { const rowStyle = x.afk ? 'color:#666;' : ''; const afkTag = x.afk ? '<span style="font-size:10px;color:#f44336;border:1px solid #f44336;padding:1px 3px;border-radius:3px;margin-left:5px;">AFK</span>' : ''; tb.innerHTML += `<tr style="${rowStyle}"><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}${afkTag}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); 
             document.getElementById('pgInf').innerText = `${page} / ${tp}`; 
             
-            // 全タブ更新ロジックの呼び出し
             updRankings(); 
             updUnb(); 
             updAch(); 
@@ -316,7 +318,6 @@
         }
         function pg(v) { page += v; render(); }
 
-        // ★ 各タブのUI更新関数群
         function updAch() {
             const box = document.getElementById('achBox'); box.innerHTML = '';
             let unlocked = new Set(), winStreak = 0, maxWinStreak = 0, seenAlts = new Set();
@@ -335,9 +336,9 @@
             document.getElementById('achTot').innerText = ACH.length; document.getElementById('achCnt').innerText = unlocked.size; document.getElementById('achPct').innerText = ACH.length ? ((unlocked.size / ACH.length) * 100).toFixed(1) : 0;
             ACH.forEach((a, i) => {
                 const isU = unlocked.has(i), cls = isU ? 'ach-card unlocked' : 'ach-card';
-                // 翻訳処理
                 let dText = a.type && !isU && a.n.includes("Secret") ? "???" : (currLang === 'en' ? (ACH_I18N[a.n] || a.d) : a.d);
-                box.innerHTML += `<div class="${cls}"><div class="ach-icon">${a.i}</div><div class="ach-info"><div class="ach-name">${a.n}</div><div class="ach-desc">${dText}</div></div></div>`;
+                let nText = currLang === 'en' && ACH_I18N[a.n] ? ACH_I18N[a.n].split(' ').slice(1).join(' ') : a.n;
+                box.innerHTML += `<div class="${cls}"><div class="ach-icon">${a.i}</div><div class="ach-info"><div class="ach-name">${nText}</div><div class="ach-desc">${dText}</div></div></div>`;
             });
         }
 
@@ -383,7 +384,6 @@
             rBox.style.display = 'block'; rFact.innerHTML = `<div class="sim-factor"><span class="sim-base">Base Overall Win Rate</span><span class="sim-base">${(baseRate*100).toFixed(1)}%</span></div>`;
             factors.forEach(f => { const cls = f.invalid ? 'color:#888;' : (f.diff >= 0 ? 'sim-pos' : 'sim-neg'); rFact.innerHTML += `<div class="sim-factor"><span>${f.name}</span><span class="${cls}">${f.text}</span></div>`; });
 
-            // Sim Comments with i18n
             const simMsgs = {
                 high: { f: 'face_tsundere.png', c: 'var(--acc)', ja: `予測勝率 ${finalExpected.toFixed(1)}%……。データ上は完璧なシナジーね。油断して死なないでよ。`, en: `Predicted win rate ${finalExpected.toFixed(1)}%... Perfect synergy on paper. Don't die carelessly.` },
                 mid: { f: 'face_normal.png', c: 'var(--acc)', ja: `予測勝率 ${finalExpected.toFixed(1)}%。五分五分ね。プレイスキルでひっくり返しなさい。`, en: `Predicted win rate ${finalExpected.toFixed(1)}%. 50/50. Use your skills to flip the odds.` },
@@ -407,14 +407,13 @@
             if(document.getElementById('t-chart').classList.contains('active')) {
                 const mc = document.getElementById('mainChart').getContext('2d'), mode = document.getElementById('vMode').value; if(charts.m) charts.m.destroy();
                 const chartOpts = { maintainAspectRatio: false };
-                if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options: chartOpts }); } 
-                else if(mode==='time'){ const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; }); charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options: { ...chartOpts, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}} } }); } 
-                else if(['killer','map'].includes(mode)){ const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); }); let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)); let wD = [], lD = [], lbD = []; if (mode === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = [...t]; wD = t.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); lD = t.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); if (o.length > 0) { lbD.push('Others'); const oW = o.reduce((sum, x) => sum + s[x].w, 0); const oL = o.reduce((sum, x) => sum + s[x].l, 0); wD.push((oW / (oW + oL) * 100).toFixed(1)); lD.push((oL / (oW + oL) * 100).toFixed(1)); } } else { lbD = lbl; wD = lbl.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); lD = lbl.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); } charts.m = new Chart(mc, { type:'bar', data:{labels:lbD, datasets:[{label:'Win%',data:wD,backgroundColor:'#4CAF50'},{label:'Loss%',data:lD,backgroundColor:'#F44336'}]}, options: { ...chartOpts, scales:{x:{stacked:true},y:{stacked:true, max:100}}, plugins: { tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.raw + '%' } } } } }); } 
+                if(mode==='trend'){ const s={}; filtered.forEach(x=>{ const dt=x.t.split(' ')[0]; s[dt]=(s[dt]||{w:0,t:0}); s[dt].t++; if(isW(x.res))s[dt].w++; }); const lbl=Object.keys(s).sort(); charts.m = new Chart(mc, { type:'line', data:{labels:lbl, datasets:[{label:currLang==='ja'?'勝率%':'Win%', data:lbl.map(v=>(s[v].w/s[v].t*100).toFixed(1)), borderColor:'#4CAF50'}]}, options: chartOpts }); } 
+                else if(mode==='time'){ const s = Array.from({length:24}, ()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); s[h].t++; if(isW(x.res)) s[h].w++; }); charts.m = new Chart(mc, { type:'bar', data:{labels:s.map((_,i)=>i+'h'), datasets:[{type:'line', label:'%', data:s.map(x=>x.t?x.w/x.t*100:0), borderColor:'#4CAF50', yAxisID:'y'}, {type:'bar', label:currLang==='ja'?'回数':'Games', data:s.map(x=>x.t), backgroundColor:'rgba(100,181,246,0.3)', yAxisID:'y1'}]}, options: { ...chartOpts, scales:{y:{max:100},y1:{position:'right', grid:{drawOnChartArea:false}}} } }); } 
+                else if(['killer','map'].includes(mode)){ const s={}; filtered.forEach(x=>{ const items=mode==='killer'?x.k.split(/[\/,]+/):[x.m]; items.forEach(i=>{ const v=i.trim(); if(!v||v==='None'||v.includes('???'))return; s[v]=(s[v]||{w:0,l:0}); isW(x.res)?s[v].w++:s[v].l++; }); }); let lbl=Object.keys(s).sort((a,b)=>(s[b].w+s[b].l)-(s[a].w+s[a].l)); let wD = [], lD = [], lbD = []; if (mode === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = [...t]; wD = t.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); lD = t.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); if (o.length > 0) { lbD.push('Others'); const oW = o.reduce((sum, x) => sum + s[x].w, 0); const oL = o.reduce((sum, x) => sum + s[x].l, 0); wD.push((oW / (oW + oL) * 100).toFixed(1)); lD.push((oL / (oW + oL) * 100).toFixed(1)); } } else { lbD = lbl; wD = lbl.map(x => (s[x].w / (s[x].w + s[x].l) * 100).toFixed(1)); lD = lbl.map(x => (s[x].l / (s[x].w + s[x].l) * 100).toFixed(1)); } charts.m = new Chart(mc, { type:'bar', data:{labels:lbD, datasets:[{label:currLang==='ja'?'勝率%':'Win%',data:wD,backgroundColor:'#4CAF50'},{label:currLang==='ja'?'敗北%':'Loss%',data:lD,backgroundColor:'#F44336'}]}, options: { ...chartOpts, scales:{x:{stacked:true},y:{stacked:true, max:100}}, plugins: { tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.raw + '%' } } } } }); } 
                 else { const k=mode.replace('p_',''), s={}; filtered.forEach(x=>{ const items = (k==='killer') ? x.k.split(/[\/,]+/) : (k==='round' ? [x.r] : [x.m]); items.forEach(i=>{ const v=i.trim(); if(v && v!=='None' && !(k==='killer' && v.includes('???'))) s[v]=(s[v]||0)+1; }); }); let lbl=Object.entries(s).sort((a,b)=>b[1]-a[1]); let lbD = [], dA = [], bgA = []; if (k === 'killer') { const h = Math.ceil(lbl.length / 2); const t = lbl.slice(0, h); const o = lbl.slice(h); lbD = t.map(x => x[0]); dA = t.map(x => x[1]); if (o.length > 0) { lbD.push('Others'); dA.push(o.reduce((sum, x) => sum + x[1], 0)); } } else if (k === 'round') { lbD = lbl.slice(0, 15).map(x => x[0]); dA = lbl.slice(0, 15).map(x => x[1]); } else { lbD = lbl.map(x => x[0]); dA = lbl.map(x => x[1]); } bgA = lbD.map((l, i) => l === 'Others' ? '#888' : `hsl(${i*24},70%,45%)`); charts.m = new Chart(mc, { type:'pie', data:{labels:lbD, datasets:[{data:dA, backgroundColor:bgA}]}, options: { ...chartOpts, plugins: { tooltip: { callbacks: { label: function(c) { const tot = c.dataset.data.reduce((a,b)=>a+b,0); const p = (c.raw/tot*100).toFixed(1); return c.label + ': ' + c.raw + ' (' + p + '%)'; } } } } } }); }
             }
         }
         
-        // ★ バイリンガル対応のAIコメント出力エンジン
         function updUi() { 
             if(!filtered.length) return; 
             const f = document.getElementById('ui-face'), m = document.getElementById('ui-msg'); 
