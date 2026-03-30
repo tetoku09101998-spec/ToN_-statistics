@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V42 The Cache Buster</title>
+    <title>ToN Stats V43 Limit Break</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; --nem: #e53935; --prey: #00bcd4; }
@@ -219,15 +219,28 @@
             }).filter(x => x); 
             
             raw = tempRaw;
-            if (skipped > 0) alert(currLang === 'ja' ? `警告: 不正な形式の行を ${skipped} 件スキップしました。` : `Warning: Skipped ${skipped} malformed rows.`);
+            if (skipped > 0) console.warn(`Skipped ${skipped} malformed rows.`);
         }
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v42_cachebuster'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        window.onload = () => { 
+            try {
+                const saved = localStorage.getItem('ton_v43_limitbreak'); 
+                if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } 
+            } catch(e) {
+                console.warn("Storage quota exceeded on load. Waiting for manual file upload.");
+            }
+        };
+
+        // ★ 巨大ファイル対応：例外を握りつぶしてメモリ上だけで完結させる
         document.getElementById('csvFile').onchange = e => { 
             const f = e.target.files[0]; if(!f) return; 
             const r = new FileReader(); 
             r.onload = ev => { 
-                localStorage.setItem('ton_v42_cachebuster', ev.target.result); 
+                try {
+                    localStorage.setItem('ton_v43_limitbreak', ev.target.result); 
+                } catch(err) {
+                    console.warn("ファイルサイズがLocalStorageの制限を超えました。メモリモードで起動します。(Storage quota exceeded. Running in memory mode.)");
+                }
                 parseCSV(ev.target.result); 
                 initF(); upd(); updateSimDropdowns(); runSim(); 
             }; 
