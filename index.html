@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V50 Omniscient Analytics</title>
+    <title>ToN Stats V51 Percentile</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; --nem: #e53935; --prey: #00bcd4; }
@@ -113,12 +113,12 @@
     <div id="t-chart" class="tab-content">
         <select id="vMode" style="width:100%; margin-bottom:15px;">
             <option value="trend" data-ja="日別勝率推移" data-en="Daily Trend">日別勝率推移</option>
-            <option value="time" data-ja="時間帯別分析" data-en="Time Analysis">時間帯別分析</option>
-            <option value="killer" data-ja="テラー別勝敗 (割合)" data-en="Win/Loss by Terror (%)">テラー別勝敗 (割合)</option>
-            <option value="map" data-ja="マップ別勝敗 (割合)" data-en="Win/Loss by Map (%)">マップ別勝敗 (割合)</option>
-            <option value="p_killer" data-ja="出現率: テラー" data-en="Spawn Rate: Terror">出現率: テラー</option>
-            <option value="p_round" data-ja="出現率: ラウンド" data-en="Spawn Rate: Round">出現率: ラウンド</option>
-            <option value="p_map" data-ja="出現率: マップ" data-en="Spawn Rate: Map">出現率: マップ</option>
+            <option value="time" data-ja="時間帯別分析 (%)" data-en="Time Analysis (%)">時間帯別分析 (%)</option>
+            <option value="killer" data-ja="テラー別勝敗 (%)" data-en="Win/Loss by Terror (%)">テラー別勝敗 (%)</option>
+            <option value="map" data-ja="マップ別勝敗 (%)" data-en="Win/Loss by Map (%)">マップ別勝敗 (%)</option>
+            <option value="p_killer" data-ja="出現割合: テラー (%)" data-en="Spawn Rate: Terror (%)">出現割合: テラー (%)</option>
+            <option value="p_round" data-ja="出現割合: ラウンド (%)" data-en="Spawn Rate: Round (%)">出現割合: ラウンド (%)</option>
+            <option value="p_map" data-ja="出現割合: マップ (%)" data-en="Spawn Rate: Map (%)">出現割合: マップ (%)</option>
         </select>
         <div style="height:550px; position:relative;"><canvas id="mainChart"></canvas></div>
     </div>
@@ -161,8 +161,8 @@
             if(skp>0) console.warn("Skipped "+skp);
         }
 
-        window.onload = () => { try{ const s=localStorage.getItem('ton_v50_omni'); if(s){parseCSV(s);initF();upd();updateSimDropdowns();runSim();} }catch(e){console.warn("Mem mode");} };
-        document.getElementById('csvFile').onchange = e => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>{ try{localStorage.setItem('ton_v50_omni',ev.target.result);}catch(err){} parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { try{ const s=localStorage.getItem('ton_v51_pct'); if(s){parseCSV(s);initF();upd();updateSimDropdowns();runSim();} }catch(e){console.warn("Mem mode");} };
+        document.getElementById('csvFile').onchange = e => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>{ try{localStorage.setItem('ton_v51_pct',ev.target.result);}catch(err){} parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function getCategorizedTerrors(filterRound = 'all') {
             let vK = new Set(), alt = [], cls = [];
@@ -276,7 +276,7 @@
             if(u.size) l.innerHTML+=`<div class="unb-card" style="border-color:#f44336;"><div class="unb-title" style="color:#f44336;border-color:#f44336;">Unknown</div><div>${Array.from(u).map(k=>`<span class="unb-tag" style="border-color:#f44336;color:#f44336;">${k}</span>`).join('')}</div></div>`;
         }
 
-        // ★ V50: アナリティクス機能（グラフ描画）の完全復旧
+        // ★ V51: グラフの表示を「件数」から「割合（％）」ベースに完全改修
         function renderC() {
             const rc=document.getElementById('radar').getContext('2d'); if(charts.r)charts.r.destroy();
             let s={ov:{t:0,w:0},cl:{t:0,w:0},al:{t:0,w:0},ub:{t:0,w:0},mu:{t:0,w:0},sp:{t:0,w:0}};
@@ -286,7 +286,7 @@
 
             if(document.getElementById('t-chart').classList.contains('active')){
                 const mc=document.getElementById('mainChart').getContext('2d'), md=document.getElementById('vMode').value; if(charts.m)charts.m.destroy();
-                const co = { maintainAspectRatio: false };
+                const co = { maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: c => c.dataset ? c.dataset.label + ': ' + c.raw + '%' : c.label + ': ' + c.raw + '%' } } } };
                 if(md==='trend'){ 
                     const v={}; filtered.forEach(x=>{ const d=x.t.split(' ')[0]; if(!v[d])v[d]={w:0,t:0}; v[d].t++; if(isW(x.res))v[d].w++; }); 
                     const l=Object.keys(v).sort(); 
@@ -295,7 +295,8 @@
                 else if(md==='time'){ 
                     const v=Array.from({length:24},()=>({w:0,t:0})); 
                     filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); v[h].t++; if(isW(x.res))v[h].w++; }); 
-                    charts.m=new Chart(mc,{type:'bar',data:{labels:v.map((_,i)=>i+'h'),datasets:[{type:'line',label:'Win%',data:v.map(x=>x.t?x.w/x.t*100:0),borderColor:'#4CAF50',yAxisID:'y'},{type:'bar',label:currLang==='ja'?'回数':'Games',data:v.map(x=>x.t),backgroundColor:'rgba(100,181,246,0.3)',yAxisID:'y1'}]},options:{...co,scales:{y:{max:100},y1:{position:'right',grid:{drawOnChartArea:false}}}}}); 
+                    const totPlays = v.reduce((sum, x) => sum + x.t, 0); // 全体のプレイ回数を母数にする
+                    charts.m=new Chart(mc,{type:'bar',data:{labels:v.map((_,i)=>i+'h'),datasets:[{type:'line',label:currLang==='ja'?'勝率%':'Win%',data:v.map(x=>x.t?(x.w/x.t*100).toFixed(1):0),borderColor:'#4CAF50',yAxisID:'y'},{type:'bar',label:currLang==='ja'?'プレイ割合%':'Play Rate%',data:v.map(x=>totPlays?(x.t/totPlays*100).toFixed(1):0),backgroundColor:'rgba(100,181,246,0.3)',yAxisID:'y1'}]},options:{...co,scales:{y:{max:100},y1:{max:100,position:'right',grid:{drawOnChartArea:false}}}}}); 
                 }
                 else if(md==='killer'||md==='map'){ 
                     const v={}; 
@@ -320,8 +321,13 @@
                         if(o.length>0){ lbD.push('Others'); dA.push(o.reduce((s,x)=>s+x[1],0)); }
                     } else if(k==='round'){ lbD=l.slice(0,15).map(x=>x[0]); dA=l.slice(0,15).map(x=>x[1]); }
                     else { lbD=l.map(x=>x[0]); dA=l.map(x=>x[1]); }
+                    
+                    // パーセンテージ（割合）へ変換
+                    const totPie = dA.reduce((s,x) => s + x, 0);
+                    const dAPct = dA.map(x => totPie ? (x / totPie * 100).toFixed(1) : 0);
+
                     const bg=lbD.map((x,i)=>x==='Others'?'#888':`hsl(${i*24},70%,45%)`);
-                    charts.m=new Chart(mc,{type:'pie',data:{labels:lbD,datasets:[{data:dA,backgroundColor:bg}]},options:co}); 
+                    charts.m=new Chart(mc,{type:'pie',data:{labels:lbD,datasets:[{data:dAPct,backgroundColor:bg}]},options:co}); 
                 }
             }
         }
