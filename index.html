@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V49 Ultimate</title>
+    <title>ToN Stats V50 Omniscient Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; --nem: #e53935; --prey: #00bcd4; }
@@ -70,7 +70,7 @@
         <div class="grid-3" style="margin-bottom:20px;">
             <div class="card" style="margin:0;">
                 <div style="font-size:20px; font-weight:bold;">Total: <span id="tg">0</span> / Win: <span id="tw" class="w">0</span></div>
-                <div style="color:var(--acc); font-size:15px; margin:bottom:8px;">Win Rate: <span id="wr">0</span>%</div>
+                <div style="color:var(--acc); font-size:15px; margin-bottom:8px;">Win Rate: <span id="wr">0</span>%</div>
                 <div style="font-size:11px; color:#888;"><span data-ja="最新: " data-en="Latest: ">最新: </span><span id="lDt">-</span></div>
             </div>
             <div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2; height: 220px; position: relative;"><canvas id="radar"></canvas></div>
@@ -110,7 +110,19 @@
         </div>
     </div>
 
-    <div id="t-chart" class="tab-content"><select id="vMode" style="width:100%; margin-bottom:15px;"><option value="trend">Trend</option><option value="time">Time</option><option value="killer">Terror</option><option value="map">Map</option><option value="p_killer">Spawns(Terror)</option></select><div style="height:550px; position:relative;"><canvas id="mainChart"></canvas></div></div>
+    <div id="t-chart" class="tab-content">
+        <select id="vMode" style="width:100%; margin-bottom:15px;">
+            <option value="trend" data-ja="日別勝率推移" data-en="Daily Trend">日別勝率推移</option>
+            <option value="time" data-ja="時間帯別分析" data-en="Time Analysis">時間帯別分析</option>
+            <option value="killer" data-ja="テラー別勝敗 (割合)" data-en="Win/Loss by Terror (%)">テラー別勝敗 (割合)</option>
+            <option value="map" data-ja="マップ別勝敗 (割合)" data-en="Win/Loss by Map (%)">マップ別勝敗 (割合)</option>
+            <option value="p_killer" data-ja="出現率: テラー" data-en="Spawn Rate: Terror">出現率: テラー</option>
+            <option value="p_round" data-ja="出現率: ラウンド" data-en="Spawn Rate: Round">出現率: ラウンド</option>
+            <option value="p_map" data-ja="出現率: マップ" data-en="Spawn Rate: Map">出現率: マップ</option>
+        </select>
+        <div style="height:550px; position:relative;"><canvas id="mainChart"></canvas></div>
+    </div>
+    
     <div id="t-rank" class="tab-content"><div class="grid-3"><div><h3 style="color:var(--sub);">Killers</h3><div class="table-wrapper"><table id="fRankK"><thead><tr><th>Name</th><th>Enc</th><th>W</th><th>L</th><th>%</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:#ffeb3b;">Rounds</h3><div class="table-wrapper"><table id="fRankR"><thead><tr><th>Name</th><th>Enc</th><th>W</th><th>L</th><th>%</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:var(--acc);">Maps</h3><div class="table-wrapper"><table id="fRankM"><thead><tr><th>Name</th><th>Enc</th><th>W</th><th>L</th><th>%</th></tr></thead><tbody></tbody></table></div></div></div></div>
     <div id="t-ach" class="tab-content"><h3 style="color:#FFD700;">Unlocked: <span id="achCnt">0</span> / <span id="achTot">0</span> (<span id="achPct">0</span>%)</h3><div class="ach-grid" id="achBox"></div></div>
     <div id="t-list" class="tab-content"><div class="table-wrapper"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div><div style="display:flex; justify-content:space-between; margin-top:15px;"><button class="tab-btn" style="border:1px solid #555;" onclick="pg(-1)">◀ Prev</button><span id="pgInf" style="align-self:center;">1/1</span><button class="tab-btn" style="border:1px solid #555;" onclick="pg(1)">Next ▶</button></div></div>
@@ -149,8 +161,8 @@
             if(skp>0) console.warn("Skipped "+skp);
         }
 
-        window.onload = () => { try{ const s=localStorage.getItem('ton_v49_final'); if(s){parseCSV(s);initF();upd();updateSimDropdowns();runSim();} }catch(e){console.warn("Mem mode");} };
-        document.getElementById('csvFile').onchange = e => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>{ try{localStorage.setItem('ton_v49_final',ev.target.result);}catch(err){} parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { try{ const s=localStorage.getItem('ton_v50_omni'); if(s){parseCSV(s);initF();upd();updateSimDropdowns();runSim();} }catch(e){console.warn("Mem mode");} };
+        document.getElementById('csvFile').onchange = e => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>{ try{localStorage.setItem('ton_v50_omni',ev.target.result);}catch(err){} parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function getCategorizedTerrors(filterRound = 'all') {
             let vK = new Set(), alt = [], cls = [];
@@ -264,6 +276,7 @@
             if(u.size) l.innerHTML+=`<div class="unb-card" style="border-color:#f44336;"><div class="unb-title" style="color:#f44336;border-color:#f44336;">Unknown</div><div>${Array.from(u).map(k=>`<span class="unb-tag" style="border-color:#f44336;color:#f44336;">${k}</span>`).join('')}</div></div>`;
         }
 
+        // ★ V50: アナリティクス機能（グラフ描画）の完全復旧
         function renderC() {
             const rc=document.getElementById('radar').getContext('2d'); if(charts.r)charts.r.destroy();
             let s={ov:{t:0,w:0},cl:{t:0,w:0},al:{t:0,w:0},ub:{t:0,w:0},mu:{t:0,w:0},sp:{t:0,w:0}};
@@ -273,10 +286,43 @@
 
             if(document.getElementById('t-chart').classList.contains('active')){
                 const mc=document.getElementById('mainChart').getContext('2d'), md=document.getElementById('vMode').value; if(charts.m)charts.m.destroy();
-                if(md==='trend'){ const v={}; filtered.forEach(x=>{ const d=x.t.split(' ')[0]; if(!v[d])v[d]={w:0,t:0}; v[d].t++; if(isW(x.res))v[d].w++; }); const l=Object.keys(v).sort(); charts.m=new Chart(mc,{type:'line',data:{labels:l,datasets:[{label:'Win%',data:l.map(k=>(v[k].w/v[k].t*100).toFixed(1)),borderColor:'#4CAF50'}]},options:{maintainAspectRatio:false}}); }
-                else if(md==='time'){ const v=Array.from({length:24},()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); v[h].t++; if(isW(x.res))v[h].w++; }); charts.m=new Chart(mc,{type:'bar',data:{labels:v.map((_,i)=>i+'h'),datasets:[{type:'line',label:'Win%',data:v.map(x=>x.t?x.w/x.t*100:0),borderColor:'#4CAF50',yAxisID:'y'},{type:'bar',label:'Plays',data:v.map(x=>x.t),backgroundColor:'rgba(100,181,246,0.3)',yAxisID:'y1'}]},options:{maintainAspectRatio:false,scales:{y:{max:100},y1:{position:'right',grid:{drawOnChartArea:false}}}}}); }
-                else if(md==='killer'||md==='map'){ const v={}; filtered.forEach(x=>{ const i=md==='killer'?x.k.split(/[\/,]+/):[x.m]; i.forEach(k=>{ const n=k.trim(); if(!n||n==='None'||n.includes('???'))return; if(!v[n])v[n]={w:0,l:0}; isW(x.res)?v[n].w++:v[n].l++; }); }); const l=Object.keys(v).sort((a,b)=>(v[b].w+v[b].l)-(v[a].w+v[a].l)).slice(0,20); charts.m=new Chart(mc,{type:'bar',data:{labels:l,datasets:[{label:'Win%',data:l.map(k=>(v[k].w/(v[k].w+v[k].l)*100).toFixed(1)),backgroundColor:'#4CAF50'},{label:'Loss%',data:l.map(k=>(v[k].l/(v[k].w+v[k].l)*100).toFixed(1)),backgroundColor:'#F44336'}]},options:{maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,max:100}}}}); }
-                else { const k=md.replace('p_',''), v={}; filtered.forEach(x=>{ const i=(k==='killer')?x.k.split(/[\/,]+/):(k==='round'?[x.r]:[x.m]); i.forEach(j=>{ const n=j.trim(); if(n&&n!=='None'&&!(k==='killer'&&n.includes('???')))v[n]=(v[n]||0)+1; }); }); const l=Object.entries(v).sort((a,b)=>b[1]-a[1]).slice(0,15); charts.m=new Chart(mc,{type:'pie',data:{labels:l.map(x=>x[0]),datasets:[{data:l.map(x=>x[1]),backgroundColor:l.map((_,i)=>`hsl(${i*24},70%,45%)`)}]},options:{maintainAspectRatio:false}}); }
+                const co = { maintainAspectRatio: false };
+                if(md==='trend'){ 
+                    const v={}; filtered.forEach(x=>{ const d=x.t.split(' ')[0]; if(!v[d])v[d]={w:0,t:0}; v[d].t++; if(isW(x.res))v[d].w++; }); 
+                    const l=Object.keys(v).sort(); 
+                    charts.m=new Chart(mc,{type:'line',data:{labels:l,datasets:[{label:currLang==='ja'?'勝率%':'Win%',data:l.map(k=>(v[k].w/v[k].t*100).toFixed(1)),borderColor:'#4CAF50'}]},options:co}); 
+                }
+                else if(md==='time'){ 
+                    const v=Array.from({length:24},()=>({w:0,t:0})); 
+                    filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); v[h].t++; if(isW(x.res))v[h].w++; }); 
+                    charts.m=new Chart(mc,{type:'bar',data:{labels:v.map((_,i)=>i+'h'),datasets:[{type:'line',label:'Win%',data:v.map(x=>x.t?x.w/x.t*100:0),borderColor:'#4CAF50',yAxisID:'y'},{type:'bar',label:currLang==='ja'?'回数':'Games',data:v.map(x=>x.t),backgroundColor:'rgba(100,181,246,0.3)',yAxisID:'y1'}]},options:{...co,scales:{y:{max:100},y1:{position:'right',grid:{drawOnChartArea:false}}}}}); 
+                }
+                else if(md==='killer'||md==='map'){ 
+                    const v={}; 
+                    filtered.forEach(x=>{ const i=md==='killer'?x.k.split(/[\/,]+/):[x.m]; i.forEach(k=>{ const n=k.trim(); if(!n||n==='None'||n.includes('???'))return; if(!v[n])v[n]={w:0,l:0}; isW(x.res)?v[n].w++:v[n].l++; }); }); 
+                    let l=Object.keys(v).sort((a,b)=>(v[b].w+v[b].l)-(v[a].w+v[a].l)); 
+                    let wD=[], lD=[], lbD=[];
+                    if(md==='killer'){
+                        const h=Math.ceil(l.length/2), t=l.slice(0,h), o=l.slice(h); lbD=[...t];
+                        wD=t.map(x=>(v[x].w/(v[x].w+v[x].l)*100).toFixed(1)); lD=t.map(x=>(v[x].l/(v[x].w+v[x].l)*100).toFixed(1));
+                        if(o.length>0){ lbD.push('Others'); const oW=o.reduce((s,x)=>s+v[x].w,0), oL=o.reduce((s,x)=>s+v[x].l,0); wD.push((oW/(oW+oL)*100).toFixed(1)); lD.push((oL/(oW+oL)*100).toFixed(1)); }
+                    } else {
+                        lbD=l; wD=l.map(x=>(v[x].w/(v[x].w+v[x].l)*100).toFixed(1)); lD=l.map(x=>(v[x].l/(v[x].w+v[x].l)*100).toFixed(1));
+                    }
+                    charts.m=new Chart(mc,{type:'bar',data:{labels:lbD,datasets:[{label:currLang==='ja'?'勝率%':'Win%',data:wD,backgroundColor:'#4CAF50'},{label:currLang==='ja'?'敗北%':'Loss%',data:lD,backgroundColor:'#F44336'}]},options:{...co,scales:{x:{stacked:true},y:{stacked:true,max:100}}}}); 
+                }
+                else { 
+                    const k=md.replace('p_',''), v={}; 
+                    filtered.forEach(x=>{ const i=(k==='killer')?x.k.split(/[\/,]+/):(k==='round'?[x.r]:[x.m]); i.forEach(j=>{ const n=j.trim(); if(n&&n!=='None'&&!(k==='killer'&&n.includes('???')))v[n]=(v[n]||0)+1; }); }); 
+                    let l=Object.entries(v).sort((a,b)=>b[1]-a[1]); let lbD=[], dA=[];
+                    if(k==='killer'){
+                        const h=Math.ceil(l.length/2), t=l.slice(0,h), o=l.slice(h); lbD=t.map(x=>x[0]); dA=t.map(x=>x[1]);
+                        if(o.length>0){ lbD.push('Others'); dA.push(o.reduce((s,x)=>s+x[1],0)); }
+                    } else if(k==='round'){ lbD=l.slice(0,15).map(x=>x[0]); dA=l.slice(0,15).map(x=>x[1]); }
+                    else { lbD=l.map(x=>x[0]); dA=l.map(x=>x[1]); }
+                    const bg=lbD.map((x,i)=>x==='Others'?'#888':`hsl(${i*24},70%,45%)`);
+                    charts.m=new Chart(mc,{type:'pie',data:{labels:lbD,datasets:[{data:dA,backgroundColor:bg}]},options:co}); 
+                }
             }
         }
         
@@ -284,9 +330,10 @@
             if(!filtered.length)return; const f=document.getElementById('ui-face'), m=document.getElementById('ui-msg'); 
             let w=0; filtered.forEach(x=>{if(isW(x.res))w++;}); const r=(w/filtered.length*100); 
             let s=0, t=null; for(let i=filtered.length-1;i>=0;i--){const isW_res=isW(filtered[i].res); if(t===null){t=isW_res;s=1;}else if(t===isW_res){s++;}else break;}
-            const D={g:{f:"img/face_angry.png",j:"周回しすぎ。仕事しなさい。",e:"Too many plays. Go work."}, w:{f:"img/face_tsundere.png",j:`${s}連勝中ね。調子に乗らないこと。`,e:`${s} win streak. Don't be cocky.`}, l:{f:"img/face_sigh.png",j:`${s}連敗中。見てて哀れだわ。`,e:`${s} losses. It's pathetic.`}, h:{f:"img/face_tsundere.png",j:`勝率${r.toFixed(1)}%。当然の結果ね。`,e:`${r.toFixed(1)}%. Naturally.`}, lw:{f:"img/face_sigh.png",j:`勝率${r.toFixed(1)}%。さっさとログアウトしなさい。`,e:`${r.toFixed(1)}%. Just log out.`}, n:{f:"img/face_normal.png",j:`勝率${r.toFixed(1)}%。凡人ね。`,e:`${r.toFixed(1)}%. Average.`}};
+            const rI = (arr) => arr[Math.floor(Math.random() * arr.length)];
+            const D={g:{f:"img/face_angry.png",ja:[`周回しすぎ。仕事しなさい。`,`ログが${filtered.length}件。社会的にアウトね。`],en:[`Too many plays. Go work.`,`${filtered.length} logs... Socially doomed.`]}, w:{f:"img/face_tsundere.png",ja:[`${s}連勝中ね。調子に乗らないこと。`,`ふーん、${s}連勝。私のデータ汚さないでね。`],en:[`${s} win streak. Don't be cocky.`,`Hmm, ${s} wins. Keep my data clean.`]}, l:{f:"img/face_sigh.png",ja:[`${s}連敗中。見てて哀れだわ。`,`${s}連敗。さっさと寝なさい。`],en:[`${s} losses. Pathetic.`,`${s} losses. Go to sleep.`]}, h:{f:"img/face_tsundere.png",ja:[`勝率${r.toFixed(1)}%。当然の結果ね。`,`勝率${r.toFixed(1)}%。データ上は優秀ね。`],en:[`${r.toFixed(1)}%. Naturally.`,`${r.toFixed(1)}%. Good on paper.`]}, lw:{f:"img/face_sigh.png",ja:[`勝率${r.toFixed(1)}%。泥沼ね。`,`勝率${r.toFixed(1)}%。さっさとログアウトしなさい。`],en:[`${r.toFixed(1)}%. A mess.`,`${r.toFixed(1)}%. Just log out.`]}, n:{f:"img/face_normal.png",ja:[`勝率${r.toFixed(1)}%。凡人ね。`,`勝率${r.toFixed(1)}%。次。`],en:[`${r.toFixed(1)}%. Average.`,`${r.toFixed(1)}%. Next.`]}};
             let c="n"; if(s>=4&&!t)c="l"; else if(s>=4&&t)c="w"; else if(filtered.length>=100&&Math.random()>0.6)c="g"; else if(r>=70)c="h"; else if(r<30&&filtered.length>5)c="lw"; 
-            f.src=D[c].f; m.innerText=D[c][currLang==='ja'?'j':'e']; 
+            f.src=D[c].f; m.innerText=rI(D[c][currLang]); 
         }
     </script>
 </body>
