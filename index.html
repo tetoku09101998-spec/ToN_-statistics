@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V38 Predictive Oracle</title>
+    <title>ToN Stats V39 Nemesis Engine</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; }
+        :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; --nem: #e53935; --prey: #00bcd4; }
         body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 15px; font-size: 13px; -webkit-text-size-adjust: 100%; }
         .controls { background: var(--panel); padding: 12px; border-radius: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
@@ -14,7 +14,7 @@
         optgroup { background: #1a1a1a; color: var(--sub); font-style: normal; font-weight: bold; }
         option { color: #fff; }
         .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
-        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
+        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; white-space: nowrap; }
         .tab-btn.active { color: var(--acc); border-bottom: 3px solid var(--acc); }
         .tab-content { display: none; background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid var(--brd); max-width: 1200px; margin: 0 auto; }
         .tab-content.active { display: block; }
@@ -33,7 +33,6 @@
         .unb-title { font-size: 14px; font-weight: bold; color: var(--unb); margin-bottom: 8px; border-bottom: 1px dashed #555; padding-bottom: 4px; }
         .unb-tag-list { display: flex; flex-wrap: wrap; gap: 5px; .unb-tag { background: #1e1e1e; padding: 4px 8px; border-radius: 4px; color: #ddd; font-size: 11px; border: 1px solid #555; } }
         .link-box { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--sub); margin-top: 20px; a { color: var(--txt); text-decoration: none; display: block; margin: 8px 0; font-size: 14px; transition: 0.2s; &:hover { color: var(--sub); } } }
-        
         .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         .ach-card { background: #252525; border-radius: 8px; padding: 15px; display: flex; align-items: center; border-left: 5px solid #444; opacity: 0.4; filter: grayscale(100%); transition: 0.3s; }
         .ach-card.unlocked { opacity: 1; filter: grayscale(0%); border-left-color: #FFD700; background: linear-gradient(135deg, #2a2a2a 0%, #3a3a20 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -41,13 +40,22 @@
         .ach-info { flex: 1; }
         .ach-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #fff; }
         .ach-desc { font-size: 11px; color: #aaa; }
-        
-        /* ★ シミュレーターの詳細レポート用CSS */
         .sim-report { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #444; text-align: left; font-size: 13px; }
         .sim-factor { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #333; }
         .sim-pos { color: var(--acc); font-weight: bold; }
         .sim-neg { color: #f44336; font-weight: bold; }
         .sim-base { color: var(--sub); font-weight: bold; }
+        
+        /* ★ Nemesis Engine用CSS */
+        .nem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .nem-grid { grid-template-columns: 1fr; } }
+        .nem-box { background: #252525; border-radius: 10px; padding: 15px; }
+        .nem-title { font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid; }
+        .nem-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #333; }
+        .nem-rank { font-size: 16px; font-weight: bold; width: 30px; color: #888; }
+        .nem-name { flex: 1; font-weight: bold; font-size: 14px; }
+        .nem-score { font-size: 16px; font-weight: bold; text-align: right; }
+        .nem-sub { font-size: 10px; color: #888; display: block; }
     </style>
 </head>
 <body>
@@ -67,6 +75,7 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="tab('t-dash')">📊 Summary</button>
         <button class="tab-btn" onclick="tab('t-sim')">🧪 Simulator</button>
+        <button class="tab-btn" onclick="tab('t-nem')">💀 Nemesis Engine</button>
         <button class="tab-btn" onclick="tab('t-chart')">📈 Analytics</button>
         <button class="tab-btn" onclick="tab('t-rank')">🏆 Ranking</button>
         <button class="tab-btn" onclick="tab('t-ach')">🎖️ Achievements</button>
@@ -85,7 +94,6 @@
             <div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2; display: flex; justify-content: center; align-items: center; height: 220px; position: relative;"><canvas id="radar"></canvas></div>
         </div>
         <div class="three-col-grid"><div><h3 style="color:var(--sub); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Killers</h3><div id="dashK"></div></div><div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Rounds</h3><div id="dashR"></div></div><div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;">Top 10 Maps</h3><div id="dashM"></div></div></div>
-        <div class="link-box"><h3 style="margin:0 0 10px 0; color:var(--sub);">🔗 Related Links</h3><a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank">📖 取扱説明書 (readme.html)</a><a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank">💻 GitHub Repository</a></div>
     </div>
 
     <div id="t-sim" class="tab-content">
@@ -104,13 +112,29 @@
             <div style="font-size:14px; color:#aaa; font-weight:bold;">Expected Survival Rate</div>
             <div id="simRes" style="font-size:52px; font-weight:bold; color:var(--acc); margin:10px 0; text-shadow: 0 0 10px rgba(76,175,80,0.3);">--%</div>
             <div id="simDet" style="font-size:13px; color:#888;">Select conditions to analyze synergy.</div>
-            
             <div id="simReportBox" class="sim-report" style="display:none;">
                 <div style="color:var(--txt); margin-bottom:8px; font-weight:bold;">[ Analysis Report : Death Factors ]</div>
                 <div id="simFactors"></div>
             </div>
         </div>
         <div id="sim-ui-box"><img id="sim-ui-face" src="face_normal.png"><p id="sim-ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4; color:var(--unb);"></p></div>
+    </div>
+
+    <div id="t-nem" class="tab-content">
+        <h3 style="color:var(--nem); border-bottom:1px solid #444; padding-bottom:5px;">Bayesian Nemesis & Prey Analysis</h3>
+        <p style="font-size:11px; color:#aaa; margin-bottom:20px;">
+            ※ベイズ推定を用いて「遭遇回数」と「敗北率」を重み付けし、純粋な勝率計算では見えない真の天敵（Nemesis）と獲物（Prey）を偏差値化します。（最低遭遇数3回以上）
+        </p>
+        <div class="nem-grid">
+            <div class="nem-box" style="border-top: 5px solid var(--nem);">
+                <div class="nem-title" style="color:var(--nem); border-bottom-color:var(--nem);">Top 10 Nemesis (真の天敵)</div>
+                <div id="nemList"></div>
+            </div>
+            <div class="nem-box" style="border-top: 5px solid var(--prey);">
+                <div class="nem-title" style="color:var(--prey); border-bottom-color:var(--prey);">Top 10 Prey (獲物)</div>
+                <div id="preyList"></div>
+            </div>
+        </div>
     </div>
 
     <div id="t-chart" class="tab-content"><select id="vMode" style="width:100%; margin-bottom:15px;"><option value="trend">日別勝率推移</option><option value="time">時間帯別分析</option><option value="killer">テラー別勝敗 (割合)</option><option value="map">マップ別勝敗 (割合)</option><option value="p_killer">出現率: テラー</option><option value="p_round">出現率: ラウンド</option><option value="p_map">出現率: マップ</option></select><div style="height: 550px; position: relative; width: 100%;"><canvas id="mainChart"></canvas></div></div>
@@ -124,39 +148,11 @@
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss", "Lone Agent", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE", "Distorted Yan"];
 
         const hasK = (x, name) => x.k.split(/[\/,]+/).some(k => k.trim().toLowerCase() === name.toLowerCase());
-
-        const ACH = [
-            { n: "血液不足", d: "ラウンドタイプ「ブラッドバス」を生存", i: "🩸", c: (x) => /Bloodbath|ブラッドバス/i.test(x.r) && isW(x.res) },
-            { n: "禁煙！", d: "ラウンドタイプ「霧」を生存", i: "🌫️", c: (x) => /Fog|霧/i.test(x.r) && isW(x.res) },
-            { n: "一線を越える", d: "ラウンドタイプ「狂気」を生存", i: "🤪", c: (x) => /Insanity|狂気/i.test(x.r) && isW(x.res) },
-            { n: "表と裏", d: "ラウンドタイプ「オルタネイト」を生存", i: "🎭", c: (x) => /Alternate|オルタネイト/i.test(x.r) && isW(x.res) },
-            { n: "脱出成功", d: "ラウンドタイプ「サボタージュ」を生存", i: "🔪", c: (x) => /Sabotage|サボタージュ/i.test(x.r) && isW(x.res) },
-            { n: "夜明けの始まり", d: "ラウンドタイプ「ミッドナイト」を生存", i: "🕛", c: (x) => /Midnight|ミッドナイト/i.test(x.r) && isW(x.res) },
-            { n: "サバイバー", d: "初めてラウンドを勝利する", i: "🏅", c: (x) => isW(x.res) },
-            { n: "灰燼から", d: "「Glaggle Gang」から生存", i: "🟡", c: (x) => hasK(x, 'Glaggle Gang') && isW(x.res) },
-            { n: "ミュートされた？", d: "「Ambush」から生存", i: "🤫", c: (x) => hasK(x, 'Ambush') && isW(x.res) },
-            { n: "史上最高のパフォーマンス", d: "「Teuthida」から生存", i: "🦑", c: (x) => hasK(x, 'Teuthida') && isW(x.res) },
-            { n: "衝突と解消", d: "「Convict Squad」から生存", i: "💥", c: (x) => hasK(x, 'Convict Squad') && isW(x.res) },
-            { n: "日頃の行い", d: "「Angry Munci」から生存", i: "😡", c: (x) => hasK(x, 'Angry Munci') && isW(x.res) },
-            { n: "削除されました", d: "「sm64.z64」から生存", i: "🍄", c: (x) => hasK(x, 'sm64.z64') && isW(x.res) },
-            { n: "赤い霧が帰ってきます", d: "「The Red Mist」から生存", i: "🪓", c: (x) => hasK(x, 'The Red Mist') && isW(x.res) },
-            { n: "OPテラー", d: "「Sakuya The Ripper」から生存", i: "⏱️", c: (x) => hasK(x, 'Sakuya The Ripper') && isW(x.res) },
-            { n: "エンパシー", d: "「Apathy」から生存", i: "😶", c: (x) => hasK(x, 'Apathy') && isW(x.res) },
-            { n: "楽園はそこにあった", d: "「Paradise Bird」から生存", i: "🦩", c: (x) => hasK(x, 'Paradise Bird') && isW(x.res) },
-            { n: "汚染された", d: "「Beyond」に遭遇", i: "👁️", c: (x) => hasK(x, 'Beyond') },
-            { n: "燦爛たる幸福", d: "「Joy」から生存", i: "💊", c: (x) => hasK(x, 'Joy') && isW(x.res) },
-            { n: "全部彼女のせいだ", d: "「Restless Creator」から生存", i: "👩‍💻", c: (x) => hasK(x, 'Restless Creator') && isW(x.res) },
-            { n: ":3", d: "「Parhelion」から生存", i: "☀️", c: (x) => hasK(x, 'Parhelion') && isW(x.res) },
-            { n: "侵入", d: "「Interloper」に殺される", i: "🚷", c: (x) => hasK(x, 'Interloper') && !isW(x.res) },
-            { n: "完璧主義", d: "一切ダメージを負わずに10ラウンド連続で生存 (疑似: 10連勝)", i: "🛡️", type: "streak", req: 10 },
-            { n: "異常な執念", d: "累計プレイ回数1000回突破 (Secret)", i: "🔥", type: "total", req: 1000 },
-            { n: "徹夜明けのメルトダウン", d: "深夜（2:00〜5:00）にToNをプレイする (Secret)", i: "☕", type: "time", hMin: 2, hMax: 5 }
-        ];
-
-        let raw = [], filtered = [], page = 1, charts = {};
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
         const isClassic = (r) => /classic|クラシック/i.test(r);
         const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        let raw = [], filtered = [], page = 1, charts = {};
 
         function parseCSV(t) { 
             let skipped = 0;
@@ -172,10 +168,11 @@
                 return { t: cols.shift(), m: cols.shift(), r: cols.shift(), k: cols.join(', '), res: res, afk: false }; 
             }).filter(x => x); 
             raw = tempRaw;
+            if (skipped > 0) alert(`警告: CSVデータ内に破損または形式が不正な行が ${skipped} 件見つかったためスキップしました。`);
         }
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v38_oracle'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
-        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v38_oracle', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+        window.onload = () => { const saved = localStorage.getItem('ton_v39_nemesis'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        document.getElementById('csvFile').onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { localStorage.setItem('ton_v39_nemesis', ev.target.result); parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
 
         function getCategorizedTerrors(filterRound = 'all') {
             let validK = new Set(), alt = [], cls = [];
@@ -241,90 +238,89 @@
             const tb = document.getElementById('hBody'), rev = filtered.slice().reverse(), tp = Math.ceil(rev.length/50)||1; tb.innerHTML = ''; 
             rev.slice((page-1)*50, page*50).forEach(x => { const rowStyle = x.afk ? 'color:#666;' : ''; const afkTag = x.afk ? '<span style="font-size:10px;color:#f44336;border:1px solid #f44336;padding:1px 3px;border-radius:3px;margin-left:5px;">AFK</span>' : ''; tb.innerHTML += `<tr style="${rowStyle}"><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k.replace(/[\/,]+/g, ' / ')}${afkTag}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); 
             document.getElementById('pgInf').innerText = `${page} / ${tp}`; 
-            updRankings(); updUnb(); updAch(); updUi(); renderC(); 
+            updRankings(); updNemesis(); updUi(); renderC(); 
         }
         function pg(v) { page += v; render(); }
-        
-        function updAch() {
-            const box = document.getElementById('achBox'); box.innerHTML = '';
-            let unlocked = new Set(), winStreak = 0, maxWinStreak = 0, seenAlts = new Set();
-            const validData = raw.filter(x => !x.afk); 
+
+        // ★ V39 新機能: Nemesis Engine (ベイズ推定を用いた天敵・獲物スコアリング)
+        function updNemesis() {
+            const validData = filtered.filter(x => !x.afk);
+            let tStats = {}, totalEnc = 0, totalLost = 0;
+
+            // テラーごとの遭遇数と敗北数を集計
             validData.forEach(x => {
-                if (isW(x.res)) { winStreak++; if (winStreak > maxWinStreak) maxWinStreak = winStreak; } else { winStreak = 0; }
-                ACH.forEach((a, i) => { if (!unlocked.has(i) && a.c && a.c(x)) unlocked.add(i); });
-                x.k.split(/[\/,]+/).forEach(k => { if(SHEET_ALTERNATE.map(normStr).includes(normStr(k.trim()))) seenAlts.add(k.trim()); });
+                const isLoss = !isW(x.res);
+                x.k.split(/[\/,]+/).forEach(k => {
+                    const n = k.trim();
+                    if(n && n !== 'None' && !n.includes('???')) {
+                        if(!tStats[n]) tStats[n] = { enc: 0, lost: 0 };
+                        tStats[n].enc++;
+                        if(isLoss) tStats[n].lost++;
+                        totalEnc++;
+                        if(isLoss) totalLost++;
+                    }
+                });
             });
-            ACH.forEach((a, i) => {
-                if (a.type === 'streak' && maxWinStreak >= a.req) unlocked.add(i);
-                if (a.type === 'total' && validData.length >= a.req) unlocked.add(i);
-                if (a.type === 'alt_count' && seenAlts.size >= a.req) unlocked.add(i);
-                if (a.type === 'time') { let hasTime = validData.some(x => { const h = parseInt((x.t.match(/\s(\d+):/)||[0,-1])[1]); return h >= a.hMin && h <= a.hMax; }); if (hasTime) unlocked.add(i); }
+
+            const keys = Object.keys(tStats);
+            if(keys.length === 0) return;
+
+            // ベイズ推定のパラメータ計算
+            const m = totalLost / totalEnc || 0; // 全体の平均敗北率
+            const C = totalEnc / keys.length;    // テラー1体あたりの平均遭遇回数を重み(C)とする
+
+            let scores = [];
+            keys.forEach(k => {
+                const s = tStats[k];
+                if (s.enc >= 3) { // 最低3回は遭遇していないとノイズとして弾く
+                    // ベイズ平均敗北率 = ( C * 全体平均敗北率 + 自身の敗北数 ) / ( C + 自身の遭遇回数 )
+                    const bayesianLossRate = (C * m + s.lost) / (C + s.enc);
+                    // わかりやすく100点満点スケールに変換（スコアが高いほど敗北しやすい＝天敵）
+                    scores.push({ name: k, enc: s.enc, lost: s.lost, rate: (s.lost/s.enc*100).toFixed(1), score: bayesianLossRate * 100 });
+                }
             });
-            document.getElementById('achTot').innerText = ACH.length; document.getElementById('achCnt').innerText = unlocked.size; document.getElementById('achPct').innerText = ACH.length ? ((unlocked.size / ACH.length) * 100).toFixed(1) : 0;
-            ACH.forEach((a, i) => {
-                const isU = unlocked.has(i), cls = isU ? 'ach-card unlocked' : 'ach-card';
-                const dText = a.type && !isU && a.n.includes("Secret") ? "???" : a.d;
-                box.innerHTML += `<div class="${cls}"><div class="ach-icon">${a.i}</div><div class="ach-info"><div class="ach-name">${a.n}</div><div class="ach-desc">${dText}</div></div></div>`;
+
+            // 天敵（Nemesis）: スコア降順 Top 10
+            scores.sort((a, b) => b.score - a.score);
+            const nBox = document.getElementById('nemList'); nBox.innerHTML = '';
+            scores.slice(0, 10).forEach((s, i) => {
+                nBox.innerHTML += `<div class="nem-row"><span class="nem-rank">#${i+1}</span><div class="nem-name">${s.name} <span class="nem-sub">Enc: ${s.enc} / L: ${s.lost} (実敗北率: ${s.rate}%)</span></div><div class="nem-score" style="color:var(--nem);">Score: ${s.score.toFixed(1)}</div></div>`;
+            });
+
+            // 獲物（Prey）: スコア昇順 Top 10
+            scores.sort((a, b) => a.score - b.score);
+            const pBox = document.getElementById('preyList'); pBox.innerHTML = '';
+            scores.slice(0, 10).forEach((s, i) => {
+                pBox.innerHTML += `<div class="nem-row"><span class="nem-rank">#${i+1}</span><div class="nem-name">${s.name} <span class="nem-sub">Enc: ${s.enc} / W: ${s.enc - s.lost} (実勝率: ${(100 - s.rate).toFixed(1)}%)</span></div><div class="nem-score" style="color:var(--prey);">Score: ${s.score.toFixed(1)}</div></div>`;
             });
         }
 
-        // ★ V38 新機能: ヒューリスティック・シナジー予測モデル (動的要因分析)
         function runSim() {
             const r = document.getElementById('sRound').value, m = document.getElementById('sMap').value, k1 = document.getElementById('sKiller').value;
             const isMulti = /Bloodbath|ブラッドバス|Midnight|ミッドナイト/i.test(r), k2 = isMulti ? document.getElementById('sKiller2').value : 'all', k3 = isMulti ? document.getElementById('sKiller3').value : 'all';
             const face = document.getElementById('sim-ui-face'), msg = document.getElementById('sim-ui-msg');
             const resEl = document.getElementById('simRes'), detEl = document.getElementById('simDet'), rBox = document.getElementById('simReportBox'), rFact = document.getElementById('simFactors');
             
-            if (r === 'all' && m === 'all' && k1 === 'all' && k2 === 'all' && k3 === 'all') { 
-                resEl.innerText = '--%'; detEl.innerText = 'Select conditions to analyze synergy.'; resEl.style.color = 'var(--acc)'; face.src = 'face_normal.png'; msg.innerText = '条件を設定しなさい。話はそれからよ。'; rBox.style.display = 'none'; return; 
-            }
-
+            if (r === 'all' && m === 'all' && k1 === 'all' && k2 === 'all' && k3 === 'all') { resEl.innerText = '--%'; detEl.innerText = 'Select conditions to analyze synergy.'; resEl.style.color = 'var(--acc)'; face.src = 'face_normal.png'; msg.innerText = '条件を設定しなさい。話はそれからよ。'; rBox.style.display = 'none'; return; }
             const validData = filtered.filter(x => !x.afk);
             if (validData.length === 0) { resEl.innerText = '???'; detEl.innerText = '有効なデータがありません。'; return; }
 
-            // 全体のベース勝率
             let totW = 0; validData.forEach(x => { if(isW(x.res)) totW++; });
             const baseRate = totW / validData.length;
+            const calcFactor = (filterFn, label) => { const sub = validData.filter(filterFn); if (sub.length < 5) return { name: label, diff: 0, text: "サンプル不足", invalid: true }; let sw = 0; sub.forEach(x => { if(isW(x.res)) sw++; }); const rate = sw / sub.length; const diff = rate - baseRate; return { name: label, diff: diff, text: `${diff > 0 ? '+' : ''}${(diff*100).toFixed(1)}%`, invalid: false }; };
 
-            // 寄与度計算用ヘルパー
-            const calcFactor = (filterFn, label) => {
-                const sub = validData.filter(filterFn);
-                if (sub.length < 5) return { name: label, diff: 0, text: "サンプル不足で判定不能", invalid: true }; // サンプルが少なすぎる場合はノイズ除外
-                let sw = 0; sub.forEach(x => { if(isW(x.res)) sw++; });
-                const rate = sw / sub.length;
-                const diff = rate - baseRate;
-                return { name: label, diff: diff, text: `${diff > 0 ? '+' : ''}${(diff*100).toFixed(1)}%`, invalid: false };
-            };
-
-            let factors = [];
-            let totalDiff = 0;
-
+            let factors = [], totalDiff = 0;
             if (r !== 'all') { const f = calcFactor(x => x.r === r, `Round: ${r}`); factors.push(f); if(!f.invalid) totalDiff += f.diff; }
             if (m !== 'all') { const f = calcFactor(x => x.m === m, `Map: ${m}`); factors.push(f); if(!f.invalid) totalDiff += f.diff; }
-            
             const killers = [k1, k2, k3].filter(k => k !== 'all');
-            killers.forEach(k => {
-                const f = calcFactor(x => hasK(x, k), `Terror: ${k}`);
-                factors.push(f); if(!f.invalid) totalDiff += f.diff;
-            });
+            killers.forEach(k => { const f = calcFactor(x => hasK(x, k), `Terror: ${k}`); factors.push(f); if(!f.invalid) totalDiff += f.diff; });
 
-            // 最終予測勝率 (Base + Sum(Diffs)) Clamp 0-100
             let finalExpected = (baseRate + totalDiff) * 100;
             finalExpected = Math.max(0, Math.min(100, finalExpected));
+            resEl.innerText = finalExpected.toFixed(1) + '%'; detEl.innerText = `ベース勝率(${(baseRate*100).toFixed(1)}%) + 複合要因予測`;
+            rBox.style.display = 'block'; rFact.innerHTML = `<div class="sim-factor"><span class="sim-base">Base Overall Win Rate</span><span class="sim-base">${(baseRate*100).toFixed(1)}%</span></div>`;
+            factors.forEach(f => { const cls = f.invalid ? 'color:#888;' : (f.diff >= 0 ? 'sim-pos' : 'sim-neg'); rFact.innerHTML += `<div class="sim-factor"><span>${f.name}</span><span class="${cls}">${f.text}</span></div>`; });
 
-            // UI反映
-            resEl.innerText = finalExpected.toFixed(1) + '%';
-            detEl.innerText = `ベース勝率(${(baseRate*100).toFixed(1)}%) + 複合要因による予測`;
-            
-            // レポート描画
-            rBox.style.display = 'block';
-            rFact.innerHTML = `<div class="sim-factor"><span class="sim-base">Base Overall Win Rate</span><span class="sim-base">${(baseRate*100).toFixed(1)}%</span></div>`;
-            factors.forEach(f => {
-                const cls = f.invalid ? 'color:#888;' : (f.diff >= 0 ? 'sim-pos' : 'sim-neg');
-                rFact.innerHTML += `<div class="sim-factor"><span>${f.name}</span><span class="${cls}">${f.text}</span></div>`;
-            });
-
-            // AIのコメント変化
             if(finalExpected >= 80) { face.src = 'face_tsundere.png'; msg.innerText = `予測勝率 ${finalExpected.toFixed(1)}%……。データ上は完璧なシナジーね。油断して死なないでよ。`; resEl.style.color = 'var(--acc)'; } 
             else if(finalExpected >= 50) { face.src = 'face_normal.png'; msg.innerText = `予測勝率 ${finalExpected.toFixed(1)}%。五分五分ね。プレイスキルでひっくり返しなさい。`; resEl.style.color = 'var(--acc)'; } 
             else if(finalExpected >= 20) { face.src = 'face_angry.png'; msg.innerText = `予測勝率 ${finalExpected.toFixed(1)}%。明らかなデバフ要因があるわ。レポートの内訳を見直しなさい。`; resEl.style.color = '#f44336'; } 
@@ -332,7 +328,6 @@
         }
         
         function updRankings() { const kM = {}, mM = {}, rM = {}; const tot = filtered.length; filtered.forEach(x => { const win = isW(x.res); x.k.split(/[\/,]+/).forEach(k => { const n=k.trim(); if(n && n!=='None' && !n.includes('???')) { kM[n]=(kM[n]||{t:0,w:0}); kM[n].t++; if(win) kM[n].w++; } }); mM[x.m]=(mM[x.m]||{t:0,w:0}); mM[x.m].t++; if(win) mM[x.m].w++; rM[x.r]=(rM[x.r]||{t:0,w:0}); rM[x.r].t++; if(win) rM[x.r].w++; }); const fillDash = (id, m, col) => { const el = document.getElementById(id); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s]) => { const eR = tot ? (s.t/tot*100).toFixed(1) : 0; el.innerHTML += `<div class="rank-item"><span>${n} <span style="color:#888;font-size:11px;">(${s.t}回 / ${eR}%)</span></span><span style="color:${col}; font-weight:bold;">${(s.w/s.t*100).toFixed(0)}%</span></div>`; }); }; fillDash('dashK', kM, 'var(--sub)'); fillDash('dashM', mM, 'var(--acc)'); fillDash('dashR', rM, '#ffeb3b'); const fillFull = (id, m) => { const el = document.querySelector(`#${id} tbody`); el.innerHTML = ''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s]) => { const eR = tot ? (s.t/tot*100).toFixed(1) : 0; el.innerHTML += `<tr><td>${n}</td><td>${s.t} <span style="color:#888;font-size:10px;">(${eR}%)</span></td><td class="w">${s.w}</td><td class="l">${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`; }); }; fillFull('fRankK', kM); fillFull('fRankM', mM); fillFull('fRankR', rM); }
-        function updUnb() { const l = document.getElementById('unbL'); l.innerHTML = ''; const enc = new Set(); const unk = new Set(); filtered.forEach(x => { const rowStr = (x.r + ' ' + x.k).toLowerCase(); if (!rowStr.includes('unbound') && !rowStr.includes('アンバウンド')) return; let foundId = null; for (const [sid, masterArr] of Object.entries(MASTER)) { if (masterArr.some(m => rowStr.includes(m.toLowerCase()))) { foundId = sid; break; } } if (foundId) { enc.add(foundId); } else { x.k.split(/[\/,]+/).forEach(k => { if(k.trim() && k.trim() !== 'None') unk.add(k.trim()); }); } }); Array.from(enc).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id => { const title = MASTER[id][0], terrors = MASTER[id].slice(1); let tags = ''; terrors.forEach(k => tags += `<span class="unb-tag">${k}</span>`); l.innerHTML += `<div class="unb-card"><div class="unb-title">Set #${id}: ${title}</div><div class="unb-tag-list">${tags}</div></div>`; }); if (unk.size > 0) { let tags = ''; Array.from(unk).forEach(k => tags += `<span class="unb-tag" style="border-color:#f44336; color:#f44336;">${k}</span>`); l.innerHTML += `<div class="unb-card" style="border-top-color:#f44336;"><div class="unb-title" style="color:#f44336; border-bottom-color:#f44336;">Unknown Sets</div><div class="unb-tag-list">${tags}</div></div>`; } }
         
         function renderC() {
             const rc = document.getElementById('radar').getContext('2d'); if(charts.r) charts.r.destroy();
