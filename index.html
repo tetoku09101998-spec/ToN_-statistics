@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V41 Flawless</title>
+    <title>ToN Stats V42 The Cache Buster</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; --nem: #e53935; --prey: #00bcd4; }
@@ -37,7 +37,7 @@
 <body>
     <div class="controls">
         <div class="full" style="display:flex; gap:10px;">
-            <input type="file" id="csvFile" accept=".csv" style="flex:1;">
+            <input type="file" id="csvFile" accept=".csv" style="flex:1;" onclick="this.value=null;">
             <button class="lang-btn" onclick="toggleLang()" style="width:auto; padding:0 20px;">🌐 EN / JP</button>
         </div>
         <select id="fDate"><option value="all" data-ja="全期間" data-en="All Dates">全期間</option></select>
@@ -195,7 +195,6 @@
             if(raw.length) { updAch(); updNemesis(); updUi(); runSim(); initF(); }
         }
 
-        // ★ CSVパーサー（完全堅牢化：列数の揺れと不正行の排除）
         function parseCSV(t) { 
             let skipped = 0;
             let tempRaw = t.trim().split('\n').slice(1).map(line => { 
@@ -223,12 +222,12 @@
             if (skipped > 0) alert(currLang === 'ja' ? `警告: 不正な形式の行を ${skipped} 件スキップしました。` : `Warning: Skipped ${skipped} malformed rows.`);
         }
 
-        window.onload = () => { const saved = localStorage.getItem('ton_v41_flawless'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
+        window.onload = () => { const saved = localStorage.getItem('ton_v42_cachebuster'); if(saved) { parseCSV(saved); initF(); upd(); updateSimDropdowns(); runSim(); } };
         document.getElementById('csvFile').onchange = e => { 
             const f = e.target.files[0]; if(!f) return; 
             const r = new FileReader(); 
             r.onload = ev => { 
-                localStorage.setItem('ton_v41_flawless', ev.target.result); 
+                localStorage.setItem('ton_v42_cachebuster', ev.target.result); 
                 parseCSV(ev.target.result); 
                 initF(); upd(); updateSimDropdowns(); runSim(); 
             }; 
@@ -272,7 +271,6 @@
             else { const el = document.getElementById('sKiller'); const cur = el.value; el.innerHTML = `<option value="all">${currLang==='ja'?'テラー指定なし':'Any Terror'}</option>`; if(alt.length > 0) { el.innerHTML += '<optgroup label="Alternate / Regular">'; alt.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; } if(cls.length > 0) { el.innerHTML += '<optgroup label="Classic Exclusive">'; cls.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`); el.innerHTML += '</optgroup>'; } el.value = (alt.includes(cur) || cls.includes(cur)) ? cur : 'all'; }
         }
 
-        // ★ バグ修正： x.res を raw[i].res に変更
         function upd() { 
             const afkLimit = parseInt(document.getElementById('afkVal').value) || 10, exAFK = document.getElementById('exAFK').checked;
             let lossStreak = 0, streakStartIndex = -1;
