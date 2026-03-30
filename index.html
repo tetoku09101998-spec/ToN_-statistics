@@ -3,188 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToN Stats V48 Directory Master</title>
+    <title>ToN Stats V49 Ultimate</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* CSS 変更なし */
         :root { --bg: #121212; --panel: #1e1e1e; --ctrl: #2c2c2c; --acc: #4CAF50; --sub: #64B5F6; --unb: #ba68c8; --txt: #e0e0e0; --brd: #333; --nem: #e53935; --prey: #00bcd4; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 15px; font-size: 13px; -webkit-text-size-adjust: 100%; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--txt); margin: 0; padding: 15px; font-size: 13px; }
         .controls { background: var(--panel); padding: 12px; border-radius: 12px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 1px solid var(--brd); }
         .full { grid-column: 1 / -1; }
-        select, input[type="file"], button.lang-btn { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; box-sizing: border-box; cursor: pointer; }
-        button.lang-btn { background: #3949ab; font-weight: bold; font-size: 14px; transition: 0.2s; } button.lang-btn:hover { background: #3f51b5; }
-        button.clear-btn { background: #e53935; font-weight: bold; font-size: 14px; transition: 0.2s; } button.clear-btn:hover { background: #b71c1c; }
-        optgroup { background: #1a1a1a; color: var(--sub); font-style: normal; font-weight: bold; } option { color: #fff; }
-        .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
-        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        select, input[type="file"], button.btn { width: 100%; background: var(--ctrl); color: #fff; border: 1px solid #444; padding: 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        button.btn { font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .btn-lang { background: #3949ab; } .btn-lang:hover { background: #3f51b5; }
+        .btn-clr { background: #e53935; } .btn-clr:hover { background: #b71c1c; }
+        optgroup { background: #1a1a1a; color: var(--sub); } option { color: #fff; }
+        .tabs { display: flex; overflow-x: auto; border-bottom: 2px solid var(--brd); margin-bottom: 15px; }
+        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 20px; font-size: 15px; font-weight: bold; flex-shrink: 0; cursor: pointer; transition: 0.2s; }
         .tab-btn.active { color: var(--acc); border-bottom: 3px solid var(--acc); }
         .tab-content { display: none; background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid var(--brd); max-width: 1200px; margin: 0 auto; }
         .tab-content.active { display: block; }
         #ui-box, #sim-ui-box { display: flex; align-items: center; background: #252525; border-radius: 10px; padding: 15px; margin-bottom: 20px; border: 1px solid var(--brd); }
         #sim-ui-box { border-color: var(--unb); margin-top: 20px; }
-        #ui-face, #sim-ui-face { width: 65px; height: 65px; border-radius: 50%; margin-right: 15px; border: 2px solid #555; flex-shrink: 0; object-fit: cover; }
-        .card { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--acc); margin-bottom: 20px; text-align: left; }
-        .three-col-grid { display: grid; grid-template-columns: 1fr; gap: 20px; } @media (min-width: 900px) { .three-col-grid { grid-template-columns: repeat(3, 1fr); align-items: start; } }
+        #ui-face, #sim-ui-face { width: 65px; height: 65px; border-radius: 50%; margin-right: 15px; border: 2px solid #555; object-fit: cover; }
+        .card { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--acc); margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 20px; } @media(min-width: 900px){.grid-3{grid-template-columns: repeat(3, 1fr);}}
         .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 13px; }
         .table-wrapper { overflow-x: auto; border-radius: 8px; background: #1a1a1a; max-height: 500px; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 300px; th, td { padding: 10px 8px; border-bottom: 1px solid var(--brd); text-align: left; } th { background: #252525; position: sticky; top: 0; z-index: 1; } }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 300px; th,td { padding: 10px 8px; border-bottom: 1px solid var(--brd); text-align: left; } th { background: #252525; position: sticky; top: 0; z-index: 1; } }
         .w { color: var(--acc); font-weight: bold; } .l { color: #f44336; font-weight: bold; }
-        .unb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; } .unb-card { background: #2c2c2c; padding: 15px; border-radius: 8px; border-top: 4px solid var(--unb); font-size: 12px; text-align: left; } .unb-title { font-size: 14px; font-weight: bold; color: var(--unb); margin-bottom: 8px; border-bottom: 1px dashed #555; padding-bottom: 4px; } .unb-tag-list { display: flex; flex-wrap: wrap; gap: 5px; } .unb-tag { background: #1e1e1e; padding: 4px 8px; border-radius: 4px; color: #ddd; font-size: 11px; border: 1px solid #555; }
-        .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; } .ach-card { background: #252525; border-radius: 8px; padding: 15px; display: flex; align-items: center; border-left: 5px solid #444; opacity: 0.4; filter: grayscale(100%); transition: 0.3s; } .ach-card.unlocked { opacity: 1; filter: grayscale(0%); border-left-color: #FFD700; background: linear-gradient(135deg, #2a2a2a 0%, #3a3a20 100%); } .ach-icon { font-size: 30px; margin-right: 15px; width: 40px; text-align: center; } .ach-info { flex: 1; } .ach-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #fff; } .ach-desc { font-size: 11px; color: #aaa; }
-        .sim-report { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #444; text-align: left; font-size: 13px; } .sim-factor { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #333; } .sim-pos { color: var(--acc); font-weight: bold; } .sim-neg { color: #f44336; font-weight: bold; } .sim-base { color: var(--sub); font-weight: bold; }
-        .nem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } @media (max-width: 768px) { .nem-grid { grid-template-columns: 1fr; } } .nem-box { background: #252525; border-radius: 10px; padding: 15px; } .nem-title { font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid; } .nem-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #333; } .nem-rank { font-size: 16px; font-weight: bold; width: 30px; color: #888; } .nem-name { flex: 1; font-weight: bold; font-size: 14px; } .nem-score { font-size: 16px; font-weight: bold; text-align: right; } .nem-sub { font-size: 10px; color: #888; display: block; }
-        .link-box { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--sub); margin-top: 20px; } .link-box a { color: var(--txt); text-decoration: none; display: block; margin: 8px 0; font-size: 14px; transition: 0.2s; } .link-box a:hover { color: var(--sub); }
+        .unb-card { background: #2c2c2c; padding: 15px; border-radius: 8px; border-top: 4px solid var(--unb); font-size: 12px; margin-bottom:15px;} .unb-title { font-weight: bold; color: var(--unb); margin-bottom: 8px; border-bottom: 1px dashed #555; padding-bottom: 4px; } .unb-tag { background: #1e1e1e; padding: 4px 8px; border-radius: 4px; display:inline-block; margin:2px; border: 1px solid #555; }
+        .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; } .ach-card { background: #252525; border-radius: 8px; padding: 15px; display: flex; align-items: center; border-left: 5px solid #444; opacity: 0.4; filter: grayscale(1); } .ach-card.unlocked { opacity: 1; filter: grayscale(0); border-left-color: #FFD700; background: linear-gradient(135deg, #2a2a2a, #3a3a20); } .ach-icon { font-size: 30px; margin-right: 15px; width: 40px; text-align: center; } .ach-name { font-weight: bold; font-size: 14px; color: #fff; } .ach-desc { font-size: 11px; color: #aaa; }
+        .sim-factor { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #333; } .sim-pos { color: var(--acc); font-weight: bold; } .sim-neg { color: #f44336; font-weight: bold; } .sim-base { color: var(--sub); font-weight: bold; }
+        .nem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } @media(max-width:768px){.nem-grid{grid-template-columns: 1fr;}} .nem-box { background: #252525; border-radius: 10px; padding: 15px; } .nem-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #333; } .nem-rank { font-weight: bold; width: 30px; color: #888; }
+        .link-box { background: #252525; padding: 15px; border-radius: 10px; border-left: 5px solid var(--sub); margin-top: 20px; } .link-box a { color: var(--txt); text-decoration: none; display: block; margin: 8px 0; font-size: 14px; } .link-box a:hover { color: var(--sub); }
     </style>
 </head>
 <body>
     <div class="controls">
         <div class="full" style="display:flex; gap:10px;">
             <input type="file" id="csvFile" accept=".csv" style="flex:1;" onclick="this.value=null;">
-            <button class="lang-btn" onclick="toggleLang()" style="width:auto; padding:0 20px;">🌐 EN / JP</button>
-            <button class="clear-btn" onclick="clearCache()" style="width:auto; padding:0 20px;" data-ja="🗑️ キャッシュ消去" data-en="🗑️ Clear Storage">🗑️ キャッシュ消去</button>
+            <button class="btn btn-lang" onclick="toggleLang()" style="width:auto; padding:0 20px;">🌐 EN / JP</button>
+            <button class="btn btn-clr" onclick="clearCache()" style="width:auto; padding:0 20px;" data-ja="🗑️ キャッシュ消去" data-en="🗑️ Clear Storage">🗑️ キャッシュ消去</button>
         </div>
         <select id="fDate"><option value="all" data-ja="全期間" data-en="All Dates">全期間</option></select>
         <select id="fRound"><option value="all" data-ja="全Round" data-en="All Rounds">全Round</option></select>
         <select id="fKiller"><option value="all" data-ja="全Terror" data-en="All Terrors">全Terror</option></select>
-        <select id="fRes"><option value="all" data-ja="全結果 (Win/Loss)" data-en="All Results">全結果 (Win/Loss)</option><option value="Win" data-ja="Win (勝利)" data-en="Win">Win (勝利)</option><option value="Loss" data-ja="Loss (敗北)" data-en="Loss">Loss (敗北)</option></select>
+        <select id="fRes"><option value="all" data-ja="全結果" data-en="All Results">全結果</option><option value="Win">Win</option><option value="Loss">Loss</option></select>
         <div class="full" style="font-size:13px; color:#ffeb3b; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-            <label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" id="exClassic" style="width:auto; margin-right:5px; transform:scale(1.2);"> <span data-ja="クラシック除外" data-en="Exclude Classic">クラシック除外</span></label>
-            <label style="display:flex; align-items:center; cursor:pointer; color:var(--sub);"><input type="checkbox" id="exAFK" style="width:auto; margin-right:5px; transform:scale(1.2);"> <span data-ja="AFK連敗ノイズ除外" data-en="Exclude AFK Noise">AFK連敗ノイズ除外</span></label>
-            <span style="color:var(--txt);"><span data-ja="（閾値: " data-en="(Threshold: ">（閾値: </span><input type="number" id="afkVal" value="10" min="3" max="100" style="width:50px; display:inline-block; padding:4px; text-align:center;"> <span data-ja="連敗）" data-en=" Losses)">連敗）</span></span>
+            <label style="cursor:pointer;"><input type="checkbox" id="exClassic" style="transform:scale(1.2);"> <span data-ja="クラシック除外" data-en="Exclude Classic">クラシック除外</span></label>
+            <label style="cursor:pointer; color:var(--sub);"><input type="checkbox" id="exAFK" style="transform:scale(1.2);"> <span data-ja="AFK連敗ノイズ除外" data-en="Exclude AFK Noise">AFK連敗ノイズ除外</span></label>
+            <span style="color:var(--txt);"><span data-ja="（閾値: " data-en="(Threshold: ">（閾値: </span><input type="number" id="afkVal" value="10" min="3" max="100" style="width:50px; text-align:center;"> <span data-ja="連敗）" data-en=" Losses)">連敗）</span></span>
         </div>
     </div>
 
     <div class="tabs">
         <button class="tab-btn active" onclick="tab('t-dash')" data-ja="📊 サマリー" data-en="📊 Summary">📊 サマリー</button>
         <button class="tab-btn" onclick="tab('t-sim')" data-ja="🧪 シミュレーター" data-en="🧪 Simulator">🧪 シミュレーター</button>
-        <button class="tab-btn" onclick="tab('t-nem')" data-ja="💀 宿敵解析" data-en="💀 Nemesis Engine">💀 宿敵解析</button>
+        <button class="tab-btn" onclick="tab('t-nem')" data-ja="💀 宿敵解析" data-en="💀 Nemesis">💀 宿敵解析</button>
         <button class="tab-btn" onclick="tab('t-chart')" data-ja="📈 アナリティクス" data-en="📈 Analytics">📈 アナリティクス</button>
         <button class="tab-btn" onclick="tab('t-rank')" data-ja="🏆 ランキング" data-en="🏆 Ranking">🏆 ランキング</button>
         <button class="tab-btn" onclick="tab('t-ach')" data-ja="🎖️ 実績" data-en="🎖️ Achievements">🎖️ 実績</button>
         <button class="tab-btn" onclick="tab('t-list')" data-ja="📝 履歴" data-en="📝 History">📝 履歴</button>
-        <button class="tab-btn" onclick="tab('t-unb')" data-ja="🌀 アンバウンド図鑑" data-en="🌀 Unbound Dex">🌀 アンバウンド図鑑</button>
+        <button class="tab-btn" onclick="tab('t-unb')" data-ja="🌀 アンバウンド" data-en="🌀 Unbound">🌀 アンバウンド</button>
     </div>
 
     <div id="t-dash" class="tab-content active">
-        <div id="ui-box"><img id="ui-face" src="img/face_normal.png"><p id="ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4;"></p></div>
-        <div class="three-col-grid" style="margin-bottom:20px;">
+        <div id="ui-box"><img id="ui-face" src="img/face_normal.png"><p id="ui-msg" style="margin:0;"></p></div>
+        <div class="grid-3" style="margin-bottom:20px;">
             <div class="card" style="margin:0;">
-                <div style="font-size:20px; font-weight:bold; margin-bottom:5px;">Total: <span id="tg">0</span> / Win: <span id="tw" class="w">0</span></div>
-                <div style="color:var(--acc); font-size:15px; margin-bottom:8px;">Win Rate: <span id="wr">0</span>%</div>
-                <div style="font-size:11px; color:#888;"><span data-ja="最新ログ: " data-en="Latest Log: ">最新ログ: </span><span id="lDt">-</span></div>
+                <div style="font-size:20px; font-weight:bold;">Total: <span id="tg">0</span> / Win: <span id="tw" class="w">0</span></div>
+                <div style="color:var(--acc); font-size:15px; margin:bottom:8px;">Win Rate: <span id="wr">0</span>%</div>
+                <div style="font-size:11px; color:#888;"><span data-ja="最新: " data-en="Latest: ">最新: </span><span id="lDt">-</span></div>
             </div>
-            <div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2; display: flex; justify-content: center; align-items: center; height: 220px; position: relative;"><canvas id="radar"></canvas></div>
+            <div style="background:#252525; border-radius:10px; padding:10px; grid-column: span 2; height: 220px; position: relative;"><canvas id="radar"></canvas></div>
         </div>
-        <div class="three-col-grid" style="margin-bottom:20px;">
-            <div><h3 style="color:var(--sub); border-bottom:2px solid #444; padding-bottom:5px;" data-ja="Top 10 テラー" data-en="Top 10 Terrors">Top 10 テラー</h3><div id="dashK"></div></div>
-            <div><h3 style="color:#ffeb3b; border-bottom:2px solid #444; padding-bottom:5px;" data-ja="Top 10 ラウンド" data-en="Top 10 Rounds">Top 10 Rounds</h3><div id="dashR"></div></div>
-            <div><h3 style="color:var(--acc); border-bottom:2px solid #444; padding-bottom:5px;" data-ja="Top 10 マップ" data-en="Top 10 Maps">Top 10 Maps</h3><div id="dashM"></div></div>
+        <div class="grid-3" style="margin-bottom:20px;">
+            <div><h3 style="color:var(--sub); border-bottom:2px solid #444;" data-ja="Top 10 テラー" data-en="Top 10 Terrors">Top 10 テラー</h3><div id="dashK"></div></div>
+            <div><h3 style="color:#ffeb3b; border-bottom:2px solid #444;" data-ja="Top 10 ラウンド" data-en="Top 10 Rounds">Top 10 ラウンド</h3><div id="dashR"></div></div>
+            <div><h3 style="color:var(--acc); border-bottom:2px solid #444;" data-ja="Top 10 マップ" data-en="Top 10 Maps">Top 10 マップ</h3><div id="dashM"></div></div>
         </div>
         <div class="link-box">
             <h3 style="margin:0 0 10px 0; color:var(--sub);" data-ja="🔗 関連リンク" data-en="🔗 Related Links">🔗 関連リンク</h3>
-            <a href="https://wikiwiki.jp/ton_jp/%E5%AE%9F%E7%B8%BE%E4%B8%80%E8%A6%A7" target="_blank" data-ja="📖 ToN Wiki (実績一覧)" data-en="📖 ToN Wiki (Achievements)">📖 ToN Wiki (Achievements)</a>
-            <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank" data-ja="📄 取扱説明書 (readme.html)" data-en="📄 User Manual">📄 取扱説明書 (readme.html)</a>
+            <a href="https://wikiwiki.jp/ton_jp/%E5%AE%9F%E7%B8%BE%E4%B8%80%E8%A6%A7" target="_blank" data-ja="📖 ToN Wiki (実績一覧)" data-en="📖 ToN Wiki (Achievements)">📖 ToN Wiki (実績一覧)</a>
+            <a href="https://tetoku09101998-spec.github.io/ToN_-statistics/readme.html" target="_blank" data-ja="📄 取扱説明書" data-en="📄 User Manual">📄 取扱説明書</a>
             <a href="https://github.com/tetoku09101998-spec/ToN_-statistics" target="_blank">💻 GitHub Repository</a>
         </div>
     </div>
 
     <div id="t-sim" class="tab-content">
-        <h3 style="color:var(--sub); border-bottom:1px solid #444; padding-bottom:5px;">Heuristic Synergy Predictor</h3>
-        <div class="controls" style="margin-bottom:20px;">
-            <select id="sRound"><option value="all" data-ja="ラウンド指定なし" data-en="Any Round">Any Round</option></select>
-            <select id="sMap"><option value="all" data-ja="マップ指定なし" data-en="Any Map">Any Map</option></select>
-            <div class="full" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;" id="simKillersBox">
-                <select id="sKiller"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">Any Terror</option></select>
-                <select id="sKiller2" style="display:none;"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">Any Terror</option></select>
-                <select id="sKiller3" style="display:none;"><option value="all" data-ja="テラー指定なし" data-en="Any Terror">Any Terror</option></select>
-            </div>
+        <h3 style="color:var(--sub);">Heuristic Synergy Predictor</h3>
+        <div class="controls"><select id="sRound"><option value="all">Any</option></select><select id="sMap"><option value="all">Any</option></select>
+            <div class="full" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;"><select id="sKiller"><option value="all">Any</option></select><select id="sKiller2" style="display:none;"><option value="all">Any</option></select><select id="sKiller3" style="display:none;"><option value="all">Any</option></select></div>
         </div>
-        <div class="card" style="text-align:center; padding:20px 15px; margin-bottom:0;">
-            <div style="font-size:14px; color:#aaa; font-weight:bold;" data-ja="予測生存率" data-en="Expected Survival Rate">Expected Survival Rate</div>
-            <div id="simRes" style="font-size:52px; font-weight:bold; color:var(--acc); margin:10px 0; text-shadow: 0 0 10px rgba(76,175,80,0.3);">--%</div>
-            <div id="simDet" style="font-size:13px; color:#888;" data-ja="条件を設定してください。" data-en="Select conditions to analyze.">條件を設定してください。</div>
-            <div id="simReportBox" class="sim-report" style="display:none;">
-                <div style="color:var(--txt); margin-bottom:8px; font-weight:bold;">[ Analysis Report : Death Factors ]</div>
-                <div id="simFactors"></div>
-            </div>
+        <div class="card" style="text-align:center;">
+            <div style="font-weight:bold; color:#aaa;" data-ja="予測生存率" data-en="Expected Rate">予測生存率</div>
+            <div id="simRes" style="font-size:52px; font-weight:bold; color:var(--acc);">--%</div>
+            <div id="simDet" style="color:#888;">...</div>
+            <div id="simReportBox" style="display:none; text-align:left; margin-top:15px; border-top:1px dashed #444; padding-top:15px;"><div id="simFactors"></div></div>
         </div>
-        <div id="sim-ui-box"><img id="sim-ui-face" src="img/face_normal.png"><p id="sim-ui-msg" style="font-size:13px; margin:0; text-align:left; line-height:1.4; color:var(--unb);"></p></div>
+        <div id="sim-ui-box"><img id="sim-ui-face" src="img/face_normal.png"><p id="sim-ui-msg" style="color:var(--unb); margin:0;"></p></div>
     </div>
 
-    <div id="t-nem" class="tab-content"><h3 style="color:var(--nem); border-bottom:1px solid #444; padding-bottom:5px;">Bayesian Nemesis & Prey Analysis</h3><p style="font-size:11px; color:#aaa; margin-bottom:20px;" data-ja="※ベイズ推定を用いて「遭遇回数」と「敗北率」を重み付けし、真の天敵と獲物を偏差値化します。(遭遇3回以上)" data-en="*Uses Bayesian inference to weight encounters and loss rates, revealing true Nemesis and Prey. (Min 3 encounters)">※ベイズ推定を用いて「遭遇回数」と「敗北率」を重み付けし、真の天敵と獲物を偏差値化します。(遭遇3回以上)</p><div class="nem-grid"><div class="nem-box" style="border-top: 5px solid var(--nem);"><div class="nem-title" style="color:var(--nem); border-bottom-color:var(--nem);">Top 10 Nemesis <span data-ja="(真の天敵)" data-en="(True Foes)">(真の天敵)</span></div><div id="nemList"></div></div><div class="nem-box" style="border-top: 5px solid var(--prey);"><div class="nem-title" style="color:var(--prey); border-bottom-color:var(--prey);">Top 10 Prey <span data-ja="(獲物)" data-en="(Easy Targets)">(獲物)</span></div><div id="preyList"></div></div></div></div>
-    <div id="t-chart" class="tab-content"><select id="vMode" style="width:100%; margin-bottom:15px;"><option value="trend" data-ja="日別勝率推移" data-en="Daily Win Rate Trend">日別勝率推移</option><option value="time" data-ja="時間帯別分析" data-en="Time of Day Analysis">時間帯別分析</option><option value="killer" data-ja="テラー別勝敗 (割合)" data-en="Win/Loss by Terror (%)">テラー別勝敗 (割合)</option><option value="map" data-ja="マップ別勝敗 (割合)" data-en="Win/Loss by Map (%)">マップ別勝敗 (割合)</option><option value="p_killer" data-ja="出現率: テラー" data-en="Spawn Rate: Terror">出現率: テラー</option><option value="p_round" data-ja="出現率: ラウンド" data-en="Spawn Rate: Round">出現率: ラウンド</option><option value="p_map" data-ja="出現率: マップ" data-en="Spawn Rate: Map">出現率: Map</option></select><div style="height: 550px; position: relative; width: 100%;"><canvas id="mainChart"></canvas></div></div>
-    <div id="t-rank" class="tab-content"><div class="three-col-grid"><div><h3 style="color:var(--sub);">All Killers</h3><div class="table-wrapper"><table id="fRankK"><thead><tr><th>Terror</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:#ffeb3b;">All Rounds</h3><div class="table-wrapper"><table id="fRankR"><thead><tr><th>Round</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:var(--acc);">All Maps</h3><div class="table-wrapper"><table id="fRankM"><thead><tr><th>Map</th><th>Enc</th><th>W</th><th>L</th><th>Rate</th></tr></thead><tbody></tbody></table></div></div></div></div>
-    <div id="t-ach" class="tab-content"><div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid var(--brd); padding-bottom:10px; margin-bottom:20px;"><h3 style="color:#FFD700; margin:0;" data-ja="解除可能な実績" data-en="Unlockable Achievements">解除可能な実績</h3><div style="font-size:16px; font-weight:bold;">Unlocked: <span id="achCnt" style="color:var(--acc);">0</span> / <span id="achTot">0</span> (<span id="achPct">0</span>%)</div></div><div class="ach-grid" id="achBox"></div></div>
-    <div id="t-list" class="tab-content"><div class="table-wrapper"><table><thead><tr><th data-ja="日時" data-en="Date">Date</th><th data-ja="ラウンド" data-en="Round">Round</th><th data-ja="テラー" data-en="Terror">Terror</th><th data-ja="結果" data-en="Res">Res</th></tr></thead><tbody id="hBody"></tbody></table></div><div style="margin-top:15px; display:flex; justify-content:space-between;"><button class="tab-btn" style="border:1px solid #555;" onclick="pg(-1)">◀ Prev</button><span id="pgInf" style="align-self:center;">1/1</span><button class="tab-btn" style="border:1px solid #555;" onclick="pg(1)">Next ▶</button></div></div>
-    <div id="t-unb" class="tab-content"><div class="unb-grid" id="unbL"></div></div>
+    <div id="t-nem" class="tab-content">
+        <h3 style="color:var(--nem);">Bayesian Nemesis & Prey</h3>
+        <div class="nem-grid">
+            <div class="nem-box" style="border-top:5px solid var(--nem);"><div style="color:var(--nem); font-weight:bold; font-size:18px;">Top 10 Nemesis</div><div id="nemList"></div></div>
+            <div class="nem-box" style="border-top:5px solid var(--prey);"><div style="color:var(--prey); font-weight:bold; font-size:18px;">Top 10 Prey</div><div id="preyList"></div></div>
+        </div>
+    </div>
+
+    <div id="t-chart" class="tab-content"><select id="vMode" style="width:100%; margin-bottom:15px;"><option value="trend">Trend</option><option value="time">Time</option><option value="killer">Terror</option><option value="map">Map</option><option value="p_killer">Spawns(Terror)</option></select><div style="height:550px; position:relative;"><canvas id="mainChart"></canvas></div></div>
+    <div id="t-rank" class="tab-content"><div class="grid-3"><div><h3 style="color:var(--sub);">Killers</h3><div class="table-wrapper"><table id="fRankK"><thead><tr><th>Name</th><th>Enc</th><th>W</th><th>L</th><th>%</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:#ffeb3b;">Rounds</h3><div class="table-wrapper"><table id="fRankR"><thead><tr><th>Name</th><th>Enc</th><th>W</th><th>L</th><th>%</th></tr></thead><tbody></tbody></table></div></div><div><h3 style="color:var(--acc);">Maps</h3><div class="table-wrapper"><table id="fRankM"><thead><tr><th>Name</th><th>Enc</th><th>W</th><th>L</th><th>%</th></tr></thead><tbody></tbody></table></div></div></div></div>
+    <div id="t-ach" class="tab-content"><h3 style="color:#FFD700;">Unlocked: <span id="achCnt">0</span> / <span id="achTot">0</span> (<span id="achPct">0</span>%)</h3><div class="ach-grid" id="achBox"></div></div>
+    <div id="t-list" class="tab-content"><div class="table-wrapper"><table><thead><tr><th>Date</th><th>Round</th><th>Terror</th><th>Res</th></tr></thead><tbody id="hBody"></tbody></table></div><div style="display:flex; justify-content:space-between; margin-top:15px;"><button class="tab-btn" style="border:1px solid #555;" onclick="pg(-1)">◀ Prev</button><span id="pgInf" style="align-self:center;">1/1</span><button class="tab-btn" style="border:1px solid #555;" onclick="pg(1)">Next ▶</button></div></div>
+    <div id="t-unb" class="tab-content"><div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:15px;" id="unbL"></div></div>
 
     <script>
-        // MASTER and SHEET_ALTERNATE same as V47
-        const MASTER = {"1": ["Guidance & The Booboo's", "The Guidance", "BooBooBabies"], "2": ["Red vs Blue", "Haket", "Blue Haket"], "3": ["Third Trumpet", "CENSORED", "All-around-Helper", "Mountain of Smiling Bodies", "Army in Black", "Big Bird", "Express Train To Hell"], "4": ["Forest Guardians", "Big Bird", "Judgement Bird", "Punishing Bird"], "5": ["Higher Beings", "Security", "The Swarm", "Prisoner"], "6": ["Quadruple Sponge", "Demented Spongebob", "Spongefly Swarm", "Decayed Sponge", "S.T.G.M"], "7": ["Your Best Friends", "BFF", "Nameless"], "8": ["Hotel Monsters", "Seek", "Rush", "Eyes"], "9": ["Squibb Squad", "Squibbs (Dev Bytes)", "Convict(D)"], "10": ["Search and Destroy", "Garden Rejects", "Convict Squad", "Kimera"], "11": ["Judgement Day", "WhiteNight", "Paradise Bird"], "12": ["Me and My Shadow", "Roblander", "Inverted Roblander"], "13": ["Meltdown", "An Arbiter", "The Red Mist"], "14": ["Faceless Mafia", "Slender", "Slendy", "Hungry Home Invader"], "15": ["Mansion Monsters", "Specimen 2", "Specimen 5", "Specimen 8", "Specimen 10"], "16": ["Copyright Infringement", "MX", "Luigi", "Wario Apparition"], "17": ["Purple Bros", "Purple Guy"], "18": ["Scavengers", "Scavenger"], "19": ["Life & Death", "The LifeBringer", "Scrapyard Machine"], "20": ["Labyrinth", "Unknown Witch"], "21": ["Spiteful Shadows", "Umbra", "Spiteful Eye"], "22": ["Triple Munci", "Angry Munci"], "23": ["Daycare", "Karol_Corpse"], "24": ["Huggy Horde", "Huggy", "Huggy Wuggy"], "25": ["Infection", "Arrival"], "26": ["Triple Hush", "Hush"], "27": ["[CENSORED]", "[CENSORED]"], "28": ["Byte Horde", "Dev Bytes", "Vana", "Duke"], "29": ["SawMarathon", "Sawrunner"], "30": ["TAKE THE NAMI CHALLENGE", "Little Witch", "War", "Convict(N)"], "31": ["Thunderstorm", "Lightning"], "32": ["END OF THE WORLD", "Joy"], "33": ["Fragmented Memories", "TOREN_SHADOW", "WITH_MANY_VOICES", "ETRIGAN", "PRINCESS", "SMILEY", "IMPOSTER"], "34": ["Mona & Mona & Mona & Mona", "Mona", "Mona & The Mountain"], "35": ["Seekers", "Legs"], "36": ["Nugget Squad", "Convict(N)"], "37": ["Saul's goodmen", "Saul"], "38": ["Something Old, Something New", "Security", "Ancient Security"], "39": ["POV: Bug", "Bigger Boot"], "40": ["Punishing Birdemic", "Punishing Bird"], "41": ["Chomper Trio", "Chomper"], "42": ["Too Many Voices", "With Many Voices"], "43": ["Memory Crypts", "Miros Bird"], "44": ["Zumbo Sauce", "Jumbo Josh"], "45": ["Freaks", "Christian Brutal Sniper", "HoovyDundy", "Horseless Headless Horsemann"], "46": ["Lunatic Cult", "Lunatic Cultist"], "47": ["Transportation Trio & The Drifter", "Red Bus", "Blue Bus", "Green Bus", "Yellow Bus", "The Drifter"], "48": ["Father Son Bonding", "Purple Guy", "Voidwalker"], "49": ["WHAT IS MY NAME", "HER", "WHITEFACE"], "50": ["Glaggleland Cremators", "Dapper Enphoso", "Pyromatic Enphoso"], "51": ["Triple Signus", "Signus"], "52": ["Triple Akumii Kari", "Akumii-Kari"], "53": ["Black & White", "Big Bird", "Paradise Bird"], "54": ["LESSER CENSORED", "[LESSER CENSORED]"], "55": ["Blue Monsters", "Blue gaper", "Blue Flies"], "56": ["Drones", "Drone"], "57": ["Scrapyard Takers", "Scrapyard Taker"], "58": ["Luigi Dolls", "Luigi Doll"], "59": ["Meteor Shower", "Meteor"], "60": ["Triple TBH", "TBH", "TBH Spy"], "61": ["Lost Souls", "Lost Soul"], "62": ["Ballin", "Aku Ball"], "63": ["Reunion", "Toren's Shadow", "Mona", "Karol_Corpse", "Haket"], "64": ["Angels", "Roblander", "Bliss", "Ancient Monarch"], "65": ["Ordinary Apocalypse Bird", "Apocalypse Bird", "Immortal Snail"], "66": ["Pack of Wild Yet Curious Creatures", "Wild Yet Curious Creature"], "67": ["ToN X SlashCo Collab", "Beyond", "Manti"], "68": ["Pack of Yolm", "Yolm"], "69": ["Threepy", "Peepy"], "70": ["Ghost Girl", "Ghost Girl"], "71": ["Delete Me", "Deleted", "Akumii-Kari"], "72": ["Spamton Spam", "Spamton"], "73": ["Death From Above", "Solstice Eye", "Bigger Boot", "AXE", "Meteor", "Nabnab", "Giant Laser"], "74": ["It Came From Bus To Nowhere", "Mirror", "Red Bus", "Terror of Nowhere"], "75": ["Zombie Apocalypse", "SCP-049-B"], "76": ["Eating Contest", "Mountain of Smiling Bodies"], "77": ["Triple Clockey", "Clockey"], "78": ["Triple Killer Fish", "Killer Fish"], "79": ["Lethal League", "MR.MEGA", "DoomBox"], "80": ["Trollage", "Comedy", "Tragedy"], "81": ["Mopemopemopemopemopemope", "MopeMope"], "82": ["Triple Trouble", "Sonic", "Rewrite", "Atrached"], "83": ["Triple Living Shadow", "Living Shadow"], "84": ["Beyond's Masks", "Beyond", "Convict[E]", "Byte[E]", "Wild Yet Curious Creature", "Toren's Shadow", "Paint(Beyond)"]};
+        const MASTER = {"1":["Guidance & The Booboo's","The Guidance","BooBooBabies"],"2":["Red vs Blue","Haket","Blue Haket"],"3":["Third Trumpet","CENSORED","All-around-Helper","Mountain of Smiling Bodies","Army in Black","Big Bird","Express Train To Hell"],"4":["Forest Guardians","Big Bird","Judgement Bird","Punishing Bird"],"5":["Higher Beings","Security","The Swarm","Prisoner"],"6":["Quadruple Sponge","Demented Spongebob","Spongefly Swarm","Decayed Sponge","S.T.G.M"],"7":["Your Best Friends","BFF","Nameless"],"8":["Hotel Monsters","Seek","Rush","Eyes"],"9":["Squibb Squad","Squibbs (Dev Bytes)","Convict(D)"],"10":["Search and Destroy","Garden Rejects","Convict Squad","Kimera"],"11":["Judgement Day","WhiteNight","Paradise Bird"],"12":["Me and My Shadow","Roblander","Inverted Roblander"],"13":["Meltdown","An Arbiter","The Red Mist"],"14":["Faceless Mafia","Slender","Slendy","Hungry Home Invader"],"15":["Mansion Monsters","Specimen 2","Specimen 5","Specimen 8","Specimen 10"],"16":["Copyright Infringement","MX","Luigi","Wario Apparition"],"17":["Purple Bros","Purple Guy"],"18":["Scavengers","Scavenger"],"19":["Life & Death","The LifeBringer","Scrapyard Machine"],"20":["Labyrinth","Unknown Witch"],"21":["Spiteful Shadows","Umbra","Spiteful Eye"],"22":["Triple Munci","Angry Munci"],"23":["Daycare","Karol_Corpse"],"24":["Huggy Horde","Huggy","Huggy Wuggy"],"25":["Infection","Arrival"],"26":["Triple Hush","Hush"],"27":["[CENSORED]","[CENSORED]"],"28":["Byte Horde","Dev Bytes","Vana","Duke"],"29":["SawMarathon","Sawrunner"],"30":["TAKE THE NAMI CHALLENGE","Little Witch","War","Convict(N)"],"31":["Thunderstorm","Lightning"],"32":["END OF THE WORLD","Joy"],"33":["Fragmented Memories","TOREN_SHADOW","WITH_MANY_VOICES","ETRIGAN","PRINCESS","SMILEY","IMPOSTER"],"34":["Mona & Mona & Mona & Mona","Mona","Mona & The Mountain"],"35":["Seekers","Legs"],"36":["Nugget Squad","Convict(N)"],"37":["Saul's goodmen","Saul"],"38":["Something Old, Something New","Security","Ancient Security"],"39":["POV: Bug","Bigger Boot"],"40":["Punishing Birdemic","Punishing Bird"],"41":["Chomper Trio","Chomper"],"42":["Too Many Voices","With Many Voices"],"43":["Memory Crypts","Miros Bird"],"44":["Zumbo Sauce","Jumbo Josh"],"45":["Freaks","Christian Brutal Sniper","HoovyDundy","Horseless Headless Horsemann"],"46":["Lunatic Cult","Lunatic Cultist"],"47":["Transportation Trio & The Drifter","Red Bus","Blue Bus","Green Bus","Yellow Bus","The Drifter"],"48":["Father Son Bonding","Purple Guy","Voidwalker"],"49":["WHAT IS MY NAME","HER","WHITEFACE"],"50":["Glaggleland Cremators","Dapper Enphoso","Pyromatic Enphoso"],"51":["Triple Signus","Signus"],"52":["Triple Akumii Kari","Akumii-Kari"],"53":["Black & White","Big Bird","Paradise Bird"],"54":["LESSER CENSORED","[LESSER CENSORED]"],"55":["Blue Monsters","Blue gaper","Blue Flies"],"56":["Drones","Drone"],"57":["Scrapyard Takers","Scrapyard Taker"],"58":["Luigi Dolls","Luigi Doll"],"59":["Meteor Shower","Meteor"],"60":["Triple TBH","TBH","TBH Spy"],"61":["Lost Souls","Lost Soul"],"62":["Ballin","Aku Ball"],"63":["Reunion","Toren's Shadow","Mona","Karol_Corpse","Haket"],"64":["Angels","Roblander","Bliss","Ancient Monarch"],"65":["Ordinary Apocalypse Bird","Apocalypse Bird","Immortal Snail"],"66":["Pack of Wild Yet Curious Creatures","Wild Yet Curious Creature"],"67":["ToN X SlashCo Collab","Beyond","Manti"],"68":["Pack of Yolm","Yolm"],"69":["Threepy","Peepy"],"70":["Ghost Girl","Ghost Girl"],"71":["Delete Me","Deleted","Akumii-Kari"],"72":["Spamton Spam","Spamton"],"73":["Death From Above","Solstice Eye","Bigger Boot","AXE","Meteor","Nabnab","Giant Laser"],"74":["It Came From Bus To Nowhere","Mirror","Red Bus","Terror of Nowhere"],"75":["Zombie Apocalypse","SCP-049-B"],"76":["Eating Contest","Mountain of Smiling Bodies"],"77":["Triple Clockey","Clockey"],"78":["Triple Killer Fish","Killer Fish"],"79":["Lethal League","MR.MEGA","DoomBox"],"80":["Trollage","Comedy","Tragedy"],"81":["Mopemopemopemopemopemope","MopeMope"],"82":["Triple Trouble","Sonic","Rewrite","Atrached"],"83":["Triple Living Shadow","Living Shadow"],"84":["Beyond's Masks","Beyond","Convict[E]","Byte[E]","Wild Yet Curious Creature","Toren's Shadow","Paint(Beyond)"]};
         const SHEET_ALTERNATE = ["D@;Q7Y", "Ambush", "Angry Munci", "Apathy", "Army in Black", "Bliss", "Lone Agent", "Chomper", "Convict Squad", "Decayed Sponge", "Dev Maulers", "Eggman's Announcement", "Feddys", "Fusion Pilot", "Glaggle Gang", "Judas", "Joy", "Lord's Signal", "MR.MEGA", "Paradise Bird", "Parhelion", "Restless Creator", "Roblander", "Sakuya The Ripper", "Sanic", "sm64.z64", "S.T.G.M", "TBH SPY", "Teuthida", "The Knight of Toren", "The Observation", "The Red Mist", "Tragedy", "Try Not To Touch Me", "Walpurgisnacht", "WHITEFACE", "Distorted Yan"];
-        const hasK = (x, name) => x.k.split(/[\/,]+/).some(k => k.trim().toLowerCase() === name.toLowerCase());
+        const hasK = (x, n) => x.k.split(/[\/,]+/).some(k => k.trim().toLowerCase() === n.toLowerCase());
         const isW = (s) => s && s.trim().toLowerCase() === 'win';
-        const isClassic = (r) => /classic|クラシック/i.test(r);
-        const normStr = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
-        // ACH_I18N and ACH same as V47
+        const isC = (r) => /classic|クラシック/i.test(r);
+        const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-        // ... functions parseCSV, onload, getCategorizedTerrors, initF, upd, pg, updAch, updRankings, updUnb, renderC same as V47 ...
-        // 省略
+        const ACH_I18N = {"血液不足":"Survive Bloodbath","禁煙！":"Survive Fog","一線を越える":"Survive Insanity","表と裏":"Survive Alternate","脱出成功":"Survive Sabotage","夜明けの始まり":"Survive Midnight","消えゆく記憶":"Survive Mystic Moon","終末の日":"Survive Twilight","戦争":"Survive Bloodmoon","付き添い人":"Survive Solstice","何かおかしい":"Survive Ghost","サバイバー":"Win first round","YOU DIED!":"Die first time","灰燼から":"Survive Glaggle Gang","ミュートされた？":"Survive Ambush","史上最高のパフォーマンス":"Survive Teuthida","衝突と解消":"Survive Convict Squad","日頃の行い":"Survive Angry Munci","削除されました":"Survive sm64.z64","いつもの作業":"Survive Don't Touch Me","復讐":"Survive Judas","始マリノ祭リ":"Survive Walpurgisnacht","赤い霧が帰ってきます":"Survive The Red Mist","OPテラー":"Survive Sakuya The Ripper","原初の信号":"Survive S.O.S","止まらない食欲":"Survive The MeatBallMan","心なき機械":"Survive Nameless","エンパシー":"Survive Apathy","楽園はそこにあった":"Survive Paradise Bird","失われた魂":"Survive Kimera","汚染された":"Encounter Beyond","バンバンたちが天国へ送るかのごとく":"Survive Garten Goers","燦爛たる幸福":"Survive Joy","バスパス":"Survive Transportation Trio & The Drifter","破滅":"Survive Monarch","全部彼女のせいだ":"Survive Restless Creator","追跡":"Survive Shadow Freddy","ピカピカの25セント硬貨":"Survive Baldi",":3":"Survive Parhelion","聞かないで":"Survive ,D@;Q7Y","プレッシャー":"Survive Searchlights","侵入":"Killed by Interloper","あっ":"Encounter Toren's Shadow","止まれ":"Killed by The Guidance","場所もタイミングも悪かった":"Killed by MR MEGA","143":"Killed by Hellmari in Blackspace","ベストオブパープルガイ":"Survive Purple Guy in Insanity","隠れんぼ王":"Survive Rush/Ambush in Bloodbath/Midnight","ザ・ワールド":"Survive Sakuya in Bloodbath/Midnight","子供向けじゃないよ":"Survive MopeMope","あの子のように！":"Survive Bloodbath","完璧主義":"10 Win Streak","深淵を覗きし者":"Encounter 15 Alternates","異常な執念":"Play 1000+ times","社畜の鑑":"Play during work (9:00-18:00)","徹夜明けのメルトダウン":"Play midnight (2:00-5:00)"};
+        const ACH = [
+            {n:"血液不足",d:"ラウンドタイプ「ブラッドバス」を生存",i:"🩸",c:x=>/Bloodbath|ブラッドバス/i.test(x.r)&&isW(x.res)},{n:"禁煙！",d:"ラウンドタイプ「霧」を生存",i:"🌫️",c:x=>/Fog|霧/i.test(x.r)&&isW(x.res)},{n:"一線を越える",d:"ラウンドタイプ「狂気」を生存",i:"🤪",c:x=>/Insanity|狂気/i.test(x.r)&&isW(x.res)},{n:"表と裏",d:"ラウンドタイプ「オルタネイト」を生存",i:"🎭",c:x=>/Alternate|オルタネイト/i.test(x.r)&&isW(x.res)},{n:"脱出成功",d:"ラウンドタイプ「サボタージュ」を生存",i:"🔪",c:x=>/Sabotage|サボタージュ/i.test(x.r)&&isW(x.res)},{n:"夜明けの始まり",d:"ラウンドタイプ「ミッドナイト」を生存",i:"🕛",c:x=>/Midnight|ミッドナイト/i.test(x.r)&&isW(x.res)},{n:"消えゆく記憶",d:"「ミスティックムーン」生存",i:"🌙",c:x=>/Mystic Moon/i.test(x.r)&&isW(x.res)},{n:"終末の日",d:"「トワイライト」生存",i:"🌆",c:x=>/Twilight/i.test(x.r)&&isW(x.res)},{n:"戦争",d:"「ブラッドムーン」生存",i:"⚔️",c:x=>/Bloodmoon/i.test(x.r)&&isW(x.res)},{n:"付き添い人",d:"「ソルスティス」生存",i:"☀️",c:x=>/Solstice/i.test(x.r)&&isW(x.res)},{n:"何かおかしい",d:"「ゴースト」生存",i:"👻",c:x=>/Ghost/i.test(x.r)&&isW(x.res)},{n:"サバイバー",d:"初めてラウンドを勝利する",i:"🏅",c:x=>isW(x.res)},{n:"YOU DIED!",d:"初めて死亡する",i:"💀",c:x=>!isW(x.res)},{n:"灰燼から",d:"「Glaggle Gang」生存",i:"🟡",c:x=>hasK(x,'Glaggle Gang')&&isW(x.res)},{n:"ミュートされた？",d:"「Ambush」生存",i:"🤫",c:x=>hasK(x,'Ambush')&&isW(x.res)},{n:"史上最高のパフォーマンス",d:"「Teuthida」生存",i:"🦑",c:x=>hasK(x,'Teuthida')&&isW(x.res)},{n:"衝突と解消",d:"「Convict Squad」生存",i:"💥",c:x=>hasK(x,'Convict Squad')&&isW(x.res)},{n:"日頃の行い",d:"「Angry Munci」生存",i:"😡",c:x=>hasK(x,'Angry Munci')&&isW(x.res)},{n:"削除されました",d:"「sm64.z64」生存",i:"🍄",c:x=>hasK(x,'sm64.z64')&&isW(x.res)},{n:"いつもの作業",d:"「Don't Touch Me」生存",i:"🔘",c:x=>hasK(x,"Don't Touch Me")&&isW(x.res)},{n:"復讐",d:"「Judas」生存",i:"🗡️",c:x=>hasK(x,'Judas')&&isW(x.res)},{n:"始マリノ祭リ",d:"「Walpurgisnacht」生存",i:"🎭",c:x=>hasK(x,'Walpurgisnacht')&&isW(x.res)},{n:"赤い霧が帰ってきます",d:"「The Red Mist」生存",i:"🪓",c:x=>hasK(x,'The Red Mist')&&isW(x.res)},{n:"OPテラー",d:"「Sakuya The Ripper」生存",i:"⏱️",c:x=>hasK(x,'Sakuya The Ripper')&&isW(x.res)},{n:"原初の信号",d:"「S.O.S」生存",i:"📡",c:x=>hasK(x,'S.O.S')&&isW(x.res)},{n:"止まらない食欲",d:"「The MeatBallMan」生存",i:"🍝",c:x=>hasK(x,'MeatBallMan')&&isW(x.res)},{n:"心なき機械",d:"「Nameless」生存",i:"🤖",c:x=>hasK(x,'Nameless')&&isW(x.res)},{n:"エンパシー",d:"「Apathy」生存",i:"😶",c:x=>hasK(x,'Apathy')&&isW(x.res)},{n:"楽園はそこにあった",d:"「Paradise Bird」生存",i:"🦩",c:x=>hasK(x,'Paradise Bird')&&isW(x.res)},{n:"失われた魂",d:"「Kimera」生存",i:"🧬",c:x=>hasK(x,'Kimera')&&isW(x.res)},{n:"汚染された",d:"「Beyond」遭遇",i:"👁️",c:x=>hasK(x,'Beyond')},{n:"バンバンたちが天国へ送るかのごとく",d:"「Garten Goers」生存",i:"👹",c:x=>hasK(x,'Garten Goers')&&isW(x.res)},{n:"燦爛たる幸福",d:"「Joy」生存",i:"💊",c:x=>hasK(x,'Joy')&&isW(x.res)},{n:"バスパス",d:"「Transportation Trio...」生存",i:"🚌",c:x=>hasK(x,'Transportation Trio & The Drifter')&&isW(x.res)},{n:"破滅",d:"「Monarch」生存",i:"👑",c:x=>hasK(x,'Monarch')&&isW(x.res)},{n:"全部彼女のせいだ",d:"「Restless Creator」生存",i:"👩‍💻",c:x=>hasK(x,'Restless Creator')&&isW(x.res)},{n:"追跡",d:"「Shadow Freddy」生存",i:"🐻",c:x=>hasK(x,'Shadow Freddy')&&isW(x.res)},{n:"ピカピカの25セント硬貨",d:"「Baldi」生存",i:"📏",c:x=>hasK(x,'Baldi')&&isW(x.res)},{n:":3",d:"「Parhelion」生存",i:"☀️",c:x=>hasK(x,'Parhelion')&&isW(x.res)},{n:"聞かないで",d:"「,D@;Q7Y」生存",i:"⁉️",c:x=>hasK(x,',D@;Q7Y')&&isW(x.res)},{n:"プレッシャー",d:"「Searchlights」生存",i:"🔦",c:x=>hasK(x,'Searchlights')&&isW(x.res)},{n:"侵入",d:"「Interloper」に殺される",i:"🚷",c:x=>hasK(x,'Interloper')&&!isW(x.res)},{n:"あっ",d:"「Toren's Shadow」遭遇",i:"💢",c:x=>hasK(x,"Toren's Shadow")},{n:"止まれ",d:"「The Guidance」に殺される",i:"🛑",c:x=>hasK(x,'The Guidance')&&!isW(x.res)},{n:"場所もタイミングも悪かった",d:"「MR MEGA」に殺される",i:"⚡",c:x=>hasK(x,'MR MEGA')&&!isW(x.res)},{n:"143",d:"「Hellmari」in Blackspace 殺される",i:"🎻",c:x=>/Blackspace/i.test(x.m)&&hasK(x,'Hellmari')&&!isW(x.res)},{n:"ベストオブパープルガイ",d:"「狂気」のPurple Guy生存",i:"🟪",c:x=>/Insanity|狂気/i.test(x.r)&&hasK(x,'Purple Guy')&&isW(x.res)},{n:"隠れんぼ王",d:"Rush/Ambush in Bloodbath/Midnight 生存",i:"🚪",c:x=>(/Bloodbath|Midnight/i.test(x.r))&&(hasK(x,'Rush')||hasK(x,'Ambush'))&&isW(x.res)},{n:"ザ・ワールド",d:"Sakuya in Bloodbath/Midnight 生存",i:"🔪",c:x=>(/Bloodbath|Midnight/i.test(x.r))&&(hasK(x,'Sakuya Izayoi')||hasK(x,'Sakuya The Ripper'))&&isW(x.res)},{n:"子供向けじゃないよ",d:"「MopeMope」生存",i:"🌸",c:x=>hasK(x,'MopeMope')&&isW(x.res)},{n:"あの子のように！",d:"「ブラッドバス」生存",i:"🩸",c:x=>/Bloodbath|ブラッドバス/i.test(x.r)&&isW(x.res)},{n:"完璧主義",d:"10ラウンド連続で生存",i:"🛡️",type:"streak",req:10},{n:"深淵を覗きし者",d:"15種類オルタネイト遭遇",i:"📖",type:"alt_count",req:15},{n:"異常な執念",d:"累計プレイ回数1000回",i:"🔥",type:"total",req:1000},{n:"社畜の鑑",d:"平日(9:00-18:00)プレイ",i:"🏢",type:"time",hMin:9,hMax:18},{n:"徹夜明けのメルトダウン",d:"深夜(2:00-5:00)プレイ",i:"☕",type:"time",hMin:2,hMax:5}
+        ];
 
-        // ★ V48: JavaScript内の画像参照パスを img/ へリファクタリング
+        let raw = [], filtered = [], page = 1, currLang = 'ja', charts = {};
 
-        function runSim() {
-            const r = document.getElementById('sRound').value, m = document.getElementById('sMap').value, k1 = document.getElementById('sKiller').value;
-            const isMulti = /Bloodbath|ブラッドバス|Midnight|ミッドナイト/i.test(r), k2 = isMulti ? document.getElementById('sKiller2').value : 'all', k3 = isMulti ? document.getElementById('sKiller3').value : 'all';
-            const face = document.getElementById('sim-ui-face'), msg = document.getElementById('sim-ui-msg');
-            const resEl = document.getElementById('simRes'), detEl = document.getElementById('simDet'), rBox = document.getElementById('simReportBox'), rFact = document.getElementById('simFactors');
-            
-            if (r === 'all' && m === 'all' && k1 === 'all' && k2 === 'all' && k3 === 'all') { resEl.innerText = '--%'; detEl.innerText = currLang==='ja'?'条件を設定してください。':'Select conditions to analyze.'; resEl.style.color = 'var(--acc)'; face.src = 'img/face_normal.png'; msg.innerText = currLang==='ja'?'条件を設定しなさい。話はそれからよ。':'Set the conditions first. Then we can talk.'; rBox.style.display = 'none'; return; }
-            const validData = filtered.filter(x => !x.afk);
-            if (validData.length === 0) { resEl.innerText = '???'; detEl.innerText = currLang==='ja'?'有効なデータがありません。':'No valid data available.'; return; }
-            let totW = 0; validData.forEach(x => { if(isW(x.res)) totW++; });
-            const baseRate = totW / validData.length;
-            const calcFactor = (filterFn, label) => { const sub = validData.filter(filterFn); if (sub.length < 5) return { name: label, diff: 0, text: "N/A", invalid: true }; let sw = 0; sub.forEach(x => { if(isW(x.res)) sw++; }); const rate = sw / sub.length; const diff = rate - baseRate; return { name: label, diff: diff, text: `${diff > 0 ? '+' : ''}${(diff*100).toFixed(1)}%`, invalid: false }; };
-            let factors = [], totalDiff = 0;
-            if (r !== 'all') { const f = calcFactor(x => x.r === r, `Round: ${r}`); factors.push(f); if(!f.invalid) totalDiff += f.diff; }
-            if (m !== 'all') { const f = calcFactor(x => x.m === m, `Map: ${m}`); factors.push(f); if(!f.invalid) totalDiff += f.diff; }
-            const killers = [k1, k2, k3].filter(k => k !== 'all');
-            killers.forEach(k => { const f = calcFactor(x => hasK(x, k), `Terror: ${k}`); factors.push(f); if(!f.invalid) totalDiff += f.diff; });
-            let finalExpected = (baseRate + totalDiff) * 100;
-            finalExpected = Math.max(0, Math.min(100, finalExpected));
-            resEl.innerText = finalExpected.toFixed(1) + '%'; detEl.innerText = currLang==='ja'?`ベース勝率(${(baseRate*100).toFixed(1)}%) + 複合要因予測`:`Base Rate(${(baseRate*100).toFixed(1)}%) + Synergy Factors`;
-            rBox.style.display = 'block'; rFact.innerHTML = `<div class="sim-factor"><span class="sim-base">Base Overall Win Rate</span><span class="sim-base">${(baseRate*100).toFixed(1)}%</span></div>`;
-            factors.forEach(f => { const cls = f.invalid ? 'color:#888;' : (f.diff >= 0 ? 'sim-pos' : 'sim-neg'); rFact.innerHTML += `<div class="sim-factor"><span>${f.name}</span><span class="${cls}">${f.text}</span></div>`; });
-            // ★ img/ パスへの変更
-            const simMsgs = {
-                high: { f: 'img/face_tsundere.png', c: 'var(--acc)', ja: `予測勝率 ${finalExpected.toFixed(1)}%……。データ上は完璧なシナジーね。油断して死なないでよ。`, en: `Predicted win rate ${finalExpected.toFixed(1)}%... Perfect synergy on paper. Don't die carelessly.` },
-                mid: { f: 'img/face_normal.png', c: 'var(--acc)', ja: `予測勝率 ${finalExpected.toFixed(1)}%。五分五分ね。プレイスキルでひっくり返しなさい。`, en: `Predicted win rate ${finalExpected.toFixed(1)}%. 50/50. Use your skills to flip the odds.` },
-                low: { f: 'img/face_angry.png', c: '#f44336', ja: `予測勝率 ${finalExpected.toFixed(1)}%。明らかなデバフ要因があるわ。レポートの内訳を見直しなさい。`, en: `Predicted win rate ${finalExpected.toFixed(1)}%. Clear debuff factors present. Review the report.` },
-                dead: { f: 'img/face_sigh.png', c: '#f44336', ja: `予測勝率 ${finalExpected.toFixed(1)}%。……論理的に考えて自殺行為ね。この組み合わせは諦めなさい。`, en: `Predicted win rate ${finalExpected.toFixed(1)}%. Logically, a suicide mission. Give up on this combo.` }
-            };
-            let st = 'dead'; if(finalExpected>=80) st='high'; else if(finalExpected>=50) st='mid'; else if(finalExpected>=20) st='low';
-            face.src = simMsgs[st].f; resEl.style.color = simMsgs[st].c; msg.innerText = simMsgs[st][currLang];
+        function tab(t) { document.querySelectorAll('.tab-btn, .tab-content').forEach(el=>el.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelector(`button[onclick="tab('${t}')"]`).classList.add('active'); renderC(); }
+        function toggleLang() { currLang = currLang === 'ja' ? 'en' : 'ja'; document.querySelectorAll('[data-ja]').forEach(el => { const t = el.getAttribute(`data-${currLang}`); if(t) el.innerText = t; }); if(raw.length){ updAch(); updNemesis(); updUi(); runSim(); initF(); } }
+        function clearCache() { localStorage.clear(); alert(currLang==='ja'?"キャッシュ消去完了":"Cache cleared"); }
+
+        function parseCSV(t) { 
+            let skp = 0;
+            raw = t.trim().split('\n').slice(1).map(line => { 
+                let c = []; let inQ = false; let cur = ''; 
+                for(let i=0; i<line.length; i++) { if(line[i]==='"') inQ=!inQ; else if(line[i]===',' && !inQ){ c.push(cur.trim().replace(/^"|"$/g,'')); cur=''; } else cur+=line[i]; } 
+                c.push(cur.trim().replace(/^"|"$/g, '')); 
+                while(c.length>0 && c[c.length-1]==='') c.pop();
+                if(c.length<4){ skp++; return null; }
+                const k = c.length>=5 ? c.slice(3,-1).join(', ') : c[3];
+                return { t:c[0]||'', m:c[1]||'', r:c[2]||'', k:k||'None', res:c[c.length-1], afk:false }; 
+            }).filter(x => x); 
+            if(skp>0) console.warn("Skipped "+skp);
         }
 
+        window.onload = () => { try{ const s=localStorage.getItem('ton_v49_final'); if(s){parseCSV(s);initF();upd();updateSimDropdowns();runSim();} }catch(e){console.warn("Mem mode");} };
+        document.getElementById('csvFile').onchange = e => { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>{ try{localStorage.setItem('ton_v49_final',ev.target.result);}catch(err){} parseCSV(ev.target.result); initF(); upd(); updateSimDropdowns(); runSim(); }; r.readAsText(f); };
+
+        function getCategorizedTerrors(filterRound = 'all') {
+            let vK = new Set(), alt = [], cls = [];
+            let target = filterRound==='all' ? raw : raw.filter(x=>x.r===filterRound);
+            target.forEach(x => { if(!x.afk) x.k.split(/[\/,]+/).forEach(i=>{ const v=i.trim(); if(v&&v!=='None')vK.add(v); }); });
+            const nAlt = SHEET_ALTERNATE.map(norm);
+            vK.forEach(k => { if(nAlt.includes(norm(k))) alt.push(k); else cls.push(k); });
+            return { alt:alt.sort(), cls:cls.sort() };
+        }
+
+        function initF() { 
+            const dS = new Set(), rS = new Set(), mS = new Set();
+            raw.forEach(x => { dS.add(x.t.split(' ')[0]); rS.add(x.r); mS.add(x.m); });
+            const fSimp = (id, s, rev=false) => { const el=document.getElementById(id); el.innerHTML=`<option value="all">${currLang==='ja'?'全て/Any':'All'}</option>`; let a=Array.from(s).sort(); if(rev)a.reverse(); a.forEach(v=>el.innerHTML+=`<option value="${v}">${v}</option>`); }; 
+            fSimp('fDate', dS, true); fSimp('fRound', rS); fSimp('sRound', rS); fSimp('sMap', mS);
+            updateMainDropdowns(); updateSimDropdowns();
+        }
+
+        function updateMainDropdowns() {
+            const r=document.getElementById('fRound').value, el=document.getElementById('fKiller'), cur=el.value;
+            const {alt,cls} = getCategorizedTerrors(r);
+            el.innerHTML = `<option value="all">${currLang==='ja'?'全Terror':'All Terrors'}</option>`;
+            if(alt.length>0){ el.innerHTML+='<optgroup label="Alternate">'; alt.forEach(v=>el.innerHTML+=`<option value="${v}">${v}</option>`); el.innerHTML+='</optgroup>'; }
+            if(cls.length>0){ el.innerHTML+='<optgroup label="Classic">'; cls.forEach(v=>el.innerHTML+=`<option value="${v}">${v}</option>`); el.innerHTML+='</optgroup>'; }
+            el.value = (alt.includes(cur)||cls.includes(cur)) ? cur : 'all';
+        }
+
+        function updateSimDropdowns() {
+            const r = document.getElementById('sRound').value, isM = /Bloodbath|Midnight/i.test(r);
+            document.getElementById('sKiller2').style.display=isM?'block':'none'; document.getElementById('sKiller3').style.display=isM?'block':'none';
+            const {alt,cls} = getCategorizedTerrors(r), gb = getCategorizedTerrors('all');
+            const fS = (id,l,arr) => { const el=document.getElementById(id), cur=el.value; el.innerHTML=`<option value="all">${l}</option>`; arr.forEach(v=>el.innerHTML+=`<option value="${v}">${v}</option>`); el.value=arr.includes(cur)?cur:'all'; };
+            if(/Bloodbath/i.test(r)){ fS('sKiller','Terror 1',gb.cls); fS('sKiller2','Terror 2',gb.cls); fS('sKiller3','Terror 3',gb.cls); }
+            else if(/Midnight/i.test(r)){ fS('sKiller','Terror 1',gb.cls); fS('sKiller2','Terror 2',gb.cls); fS('sKiller3','Alternate',gb.alt); }
+            else { const el=document.getElementById('sKiller'), cur=el.value; el.innerHTML=`<option value="all">${currLang==='ja'?'テラー指定なし':'Any Terror'}</option>`; if(alt.length)el.innerHTML+=`<optgroup label="Alt">${alt.map(v=>`<option value="${v}">${v}</option>`).join('')}</optgroup>`; if(cls.length)el.innerHTML+=`<optgroup label="Cls">${cls.map(v=>`<option value="${v}">${v}</option>`).join('')}</optgroup>`; el.value=(alt.includes(cur)||cls.includes(cur))?cur:'all'; }
+        }
+
+        function upd() { 
+            const lim=parseInt(document.getElementById('afkVal').value)||10, exA=document.getElementById('exAFK').checked;
+            let strk=0, st=-1; raw.forEach(x=>x.afk=false);
+            for(let i=0; i<raw.length; i++){ if(!isW(raw[i].res)){ if(strk===0)st=i; strk++; }else{ if(strk>=lim)for(let j=st;j<i;j++)raw[j].afk=true; strk=0; } }
+            if(strk>=lim)for(let j=st;j<raw.length;j++)raw[j].afk=true;
+            const df=document.getElementById('fDate').value, rf=document.getElementById('fRound').value, kf=document.getElementById('fKiller').value, resf=document.getElementById('fRes').value, exC=document.getElementById('exClassic').checked; 
+            filtered = raw.filter(x => (df==='all'||x.t.includes(df)) && (rf==='all'||x.r===rf) && (kf==='all'||x.k.includes(kf)) && (resf==='all'||(resf==='Win'?isW(x.res):!isW(x.res))) && !(exC&&isC(x.r)) && !(exA&&x.afk)); 
+            page=1; render(); 
+        }
+
+        ['fDate','fKiller','fRes','exClassic','exAFK','vMode','afkVal'].forEach(id=>{ const e=document.getElementById(id); if(e)e.onchange=upd; });
+        document.getElementById('fRound').onchange=()=>{updateMainDropdowns();upd();};
+        ['sMap','sKiller','sKiller2','sKiller3'].forEach(id=>{ const e=document.getElementById(id); if(e)e.onchange=runSim; });
+        document.getElementById('sRound').onchange=()=>{updateSimDropdowns();runSim();};
+        
+        function render() { 
+            let w=0; filtered.forEach(x=>{if(isW(x.res))w++;}); 
+            document.getElementById('tg').innerText=filtered.length; document.getElementById('tw').innerText=w; document.getElementById('wr').innerText=filtered.length?(w/filtered.length*100).toFixed(1):0; 
+            if(filtered.length) document.getElementById('lDt').innerText=filtered[filtered.length-1].t; 
+            const tb=document.getElementById('hBody'), rev=filtered.slice().reverse(), tp=Math.ceil(rev.length/50)||1; tb.innerHTML=''; 
+            rev.slice((page-1)*50, page*50).forEach(x=>{ const st=x.afk?'color:#666;':'', tg=x.afk?' <span style="color:red;font-size:10px;">[AFK]</span>':''; tb.innerHTML+=`<tr style="${st}"><td>${x.t.slice(5,16)}</td><td>${x.r}</td><td>${x.k}${tg}</td><td class="${isW(x.res)?'w':'l'}">${x.res[0]}</td></tr>`; }); 
+            document.getElementById('pgInf').innerText=`${page} / ${tp}`; 
+            updRankings(); updUnb(); updAch(); updNemesis(); updUi(); renderC(); 
+        }
+        function pg(v) { page+=v; render(); }
+
+        function updAch() {
+            const b=document.getElementById('achBox'); b.innerHTML=''; let u=new Set(), st=0, ms=0, al=new Set();
+            raw.filter(x=>!x.afk).forEach(x=>{ if(isW(x.res)){st++; if(st>ms)ms=st;}else st=0; ACH.forEach((a,i)=>{if(!u.has(i)&&a.c&&a.c(x))u.add(i);}); x.k.split(/[\/,]+/).forEach(k=>{if(SHEET_ALTERNATE.map(norm).includes(norm(k.trim())))al.add(k.trim());}); });
+            ACH.forEach((a,i)=>{ if(a.type==='streak'&&ms>=a.req)u.add(i); if(a.type==='total'&&raw.length>=a.req)u.add(i); if(a.type==='alt_count'&&al.size>=a.req)u.add(i); if(a.type==='time'&&raw.some(x=>{const h=parseInt((x.t.match(/\s(\d+):/)||[0,-1])[1]);return h>=a.hMin&&h<=a.hMax;}))u.add(i); });
+            document.getElementById('achTot').innerText=ACH.length; document.getElementById('achCnt').innerText=u.size; document.getElementById('achPct').innerText=ACH.length?((u.size/ACH.length)*100).toFixed(1):0;
+            ACH.forEach((a,i)=>{ const isU=u.has(i); let dt=a.type&&!isU&&a.n.includes("Secret")?"???":(currLang==='en'?(ACH_I18N[a.n]||a.d):a.d), nt=currLang==='en'&&ACH_I18N[a.n]?ACH_I18N[a.n]:a.n; b.innerHTML+=`<div class="ach-card ${isU?'unlocked':''}"><div class="ach-icon">${a.i}</div><div><div class="ach-name">${nt}</div><div class="ach-desc">${dt}</div></div></div>`; });
+        }
+
+        function updNemesis() {
+            const v=filtered.filter(x=>!x.afk); let s={}, tE=0, tL=0;
+            v.forEach(x=>{ const isL=!isW(x.res); x.k.split(/[\/,]+/).forEach(k=>{ const n=k.trim(); if(n&&n!=='None'&&!n.includes('???')){ if(!s[n])s[n]={e:0,l:0}; s[n].e++; if(isL)s[n].l++; tE++; if(isL)tL++; } }); });
+            const k=Object.keys(s); if(!k.length)return;
+            const m=tL/tE||0, C=tE/k.length; let res=[];
+            k.forEach(x=>{ const a=s[x]; if(a.e>=3) res.push({n:x, e:a.e, l:a.l, r:(a.l/a.e*100).toFixed(1), sc:((C*m+a.l)/(C+a.e))*100}); });
+            res.sort((a,b)=>b.sc-a.sc); const nB=document.getElementById('nemList'); nB.innerHTML=''; res.slice(0,10).forEach((x,i)=>nB.innerHTML+=`<div class="nem-row"><span class="nem-rank">#${i+1}</span><div style="flex:1;"><b>${x.n}</b><br><span style="font-size:10px;color:#888;">Enc:${x.e} L:${x.l} (${x.r}%)</span></div><b style="color:var(--nem);">${x.sc.toFixed(1)}</b></div>`);
+            res.sort((a,b)=>a.sc-b.sc); const pB=document.getElementById('preyList'); pB.innerHTML=''; res.slice(0,10).forEach((x,i)=>pB.innerHTML+=`<div class="nem-row"><span class="nem-rank">#${i+1}</span><div style="flex:1;"><b>${x.n}</b><br><span style="font-size:10px;color:#888;">Enc:${x.e} W:${x.e-x.l} (${(100-x.r).toFixed(1)}%)</span></div><b style="color:var(--prey);">${x.sc.toFixed(1)}</b></div>`);
+        }
+
+        function runSim() {
+            const r=document.getElementById('sRound').value, m=document.getElementById('sMap').value, k1=document.getElementById('sKiller').value, isM=/Bloodbath|Midnight/i.test(r), k2=isM?document.getElementById('sKiller2').value:'all', k3=isM?document.getElementById('sKiller3').value:'all';
+            const f=document.getElementById('sim-ui-face'), ms=document.getElementById('sim-ui-msg'), rE=document.getElementById('simRes'), dE=document.getElementById('simDet'), rB=document.getElementById('simReportBox'), rF=document.getElementById('simFactors');
+            if(r==='all'&&m==='all'&&k1==='all'&&k2==='all'&&k3==='all'){ rE.innerText='--%'; dE.innerText=currLang==='ja'?'条件を設定してください':'Set conditions'; f.src='img/face_normal.png'; ms.innerText=currLang==='ja'?'設定しなさい。':'Set it.'; rB.style.display='none'; return; }
+            const v=filtered.filter(x=>!x.afk); if(!v.length)return;
+            let tw=0; v.forEach(x=>{if(isW(x.res))tw++;}); const bR=tw/v.length;
+            const cF=(fn,l)=>{ const s=v.filter(fn); if(s.length<5)return {n:l, d:0, t:"N/A", iv:true}; let sw=0; s.forEach(x=>{if(isW(x.res))sw++;}); const d=(sw/s.length)-bR; return {n:l, d:d, t:`${d>0?'+':''}${(d*100).toFixed(1)}%`, iv:false}; };
+            let fa=[], tD=0;
+            if(r!=='all'){ const x=cF(x=>x.r===r,`Round: ${r}`); fa.push(x); if(!x.iv)tD+=x.d; } if(m!=='all'){ const x=cF(x=>x.m===m,`Map: ${m}`); fa.push(x); if(!x.iv)tD+=x.d; }
+            [k1,k2,k3].filter(k=>k!=='all').forEach(k=>{ const x=cF(x=>hasK(x,k),`Terror: ${k}`); fa.push(x); if(!x.iv)tD+=x.d; });
+            let fE=Math.max(0,Math.min(100,(bR+tD)*100)); rE.innerText=fE.toFixed(1)+'%'; dE.innerText=`Base(${ (bR*100).toFixed(1) }%) + Synergy`;
+            rB.style.display='block'; rF.innerHTML=''; fa.forEach(x=>{ rF.innerHTML+=`<div class="sim-factor"><span>${x.n}</span><span style="color:${x.iv?'#888':(x.d>=0?'var(--acc)':'#f44336')};">${x.t}</span></div>`; });
+            let st='dead'; if(fE>=80)st='high';else if(fE>=50)st='mid';else if(fE>=20)st='low';
+            const sM={high:{f:'img/face_tsundere.png',c:'var(--acc)',ja:'完璧ね。',en:'Perfect.'}, mid:{f:'img/face_normal.png',c:'var(--acc)',ja:'五分五分。',en:'50/50.'}, low:{f:'img/face_angry.png',c:'#f44336',ja:'デバフよ。',en:'Debuffed.'}, dead:{f:'img/face_sigh.png',c:'#f44336',ja:'自殺行為ね。',en:'Suicide.'}};
+            f.src=sM[st].f; rE.style.color=sM[st].c; ms.innerText=sM[st][currLang];
+        }
+
+        function updRankings() {
+            const kM={}, mM={}, rM={}, t=filtered.length; filtered.forEach(x=>{ const w=isW(x.res); x.k.split(/[\/,]+/).forEach(k=>{ const n=k.trim(); if(n&&n!=='None'&&!n.includes('???')){ if(!kM[n])kM[n]={t:0,w:0}; kM[n].t++; if(w)kM[n].w++; }}); if(!mM[x.m])mM[x.m]={t:0,w:0}; mM[x.m].t++; if(w)mM[x.m].w++; if(!rM[x.r])rM[x.r]={t:0,w:0}; rM[x.r].t++; if(w)rM[x.r].w++; });
+            const fD=(id,m,c)=>{ const el=document.getElementById(id); el.innerHTML=''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).slice(0,10).forEach(([n,s])=>{ el.innerHTML+=`<div class="rank-item"><span>${n} <span style="color:#888;font-size:10px;">(${s.t}x)</span></span><b style="color:${c};">${(s.w/s.t*100).toFixed(0)}%</b></div>`; }); };
+            fD('dashK',kM,'var(--sub)'); fD('dashM',mM,'var(--acc)'); fD('dashR',rM,'#ffeb3b');
+            const fF=(id,m)=>{ const el=document.querySelector(`#${id} tbody`); el.innerHTML=''; Object.entries(m).sort((a,b)=>b[1].t-a[1].t).forEach(([n,s])=>{ el.innerHTML+=`<tr><td>${n}</td><td>${s.t}</td><td class="w">${s.w}</td><td class="l">${s.t-s.w}</td><td>${(s.w/s.t*100).toFixed(1)}%</td></tr>`; }); };
+            fF('fRankK',kM); fF('fRankM',mM); fF('fRankR',rM);
+        }
+
+        function updUnb() {
+            const l=document.getElementById('unbL'); l.innerHTML=''; const e=new Set(), u=new Set();
+            filtered.forEach(x=>{ const s=(x.r+' '+x.k).toLowerCase(); if(!s.includes('unbound')&&!s.includes('アンバウンド'))return; let id=null; for(const[i,a]of Object.entries(MASTER)){ if(a.some(m=>s.includes(m.toLowerCase()))){ id=i; break; } } if(id)e.add(id); else x.k.split(/[\/,]+/).forEach(k=>{if(k.trim()&&k.trim()!=='None')u.add(k.trim());}); });
+            Array.from(e).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(id=>{ const t=MASTER[id][0]; l.innerHTML+=`<div class="unb-card"><div class="unb-title">#${id}: ${t}</div><div>${MASTER[id].slice(1).map(k=>`<span class="unb-tag">${k}</span>`).join('')}</div></div>`; });
+            if(u.size) l.innerHTML+=`<div class="unb-card" style="border-color:#f44336;"><div class="unb-title" style="color:#f44336;border-color:#f44336;">Unknown</div><div>${Array.from(u).map(k=>`<span class="unb-tag" style="border-color:#f44336;color:#f44336;">${k}</span>`).join('')}</div></div>`;
+        }
+
+        function renderC() {
+            const rc=document.getElementById('radar').getContext('2d'); if(charts.r)charts.r.destroy();
+            let s={ov:{t:0,w:0},cl:{t:0,w:0},al:{t:0,w:0},ub:{t:0,w:0},mu:{t:0,w:0},sp:{t:0,w:0}};
+            filtered.forEach(x=>{ const w=isW(x.res); s.ov.t++; if(w)s.ov.w++; const r=x.r.toLowerCase(); if(r.includes('classic')||r.includes('クラシック')){s.cl.t++;if(w)s.cl.w++;}else if(r.includes('alternate')||r.includes('オルタネイト')){s.al.t++;if(w)s.al.w++;}else if(r.includes('unbound')||r.includes('アンバウンド')){s.ub.t++;if(w)s.ub.w++;}else if(r.includes('blood')||r.includes('midnight')||r.includes('ブラッド')||r.includes('ミッドナイト')){s.mu.t++;if(w)s.mu.w++;}else{s.sp.t++;if(w)s.sp.w++;} });
+            const c=(o)=>o.t?(o.w/o.t*100).toFixed(1):0;
+            charts.r=new Chart(rc,{type:'radar',data:{labels:['Overall','Classic','Alternate','Unbound','Multi','Special'],datasets:[{data:[c(s.ov),c(s.cl),c(s.al),c(s.ub),c(s.mu),c(s.sp)],backgroundColor:'rgba(76,175,80,0.2)',borderColor:'#4CAF50',borderWidth:2,pointBackgroundColor:'#4CAF50'}]},options:{maintainAspectRatio:false,scales:{r:{max:100,beginAtZero:true,grid:{color:'#444'},ticks:{display:false},pointLabels:{color:'#ccc',font:{size:10}}}},plugins:{legend:{display:false}}}});
+
+            if(document.getElementById('t-chart').classList.contains('active')){
+                const mc=document.getElementById('mainChart').getContext('2d'), md=document.getElementById('vMode').value; if(charts.m)charts.m.destroy();
+                if(md==='trend'){ const v={}; filtered.forEach(x=>{ const d=x.t.split(' ')[0]; if(!v[d])v[d]={w:0,t:0}; v[d].t++; if(isW(x.res))v[d].w++; }); const l=Object.keys(v).sort(); charts.m=new Chart(mc,{type:'line',data:{labels:l,datasets:[{label:'Win%',data:l.map(k=>(v[k].w/v[k].t*100).toFixed(1)),borderColor:'#4CAF50'}]},options:{maintainAspectRatio:false}}); }
+                else if(md==='time'){ const v=Array.from({length:24},()=>({w:0,t:0})); filtered.forEach(x=>{ const h=parseInt((x.t.match(/\s(\d+):/)||[0,0])[1]); v[h].t++; if(isW(x.res))v[h].w++; }); charts.m=new Chart(mc,{type:'bar',data:{labels:v.map((_,i)=>i+'h'),datasets:[{type:'line',label:'Win%',data:v.map(x=>x.t?x.w/x.t*100:0),borderColor:'#4CAF50',yAxisID:'y'},{type:'bar',label:'Plays',data:v.map(x=>x.t),backgroundColor:'rgba(100,181,246,0.3)',yAxisID:'y1'}]},options:{maintainAspectRatio:false,scales:{y:{max:100},y1:{position:'right',grid:{drawOnChartArea:false}}}}}); }
+                else if(md==='killer'||md==='map'){ const v={}; filtered.forEach(x=>{ const i=md==='killer'?x.k.split(/[\/,]+/):[x.m]; i.forEach(k=>{ const n=k.trim(); if(!n||n==='None'||n.includes('???'))return; if(!v[n])v[n]={w:0,l:0}; isW(x.res)?v[n].w++:v[n].l++; }); }); const l=Object.keys(v).sort((a,b)=>(v[b].w+v[b].l)-(v[a].w+v[a].l)).slice(0,20); charts.m=new Chart(mc,{type:'bar',data:{labels:l,datasets:[{label:'Win%',data:l.map(k=>(v[k].w/(v[k].w+v[k].l)*100).toFixed(1)),backgroundColor:'#4CAF50'},{label:'Loss%',data:l.map(k=>(v[k].l/(v[k].w+v[k].l)*100).toFixed(1)),backgroundColor:'#F44336'}]},options:{maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,max:100}}}}); }
+                else { const k=md.replace('p_',''), v={}; filtered.forEach(x=>{ const i=(k==='killer')?x.k.split(/[\/,]+/):(k==='round'?[x.r]:[x.m]); i.forEach(j=>{ const n=j.trim(); if(n&&n!=='None'&&!(k==='killer'&&n.includes('???')))v[n]=(v[n]||0)+1; }); }); const l=Object.entries(v).sort((a,b)=>b[1]-a[1]).slice(0,15); charts.m=new Chart(mc,{type:'pie',data:{labels:l.map(x=>x[0]),datasets:[{data:l.map(x=>x[1]),backgroundColor:l.map((_,i)=>`hsl(${i*24},70%,45%)`)}]},options:{maintainAspectRatio:false}}); }
+            }
+        }
+        
         function updUi() { 
-            if(!filtered.length) return; 
-            const f = document.getElementById('ui-face'), m = document.getElementById('ui-msg'); 
-            let w=0; filtered.forEach(x=>{ if(isW(x.res)) w++; }); 
-            const r = (w/filtered.length*100); 
-            let cStreak = 0; let sType = null;
-            for(let i=filtered.length-1; i>=0; i--) { const isWin = isW(filtered[i].res); if(sType === null) { sType = isWin; cStreak = 1; } else if(sType === isWin) { cStreak++; } else { break; } }
-            const rItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-            // ★ img/ パスへの変更
-            const DB = { 
-                grind: { f: "img/face_angry.png", ja: [ `${filtered.length}回も周回してるの！？ どんだけ暇なのよ。たまには別のことしなさい。`, `ログが${filtered.length}件……。その熱量をなんで仕事に向けられないのよ。社会的にアウトね。` ], en: [ `You've looped ${filtered.length} times!? Don't you have a job? Do something else.`, `${filtered.length} logs... Why can't you direct this much passion to your real work? You're socially doomed.` ] }, 
-                w_streak: { f: "img/face_tsundere.png", ja: [ `現在 ${cStreak} 連勝中ね。……まぁ、あんたにしては上出来じゃない。調子に乗らないことね。`, `ふーん、${cStreak} 連勝。この調子で私のデータを汚さないように立ち回りなさいよ。` ], en: [ `You're on a ${cStreak}-win streak. Not bad for you... Don't get cocky though.`, `Hmm, ${cStreak} wins in a row. Keep it up and try not to pollute my data.` ] }, 
-                l_streak: { f: "img/face_sigh.png", ja: [ `現在 ${cStreak} 連敗中……。完全に沼ってるじゃない。非論理的なプレイはやめて気分転換しなさい。`, `${cStreak} 連敗……。見てるこっちが哀れになるわ。意地にならずに大人しく寝なさい。` ], en: [ `You're on a ${cStreak}-loss streak... Completely stuck in the mud. Take a break.`, `${cStreak} losses... It's pathetic to watch. Stop being stubborn and go to sleep.` ] }, 
-                high: { f: "img/face_tsundere.png", ja: [ `勝率 ${r.toFixed(1)}%……。ま、当然の結果ね。褒めてないわよ。`, `勝率 ${r.toFixed(1)}%ね。データ上は優秀ってことになってるわ。……あくまでデータ上はね。` ], en: [ `Win rate ${r.toFixed(1)}%... Naturally. I'm not praising you, though.`, `Win rate ${r.toFixed(1)}%. You look competent on paper. Just on paper.` ] }, 
-                low: { f: "img/face_sigh.png", ja: [ `勝率 ${r.toFixed(1)}%……。泥沼ね。やり方を見直したら？`, `勝率 ${r.toFixed(1)}%。……死にたいなら止めないわ。さっさとログアウトしなさい。` ], en: [ `Win rate ${r.toFixed(1)}%... A total mess. Rethink your strategy.`, `Win rate ${r.toFixed(1)}%. If you want to die, I won't stop you. Just log out.` ] }, 
-                normal: { f: "img/face_normal.png", ja: [ `勝率 ${r.toFixed(1)}%。平均的ね。次。`, `勝率 ${r.toFixed(1)}%ね。可もなく不可もなく。面白みがないわ。` ], en: [ `Win rate ${r.toFixed(1)}%. Completely average. Next.`, `Win rate ${r.toFixed(1)}%. Neither good nor bad. So boring.` ] } 
-            }; 
-            let c = "normal"; if (cStreak >= 4 && !sType) c = "l_streak"; else if (cStreak >= 4 && sType) c = "w_streak"; else if (filtered.length >= 100 && Math.random() > 0.6) c = "grind"; else if (r >= 70) c = "high"; else if (r < 30 && filtered.length > 5) c = "low"; 
-            f.src = DB[c].f; m.innerText = rItem(DB[c][currLang]); 
+            if(!filtered.length)return; const f=document.getElementById('ui-face'), m=document.getElementById('ui-msg'); 
+            let w=0; filtered.forEach(x=>{if(isW(x.res))w++;}); const r=(w/filtered.length*100); 
+            let s=0, t=null; for(let i=filtered.length-1;i>=0;i--){const isW_res=isW(filtered[i].res); if(t===null){t=isW_res;s=1;}else if(t===isW_res){s++;}else break;}
+            const D={g:{f:"img/face_angry.png",j:"周回しすぎ。仕事しなさい。",e:"Too many plays. Go work."}, w:{f:"img/face_tsundere.png",j:`${s}連勝中ね。調子に乗らないこと。`,e:`${s} win streak. Don't be cocky.`}, l:{f:"img/face_sigh.png",j:`${s}連敗中。見てて哀れだわ。`,e:`${s} losses. It's pathetic.`}, h:{f:"img/face_tsundere.png",j:`勝率${r.toFixed(1)}%。当然の結果ね。`,e:`${r.toFixed(1)}%. Naturally.`}, lw:{f:"img/face_sigh.png",j:`勝率${r.toFixed(1)}%。さっさとログアウトしなさい。`,e:`${r.toFixed(1)}%. Just log out.`}, n:{f:"img/face_normal.png",j:`勝率${r.toFixed(1)}%。凡人ね。`,e:`${r.toFixed(1)}%. Average.`}};
+            let c="n"; if(s>=4&&!t)c="l"; else if(s>=4&&t)c="w"; else if(filtered.length>=100&&Math.random()>0.6)c="g"; else if(r>=70)c="h"; else if(r<30&&filtered.length>5)c="lw"; 
+            f.src=D[c].f; m.innerText=D[c][currLang==='ja'?'j':'e']; 
         }
     </script>
 </body>
