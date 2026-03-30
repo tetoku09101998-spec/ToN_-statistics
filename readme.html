@@ -15,29 +15,125 @@
             --warning: #ff9800;
             --danger: #f44336;
         }
-        body { font-family: 'Segoe UI', Meiryo, sans-serif; background: var(--bg-color); color: var(--text-main); line-height: 1.7; margin: 0; padding: 40px 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 50px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--accent); padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { margin: 0; color: var(--accent); font-size: 28px; }
-        select { background: #333; color: #fff; border: 1px solid #555; padding: 6px 15px; border-radius: 20px; cursor: pointer; outline: none; }
+        body { 
+            font-family: 'Segoe UI', Meiryo, sans-serif; 
+            background: var(--bg-color); 
+            color: var(--text-main); 
+            line-height: 1.7; 
+            margin: 0; 
+            padding: 40px 20px; 
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: var(--card-bg); 
+            padding: 50px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6); 
+        }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start; 
+            border-bottom: 2px solid var(--accent); 
+            padding-bottom: 20px; 
+            margin-bottom: 30px; 
+        }
+        .header h1 { 
+            margin: 0; 
+            color: var(--accent); 
+            font-size: 28px; 
+        }
+        .header p {
+            margin: 5px 0 0 0; 
+            color: var(--text-sub); 
+        }
+        select { 
+            background: #333; 
+            color: #fff; 
+            border: 1px solid #555; 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            outline: none; 
+            transition: all 0.3s ease;
+        }
+        select:hover {
+            background: #444;
+            border-color: var(--accent);
+        }
         
-        h2 { font-size: 22px; border-left: 6px solid var(--accent); padding-left: 15px; margin: 40px 0 20px; color: #fff; }
-        h3 { font-size: 18px; color: var(--accent); margin-top: 25px; }
+        h2 { 
+            font-size: 22px; 
+            border-left: 6px solid var(--accent); 
+            padding-left: 15px; 
+            margin: 40px 0 20px; 
+            color: #fff; 
+        }
+        h3 { 
+            font-size: 18px; 
+            color: var(--accent); 
+            margin-top: 25px; 
+        }
         
-        .step-box { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .step-box strong { color: var(--accent); display: block; margin-bottom: 8px; font-size: 16px; }
+        .step-box { 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid #333; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            transition: transform 0.2s ease;
+        }
+        .step-box:hover {
+            transform: translateX(5px);
+            border-color: #555;
+        }
+        .step-box strong { 
+            color: var(--accent); 
+            display: block; 
+            margin-bottom: 8px; 
+            font-size: 16px; 
+        }
         
-        code { background: #000; color: #ffeb3b; padding: 3px 8px; border-radius: 4px; font-family: 'Consolas', monospace; }
-        a { color: var(--link); text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        code { 
+            background: #000; 
+            color: #ffeb3b; 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            font-family: 'Consolas', monospace; 
+        }
+        a { 
+            color: var(--link); 
+            text-decoration: none; 
+            transition: color 0.2s ease;
+        }
+        a:hover { 
+            color: #90CAF9;
+            text-decoration: underline; 
+        }
 
         ul { padding-left: 20px; }
         li { margin-bottom: 10px; }
 
-        .warning-area { background: rgba(255, 152, 0, 0.1); border: 1px solid var(--warning); padding: 20px; border-radius: 10px; margin-top: 50px; }
-        .warning-area h4 { color: var(--warning); margin: 0 0 10px 0; }
+        .warning-area { 
+            background: rgba(255, 152, 0, 0.1); 
+            border: 1px solid var(--warning); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-top: 50px; 
+        }
+        .warning-area h4 { 
+            color: var(--warning); 
+            margin: 0 0 10px 0; 
+            font-size: 18px;
+        }
         
-        .footer { text-align: center; margin-top: 50px; font-size: 13px; color: #666; }
+        .footer { 
+            text-align: center; 
+            margin-top: 50px; 
+            font-size: 13px; 
+            color: #666; 
+        }
     </style>
 </head>
 <body>
@@ -45,7 +141,7 @@
         <div class="header">
             <div>
                 <h1 data-i18n="title">ToN Stats Tracker v1.1</h1>
-                <p style="margin: 5px 0 0 0; color: #888;" data-i18n="version">Build 20260309</p>
+                <p data-i18n="version">Build 20260309</p>
             </div>
             <select id="langSelect">
                 <option value="ja">日本語 (JP)</option>
@@ -68,8 +164,8 @@
 
         <h2 data-i18n="h_setup">⚙️ 初期設定</h2>
         <ul>
-            <li data-i18n="setup_1">VRChatを起動し、メニューの <strong>Settings > OSC</strong> を開き、<strong>Enabled</strong> に設定します。</li>
-            <li data-i18n="setup_2">本ツールの全ファイルを同じフォルダに展開します。</li>
+            <li data-i18n="setup_1"><a href="https://github.com/tetoku09101998-spec/ToN_-statistics/commits?author=tetoku09101998-spec" target="_blank">GitHub</a> から <code>ton_tracker.ps1</code> と <code>start_tracker.bat</code> をダウンロードし、同一フォルダに保存します。</li>
+            <li data-i18n="setup_2">VRChatを起動し、メニューの <strong>Settings > OSC</strong> を開き、<strong>Enabled</strong> に設定します。</li>
         </ul>
 
         <h2 data-i18n="h_usage">🚀 使用方法</h2>
@@ -106,21 +202,58 @@
     <script>
         const i18n = {
             ja: {
-                title: "ToN Stats Tracker v1.1", version: "Build 20260309", intro: "VRChatの「Terrors of Nowhere」の戦績を詳細に記録・分析する補助ツールです。",
-                h_req: "📋 必須コンポーネント", req_1_title: "1. ToN Save Manager", req_1_desc: "情報を中継するために必須です。以下のリンクから導入してください。", req_2_title: "2. Windows PowerShell", req_2_desc: "OS標準の環境で動作します。",
-                h_setup: "⚙️ 初期設定", setup_1: "VRChatのOSCを有効にします。", setup_2: "ツールを同一フォルダに展開します。",
-                h_usage: "🚀 使用方法", use_1_title: "1. 記録の開始", use_1_desc: "start_tracker.batを起動し、「待機中」と出ればOKです。", use_2_title: "2. 統計の確認", use_2_desc: "WebビューアーでCSVを読み込んでください。",
-                h_faq: "❓ よくある質問", faq_1_q: "Q. 記録が開始されない", faq_1_a: "A. OSC設定とSave Managerの起動を確認してください。", faq_2_q: "Q. 統計が正しく表示されない", faq_2_a: "A. 最新版のWebビューアーを使用してください。",
-                h_warn: "⚖️ 免責事項", warn_title: "⚖️ 免責事項", warn_1: "サポートは行いません。", warn_2: "自己責任で使用してください。",
-                btn_readme: "📖 取扱説明書"
+                title: "ToN Stats Tracker v1.1", 
+                version: "Build 20260309", 
+                intro: "VRChatの人気ホラーゲーム「Terrors of Nowhere (ToN)」における、あなたの全戦績を詳細に記録・可視化するための高度な補助ツールセットです。",
+                h_req: "📋 必須コンポーネント", 
+                req_1_title: "1. ToN Save Manager (外部ツール)", 
+                req_1_desc: "VRChatのイベントを外部へ中継するために必須です。以下のリポジトリより最新版を導入してください。", 
+                req_2_title: "2. Windows PowerShell", 
+                req_2_desc: "OS標準のPowerShell 5.1以降が必要です。本ツールの記録プログラム（.ps1）を動作させます。",
+                h_setup: "⚙️ 初期設定", 
+                setup_1: "<a href='https://github.com/tetoku09101998-spec/ToN_-statistics/commits?author=tetoku09101998-spec' target='_blank'>GitHub</a> から <code>ton_tracker.ps1</code> と <code>start_tracker.bat</code> をダウンロードし、同一フォルダに保存します。", 
+                setup_2: "VRChatを起動し、メニューの <strong>Settings > OSC</strong> を開き、<strong>Enabled</strong> に設定します。",
+                h_usage: "🚀 使用方法", 
+                use_1_title: "1. 記録の開始 (プレイ前)", 
+                use_1_desc: "<code>start_tracker.bat</code> をダブルクリックして起動します。コンソールに青文字で「OSCパケットを待機しています...」と表示されれば、記録待機状態です。", 
+                use_2_title: "2. 統計の確認", 
+                use_2_desc: "以下の分析用Webサイトへアクセスし、本ツールフォルダ内の <code>ton_stats.csv</code> を読み込んでください。",
+                h_faq: "❓ よくある質問 (FAQ)", 
+                faq_1_q: "Q. 記録が開始されません", 
+                faq_1_a: "A. VRChatのOSC設定が「Enabled」になっているか、および「ToN Save Manager」が正しく起動しているかを確認してください。", 
+                faq_2_q: "Q. 統計ツールで「全部敗北」になります", 
+                faq_2_a: "A. CSVファイルのカラム順やデータ形式が変更されていないか確認してください。最新版のビューアーを使用することを推奨します。",
+                h_warn: "⚖️ 免責事項", 
+                warn_title: "⚖️ 免責事項", 
+                warn_1: "<strong>サポート非対象</strong>: 本ツールは個人開発のフリーウェアです。導入サポートや個別対応は一切行いません。", 
+                warn_2: "<strong>自己責任</strong>: 使用によるデータの損失、PCの不具合等について作者は一切の責任を負いません。"
             },
             en: {
-                title: "ToN Stats Tracker v1.1", version: "Build 20260309", intro: "A professional stat-logging and analysis toolset for ToN on VRChat.",
-                h_req: "📋 Requirements", req_1_title: "1. ToN Save Manager", req_1_desc: "Essential for relaying game data. Download from the link below.", req_2_title: "2. Windows PowerShell", req_2_desc: "Built-in environment is required.",
-                h_setup: "⚙️ Setup", setup_1: "Enable OSC in VRChat settings.", setup_2: "Extract all files to the same folder.",
-                h_usage: "🚀 How to Use", use_1_title: "1. Start Logging", use_1_desc: "Run start_tracker.bat. 'Waiting for OSC' means it's working.", use_2_title: "2. View Statistics", use_2_desc: "Load your CSV file into the Web Viewer.",
-                h_faq: "❓ FAQ", faq_1_q: "Q. Not logging anything?", faq_1_a: "A. Double-check your OSC settings and Save Manager status.", faq_2_q: "Q. Stats showing incorrect values?", faq_2_a: "A. Make sure you are using the latest version of the Web Viewer.",
-                h_warn: "⚖️ Disclaimer", warn_title: "⚖️ Disclaimer", warn_1: "No official support provided.", warn_2: "Use at your own risk."
+                title: "ToN Stats Tracker v1.1", 
+                version: "Build 20260309", 
+                intro: "An advanced auxiliary toolset for detailed recording and visualization of your complete battle records in VRChat's popular horror game 'Terrors of Nowhere (ToN)'.",
+                h_req: "📋 Requirements", 
+                req_1_title: "1. ToN Save Manager (External Tool)", 
+                req_1_desc: "Essential for relaying VRChat events externally. Please install the latest version from the repository below.", 
+                req_2_title: "2. Windows PowerShell", 
+                req_2_desc: "Windows built-in PowerShell 5.1 or later is required. It runs the recording program (.ps1) of this tool.",
+                h_setup: "⚙️ Setup", 
+                setup_1: "Download <code>ton_tracker.ps1</code> and <code>start_tracker.bat</code> from <a href='https://github.com/tetoku09101998-spec/ToN_-statistics/commits?author=tetoku09101998-spec' target='_blank'>GitHub</a> and save them in the same folder.", 
+                setup_2: "Open VRChat, go to <strong>Settings > OSC</strong> in the menu, and set it to <strong>Enabled</strong>.",
+                h_usage: "🚀 How to Use", 
+                use_1_title: "1. Start Logging (Before Playing)", 
+                use_1_desc: "Double-click <code>start_tracker.bat</code> to run. If the console displays 'Waiting for OSC packets...' in blue text, it is in standby mode.", 
+                use_2_title: "2. View Statistics", 
+                use_2_desc: "Access the analysis website below and load <code>ton_stats.csv</code> from this tool's folder.",
+                h_faq: "❓ FAQ", 
+                faq_1_q: "Q. The recording doesn't start.", 
+                faq_1_a: "A. Make sure VRChat's OSC setting is 'Enabled' and 'ToN Save Manager' is running correctly.", 
+                faq_2_q: "Q. The stats tool shows 'All Defeats'.", 
+                faq_2_a: "A. Check if the CSV file column order or data format has been changed. We recommend using the latest version of the viewer.",
+                h_warn: "⚖️ Disclaimer", 
+                warn_title: "⚖️ Disclaimer", 
+                warn_1: "<strong>No Support</strong>: This tool is freeware developed by an individual. No installation support or individual assistance will be provided.", 
+                warn_2: "<strong>At Your Own Risk</strong>: The author assumes no responsibility for any data loss, PC malfunctions, etc., caused by the use of this tool."
             }
         };
 
@@ -129,7 +262,7 @@
             const lang = e.target.value;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                el.textContent = i18n[lang][key] || key;
+                el.innerHTML = i18n[lang][key] || key;
             });
         });
     </script>
